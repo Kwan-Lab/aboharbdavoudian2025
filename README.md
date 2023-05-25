@@ -8,7 +8,7 @@ A set of scripts used to analyze data from whole brain lightsheet experiments.
 - generate output folders - add to git ignore to avoid uploading.
 
 ## Note on setup
-- Requires Python 3.10 or earlier.
+- Requires Python 3.10 or newer.
 - Recommend setting up Conda environment. environment.yml file I use included in base directory. Look here for instructions on using this file to initialize environment - [Link](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file)
 - file 'allGeneStructureInfo_allgenes_summary_struct.csv' can not be put on Github because it is to big. Get it from elsewhere and put it into 'Atlas' folder with the same name.
 
