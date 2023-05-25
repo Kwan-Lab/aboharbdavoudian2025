@@ -1,0 +1,1679 @@
+id,name,acronym,parent_structure_id,depth,count,volume (mm^3),density (cells/mm^3)
+-1,background,bkd,-2.0,-1.0,50342.0,699.556515625,71.96273478351252
+0,left root,root-L,-1.0,0.0,374545.0,250.9855625,1492.2969921825684
+1,left Basic cell groups and regions,grey-L,0.0,1.0,358629.0,224.5929375,1596.795535923742
+2,left Cerebrum,CH-L,1.0,2.0,287354.0,137.89371875,2083.8802710148825
+3,left Cerebral cortex,CTX-L,2.0,3.0,254219.0,110.753453125,2295.3595831732673
+4,left Cortical plate,CTXpl-L,3.0,4.0,242821.0,106.300359375,2284.291430693952
+5,left Isocortex,Isocortex-L,4.0,5.0,178971.0,61.627640625,2904.070287049059
+6,"left Frontal pole, cerebral cortex",FRP-L,5.0,6.0,702.0,0.4861875,1443.8873891245662
+7,"left Frontal pole, layer 1",FRP1-L,6.0,7.0,178.0,0.12675,1404.3392504930966
+8,"left Frontal pole, layer 2/3",FRP2/3-L,6.0,7.0,121.0,0.11703125,1033.9118825100134
+9,"left Frontal pole, layer 5",FRP5-L,6.0,7.0,279.0,0.185796875,1501.6398957194517
+10,"left Frontal pole, layer 6a",FRP6a-L,6.0,7.0,124.0,0.05609375,2210.5849582172705
+11,"left Frontal pole, layer 6b",FRP6b-L,6.0,7.0,0.0,0.000515625,0.0
+12,left Somatomotor areas,MO-L,5.0,6.0,14075.0,12.231046875,1150.7600407262767
+18,left Primary motor area,MOp-L,12.0,7.0,6659.0,5.676734375,1173.0335717883577
+19,"left Primary motor area, Layer 1",MOp1-L,18.0,8.0,809.0,0.664609375,1217.2563771012108
+20,"left Primary motor area, Layer 2/3",MOp2/3-L,18.0,8.0,2282.0,1.8444375,1237.2335739215887
+21,"left Primary motor area, Layer 5",MOp5-L,18.0,8.0,2119.0,1.636203125,1295.0714783654994
+22,"left Primary motor area, Layer 6a",MOp6a-L,18.0,8.0,1393.0,1.437953125,968.738115159352
+23,"left Primary motor area, Layer 6b",MOp6b-L,18.0,8.0,56.0,0.09353125,598.7303708653525
+24,left Secondary motor area,MOs-L,12.0,7.0,7416.0,6.5543125,1131.4687848649266
+25,"left Secondary motor area, layer 1",MOs1-L,24.0,8.0,1422.0,1.1643125,1221.3215953620697
+26,"left Secondary motor area, layer 2/3",MOs2/3-L,24.0,8.0,1924.0,1.901640625,1011.7579392794052
+27,"left Secondary motor area, layer 5",MOs5-L,24.0,8.0,2965.0,2.26159375,1311.0223708391484
+28,"left Secondary motor area, layer 6a",MOs6a-L,24.0,8.0,1086.0,1.189171875,913.2405691986282
+29,"left Secondary motor area, layer 6b",MOs6b-L,24.0,8.0,19.0,0.03759375,505.4031587697423
+30,left Somatosensory areas,SS-L,5.0,6.0,29851.0,16.666171875,1791.1131736723435
+37,left Primary somatosensory area,SSp-L,30.0,7.0,16568.0,12.1535,1363.2286995515697
+44,"left Primary somatosensory area, nose",SSp-n-L,37.0,8.0,2568.0,1.509703125,1700.9966777408638
+45,"left Primary somatosensory area, nose, layer 1",SSp-n1-L,44.0,9.0,464.0,0.2028125,2287.8274268104774
+46,"left Primary somatosensory area, nose, layer 2/3",SSp-n2/3-L,44.0,9.0,625.0,0.3201875,1951.9812609798946
+47,"left Primary somatosensory area, nose, layer 4",SSp-n4-L,44.0,9.0,462.0,0.274109375,1685.4585874707861
+48,"left Primary somatosensory area, nose, layer 5",SSp-n5-L,44.0,9.0,429.0,0.283515625,1513.144116836594
+49,"left Primary somatosensory area, nose, layer 6a",SSp-n6a-L,44.0,9.0,576.0,0.402328125,1431.6672492135617
+50,"left Primary somatosensory area, nose, layer 6b",SSp-n6b-L,44.0,9.0,12.0,0.02675,448.59813084112153
+51,"left Primary somatosensory area, barrel field",SSp-bfd-L,37.0,8.0,5350.0,3.145734375,1700.715750992167
+52,"left Primary somatosensory area, barrel field, layer 1",SSp-bfd1-L,51.0,9.0,707.0,0.419375,1685.8420268256334
+53,"left Primary somatosensory area, barrel field, layer 2/3",SSp-bfd2/3-L,51.0,9.0,1305.0,0.75821875,1721.1391831183282
+54,"left Primary somatosensory area, barrel field, layer 4",SSp-bfd4-L,51.0,9.0,1062.0,0.641265625,1656.0999975634122
+55,"left Primary somatosensory area, barrel field, layer 5",SSp-bfd5-L,51.0,9.0,1063.0,0.603984375,1759.979304100375
+56,"left Primary somatosensory area, barrel field, layer 6a",SSp-bfd6a-L,51.0,9.0,1131.0,0.648828125,1743.1426851294402
+57,"left Primary somatosensory area, barrel field, layer 6b",SSp-bfd6b-L,51.0,9.0,82.0,0.0740625,1107.1729957805906
+65,"left Primary somatosensory area, lower limb",SSp-ll-L,37.0,8.0,776.0,1.176484375,659.5922704030812
+66,"left Primary somatosensory area, lower limb, layer 1",SSp-ll1-L,65.0,9.0,152.0,0.149265625,1018.3188527164241
+67,"left Primary somatosensory area, lower limb, layer 2/3",SSp-ll2/3-L,65.0,9.0,166.0,0.32325,513.5344160866202
+68,"left Primary somatosensory area, lower limb, layer 4",SSp-ll4-L,65.0,9.0,74.0,0.1366875,541.3808870598995
+69,"left Primary somatosensory area, lower limb, layer 5",SSp-ll5-L,65.0,9.0,168.0,0.278,604.3165467625898
+70,"left Primary somatosensory area, lower limb, layer 6a",SSp-ll6a-L,65.0,9.0,202.0,0.263890625,765.4686482325775
+71,"left Primary somatosensory area, lower limb, layer 6b",SSp-ll6b-L,65.0,9.0,14.0,0.025390625,551.3846153846154
+72,"left Primary somatosensory area, mouth",SSp-m-L,37.0,8.0,5269.0,3.105328125,1696.7611111949723
+73,"left Primary somatosensory area, mouth, layer 1",SSp-m1-L,72.0,9.0,701.0,0.3904375,1795.4218024651834
+74,"left Primary somatosensory area, mouth, layer 2/3",SSp-m2/3-L,72.0,9.0,1400.0,0.7490625,1869.0029203170632
+75,"left Primary somatosensory area, mouth, layer 4",SSp-m4-L,72.0,9.0,606.0,0.4736875,1279.32444913577
+76,"left Primary somatosensory area, mouth, layer 5",SSp-m5-L,72.0,9.0,793.0,0.60871875,1302.7362800965143
+77,"left Primary somatosensory area, mouth, layer 6a",SSp-m6a-L,72.0,9.0,1693.0,0.82609375,2049.404198978627
+78,"left Primary somatosensory area, mouth, layer 6b",SSp-m6b-L,72.0,9.0,76.0,0.057328125,1325.7018261106568
+79,"left Primary somatosensory area, upper limb",SSp-ul-L,37.0,8.0,1205.0,1.88471875,639.3526885642751
+80,"left Primary somatosensory area, upper limb, layer 1",SSp-ul1-L,79.0,9.0,271.0,0.230640625,1174.988144434659
+81,"left Primary somatosensory area, upper limb, layer 2/3",SSp-ul2/3-L,79.0,9.0,235.0,0.4891875,480.38839913121245
+82,"left Primary somatosensory area, upper limb, layer 4",SSp-ul4-L,79.0,9.0,154.0,0.261640625,588.5936100328456
+83,"left Primary somatosensory area, upper limb, layer 5",SSp-ul5-L,79.0,9.0,253.0,0.395625,639.4944707740916
+84,"left Primary somatosensory area, upper limb, layer 6a",SSp-ul6a-L,79.0,9.0,286.0,0.470546875,607.8034202224806
+85,"left Primary somatosensory area, upper limb, layer 6b",SSp-ul6b-L,79.0,9.0,6.0,0.037078125,161.82048040455118
+86,"left Primary somatosensory area, trunk",SSp-tr-L,37.0,8.0,636.0,0.700375,908.0849544886669
+87,"left Primary somatosensory area, trunk, layer 1",SSp-tr1-L,86.0,9.0,137.0,0.10228125,1339.44393522762
+88,"left Primary somatosensory area, trunk, layer 2/3",SSp-tr2/3-L,86.0,9.0,114.0,0.21225,537.1024734982333
+89,"left Primary somatosensory area, trunk, layer 4",SSp-tr4-L,86.0,9.0,77.0,0.07596875,1013.5746606334841
+90,"left Primary somatosensory area, trunk, layer 5",SSp-tr5-L,86.0,9.0,117.0,0.17646875,663.0069063219408
+91,"left Primary somatosensory area, trunk, layer 6a",SSp-tr6a-L,86.0,9.0,160.0,0.11621875,1376.7141704759345
+92,"left Primary somatosensory area, trunk, layer 6b",SSp-tr6b-L,86.0,9.0,31.0,0.0171875,1803.6363636363635
+93,"left Primary somatosensory area, unassigned",SSp-un-L,37.0,8.0,764.0,0.63115625,1210.4768034856663
+94,"left Primary somatosensory area, unassigned, layer 1",SSp-un1-L,93.0,9.0,151.0,0.08315625,1815.858699736941
+95,"left Primary somatosensory area, unassigned, layer 2/3",SSp-un2/3-L,93.0,9.0,183.0,0.165390625,1106.4714218233348
+96,"left Primary somatosensory area, unassigned, layer 4",SSp-un4-L,93.0,9.0,136.0,0.09409375,1445.3669877117236
+97,"left Primary somatosensory area, unassigned, layer 5",SSp-un5-L,93.0,9.0,155.0,0.129125,1200.3872216844145
+98,"left Primary somatosensory area, unassigned, layer 6a",SSp-un6a-L,93.0,9.0,131.0,0.146953125,891.4407230196705
+99,"left Primary somatosensory area, unassigned, layer 6b",SSp-un6b-L,93.0,9.0,8.0,0.0124375,643.21608040201
+100,left Supplemental somatosensory area,SSs-L,30.0,7.0,13283.0,4.512671875,2943.488994532757
+101,"left Supplemental somatosensory area, layer 1",SSs1-L,100.0,8.0,1751.0,0.624,2806.0897435897436
+102,"left Supplemental somatosensory area, layer 2/3",SSs2/3-L,100.0,8.0,2586.0,1.072484375,2411.223939742712
+103,"left Supplemental somatosensory area, layer 4",SSs4-L,100.0,8.0,1381.0,0.5831875,2368.0205765727146
+104,"left Supplemental somatosensory area, layer 5",SSs5-L,100.0,8.0,3235.0,1.092734375,2960.4632873382425
+105,"left Supplemental somatosensory area, layer 6a",SSs6a-L,100.0,8.0,4030.0,1.037703125,3883.577010525048
+106,"left Supplemental somatosensory area, layer 6b",SSs6b-L,100.0,8.0,300.0,0.1025625,2925.0457038391223
+107,left Gustatory areas,GU-L,5.0,6.0,4064.0,0.884859375,4592.820186823471
+108,"left Gustatory areas, layer 1",GU1-L,107.0,7.0,278.0,0.0978125,2842.172523961661
+109,"left Gustatory areas, layer 2/3",GU2/3-L,107.0,7.0,1145.0,0.20109375,5693.861693861694
+110,"left Gustatory areas, layer 4",GU4-L,107.0,7.0,362.0,0.0735,4925.1700680272115
+111,"left Gustatory areas, layer 5",GU5-L,107.0,7.0,1404.0,0.272515625,5151.998165242819
+112,"left Gustatory areas, layer 6a",GU6a-L,107.0,7.0,866.0,0.219875,3938.601478112564
+113,"left Gustatory areas, layer 6b",GU6b-L,107.0,7.0,9.0,0.0200625,448.5981308411215
+114,left Visceral area,VISC-L,5.0,6.0,4959.0,1.177078125,4212.974393692008
+115,"left Visceral area, layer 1",VISC1-L,114.0,7.0,539.0,0.171578125,3141.426099626628
+116,"left Visceral area, layer 2/3",VISC2/3-L,114.0,7.0,1205.0,0.268859375,4481.896902423432
+117,"left Visceral area, layer 4",VISC4-L,114.0,7.0,420.0,0.09134375,4598.0157372562435
+118,"left Visceral area, layer 5",VISC5-L,114.0,7.0,1434.0,0.35340625,4057.6531965691047
+119,"left Visceral area, layer 6a",VISC6a-L,114.0,7.0,1294.0,0.267125,4844.1740758072065
+120,"left Visceral area, layer 6b",VISC6b-L,114.0,7.0,67.0,0.024765625,2705.3627760252366
+121,left Auditory areas,AUD-L,5.0,6.0,30494.0,2.903578125,10502.214401412051
+122,left Dorsal auditory area,AUDd-L,121.0,7.0,4425.0,0.607375,7285.449681004322
+123,"left Dorsal auditory area, layer 1",AUDd1-L,122.0,8.0,423.0,0.098125,4310.828025477706
+124,"left Dorsal auditory area, layer 2/3",AUDd2/3-L,122.0,8.0,1370.0,0.164,8353.658536585366
+125,"left Dorsal auditory area, layer 4",AUDd4-L,122.0,8.0,726.0,0.06609375,10984.397163120566
+126,"left Dorsal auditory area, layer 5",AUDd5-L,122.0,8.0,1226.0,0.17165625,7142.180957582377
+127,"left Dorsal auditory area, layer 6a",AUDd6a-L,122.0,8.0,571.0,0.092265625,6188.65368331922
+128,"left Dorsal auditory area, layer 6b",AUDd6b-L,122.0,8.0,109.0,0.015234375,7154.871794871795
+136,left Primary auditory area,AUDp-L,121.0,7.0,11568.0,1.07671875,10743.752720940358
+137,"left Primary auditory area, layer 1",AUDp1-L,136.0,8.0,1007.0,0.18984375,5304.3621399176955
+138,"left Primary auditory area, layer 2/3",AUDp2/3-L,136.0,8.0,2963.0,0.235625,12575.066312997347
+139,"left Primary auditory area, layer 4",AUDp4-L,136.0,8.0,1823.0,0.117375,15531.416400425986
+140,"left Primary auditory area, layer 5",AUDp5-L,136.0,8.0,4503.0,0.3574375,12598.006644518271
+141,"left Primary auditory area, layer 6a",AUDp6a-L,136.0,8.0,1069.0,0.149203125,7164.729291025239
+142,"left Primary auditory area, layer 6b",AUDp6b-L,136.0,8.0,203.0,0.027234375,7453.815261044177
+143,left Posterior auditory area,AUDpo-L,121.0,7.0,3053.0,0.306625,9956.787607011824
+144,"left Posterior auditory area, layer 1",AUDpo1-L,143.0,8.0,54.0,0.056703125,952.3284651419124
+145,"left Posterior auditory area, layer 2/3",AUDpo2/3-L,143.0,8.0,759.0,0.073265625,10359.56493921945
+146,"left Posterior auditory area, layer 4",AUDpo4-L,143.0,8.0,467.0,0.0373125,12515.912897822445
+147,"left Posterior auditory area, layer 5",AUDpo5-L,143.0,8.0,1318.0,0.0906875,14533.425223983459
+148,"left Posterior auditory area, layer 6a",AUDpo6a-L,143.0,8.0,384.0,0.039578125,9702.329253849191
+149,"left Posterior auditory area, layer 6b",AUDpo6b-L,143.0,8.0,71.0,0.009078125,7820.998278829605
+150,left Ventral auditory area,AUDv-L,121.0,7.0,11448.0,0.912859375,12540.81440528559
+151,"left Ventral auditory area, layer 1",AUDv1-L,150.0,8.0,1249.0,0.145921875,8559.374665381732
+152,"left Ventral auditory area, layer 2/3",AUDv2/3-L,150.0,8.0,2991.0,0.19434375,15390.255668113843
+153,"left Ventral auditory area, layer 4",AUDv4-L,150.0,8.0,2081.0,0.10675,19494.145199063234
+154,"left Ventral auditory area, layer 5",AUDv5-L,150.0,8.0,3624.0,0.30221875,11991.314238444837
+155,"left Ventral auditory area, layer 6a",AUDv6a-L,150.0,8.0,1382.0,0.141671875,9754.935480313223
+156,"left Ventral auditory area, layer 6b",AUDv6b-L,150.0,8.0,121.0,0.021953125,5511.743772241993
+157,left Visual areas,VIS-L,5.0,6.0,34082.0,6.73221875,5062.521178474778
+164,left Anterolateral visual area,VISal-L,157.0,7.0,1768.0,0.37953125,4658.377933305887
+165,"left Anterolateral visual area, layer 1",VISal1-L,164.0,8.0,25.0,0.058921875,424.29063908777516
+166,"left Anterolateral visual area, layer 2/3",VISal2/3-L,164.0,8.0,531.0,0.099625,5329.987452948557
+167,"left Anterolateral visual area, layer 4",VISal4-L,164.0,8.0,255.0,0.051671875,4934.986392500756
+168,"left Anterolateral visual area, layer 5",VISal5-L,164.0,8.0,566.0,0.101765625,5561.799477967143
+169,"left Anterolateral visual area, layer 6a",VISal6a-L,164.0,8.0,339.0,0.0563125,6019.977802441731
+170,"left Anterolateral visual area, layer 6b",VISal6b-L,164.0,8.0,52.0,0.011234375,4628.650904033379
+171,left Anteromedial visual area,VISam-L,157.0,7.0,1124.0,0.3951875,2844.2195160525066
+172,"left Anteromedial visual area, layer 1",VISam1-L,171.0,8.0,364.0,0.066859375,5444.262678195841
+173,"left Anteromedial visual area, layer 2/3",VISam2/3-L,171.0,8.0,296.0,0.104,2846.153846153846
+174,"left Anteromedial visual area, layer 4",VISam4-L,171.0,8.0,76.0,0.030171875,2518.902123252201
+175,"left Anteromedial visual area, layer 5",VISam5-L,171.0,8.0,238.0,0.11375,2092.3076923076924
+176,"left Anteromedial visual area, layer 6a",VISam6a-L,171.0,8.0,118.0,0.067796875,1740.4932011984326
+177,"left Anteromedial visual area, layer 6b",VISam6b-L,171.0,8.0,32.0,0.012609375,2537.794299876084
+178,left Lateral visual area,VISl-L,157.0,7.0,2754.0,0.61309375,4491.972067893369
+179,"left Lateral visual area, layer 1",VISl1-L,178.0,8.0,68.0,0.0928125,732.6599326599326
+180,"left Lateral visual area, layer 2/3",VISl2/3-L,178.0,8.0,783.0,0.150609375,5198.879551820729
+181,"left Lateral visual area, layer 4",VISl4-L,178.0,8.0,459.0,0.089640625,5120.446226250653
+182,"left Lateral visual area, layer 5",VISl5-L,178.0,8.0,806.0,0.157,5133.75796178344
+183,"left Lateral visual area, layer 6a",VISl6a-L,178.0,8.0,552.0,0.10353125,5331.723513431934
+184,"left Lateral visual area, layer 6b",VISl6b-L,178.0,8.0,86.0,0.0195,4410.25641025641
+185,left Primary visual area,VISp-L,157.0,7.0,19113.0,3.537703125,5402.657974586265
+186,"left Primary visual area, layer 1",VISp1-L,185.0,8.0,2430.0,0.630546875,3853.7975467723954
+187,"left Primary visual area, layer 2/3",VISp2/3-L,185.0,8.0,6465.0,0.99971875,6466.818792785471
+188,"left Primary visual area, layer 4",VISp4-L,185.0,8.0,2829.0,0.5121875,5523.367907260525
+189,"left Primary visual area, layer 5",VISp5-L,185.0,8.0,3998.0,0.776203125,5150.713609920083
+190,"left Primary visual area, layer 6a",VISp6a-L,185.0,8.0,3076.0,0.534015625,5760.131082306814
+191,"left Primary visual area, layer 6b",VISp6b-L,185.0,8.0,315.0,0.08503125,3704.5203969128997
+192,left Posterolateral visual area,VISpl-L,157.0,7.0,1416.0,0.397140625,3565.487665735531
+193,"left Posterolateral visual area, layer 1",VISpl1-L,192.0,8.0,276.0,0.0949375,2907.1757735352207
+194,"left Posterolateral visual area, layer 2/3",VISpl2/3-L,192.0,8.0,405.0,0.104203125,3886.6396761133606
+195,"left Posterolateral visual area, layer 4",VISpl4-L,192.0,8.0,142.0,0.0181875,7807.560137457045
+196,"left Posterolateral visual area, layer 5",VISpl5-L,192.0,8.0,446.0,0.121671875,3665.5965069988442
+197,"left Posterolateral visual area, layer 6a",VISpl6a-L,192.0,8.0,142.0,0.05375,2641.860465116279
+198,"left Posterolateral visual area, layer 6b",VISpl6b-L,192.0,8.0,5.0,0.004390625,1138.7900355871884
+199,left posteromedial visual area,VISpm-L,157.0,7.0,2080.0,0.522125,3983.7203734737855
+200,"left posteromedial visual area, layer 1",VISpm1-L,199.0,8.0,560.0,0.0939375,5961.4105123087165
+201,"left posteromedial visual area, layer 2/3",VISpm2/3-L,199.0,8.0,471.0,0.14671875,3210.223642172524
+202,"left posteromedial visual area, layer 4",VISpm4-L,199.0,8.0,176.0,0.049328125,3567.94425087108
+203,"left posteromedial visual area, layer 5",VISpm5-L,199.0,8.0,594.0,0.14246875,4169.3353805659135
+204,"left posteromedial visual area, layer 6a",VISpm6a-L,199.0,8.0,224.0,0.075359375,2972.4238026124817
+205,"left posteromedial visual area, layer 6b",VISpm6b-L,199.0,8.0,55.0,0.0143125,3842.794759825327
+206,left Laterointermediate area,VISli-L,157.0,7.0,1729.0,0.246234375,7021.765340440383
+207,"left Laterointermediate area, layer 1",VISli1-L,206.0,8.0,43.0,0.03734375,1151.4644351464435
+208,"left Laterointermediate area, layer 2/3",VISli2/3-L,206.0,8.0,435.0,0.05871875,7408.195848855775
+209,"left Laterointermediate area, layer 4",VISli4-L,206.0,8.0,257.0,0.02853125,9007.667031763416
+210,"left Laterointermediate area, layer 5",VISli5-L,206.0,8.0,568.0,0.07396875,7678.918462188424
+211,"left Laterointermediate area, layer 6a",VISli6a-L,206.0,8.0,356.0,0.03984375,8934.901960784315
+212,"left Laterointermediate area, layer 6b",VISli6b-L,206.0,8.0,70.0,0.007828125,8942.115768463074
+213,left Postrhinal area,VISpor-L,157.0,7.0,4098.0,0.641203125,6391.11046129103
+214,"left Postrhinal area, layer 1",VISpor1-L,213.0,8.0,411.0,0.12509375,3285.5358481139147
+215,"left Postrhinal area, layer 2/3",VISpor2/3-L,213.0,8.0,1044.0,0.186953125,5584.287505223569
+216,"left Postrhinal area, layer 4",VISpor4-L,213.0,8.0,437.0,0.03025,14446.280991735537
+217,"left Postrhinal area, layer 5",VISpor5-L,213.0,8.0,1642.0,0.192390625,8534.719402257775
+218,"left Postrhinal area, layer 6a",VISpor6a-L,213.0,8.0,482.0,0.090234375,5341.645021645021
+219,"left Postrhinal area, layer 6b",VISpor6b-L,213.0,8.0,82.0,0.01628125,5036.468330134357
+220,left Anterior cingulate area,ACA-L,5.0,6.0,4826.0,2.754296875,1752.171323216565
+226,"left Anterior cingulate area, dorsal part",ACAd-L,220.0,7.0,2670.0,1.556421875,1715.4731907118692
+227,"left Anterior cingulate area, dorsal part, layer 1",ACAd1-L,226.0,8.0,439.0,0.289625,1515.7531290461802
+228,"left Anterior cingulate area, dorsal part, layer 2/3",ACAd2/3-L,226.0,8.0,888.0,0.304125,2919.8520345252778
+229,"left Anterior cingulate area, dorsal part, layer 5",ACAd5-L,226.0,8.0,1002.0,0.600515625,1668.5660760284131
+230,"left Anterior cingulate area, dorsal part, layer 6a",ACAd6a-L,226.0,8.0,340.0,0.349875,971.7756341550554
+231,"left Anterior cingulate area, dorsal part, layer 6b",ACAd6b-L,226.0,8.0,1.0,0.01228125,81.42493638676845
+232,"left Anterior cingulate area, ventral part",ACAv-L,220.0,7.0,2156.0,1.197875,1799.8539079620161
+233,"left Anterior cingulate area, ventral part, layer 1",ACAv1-L,232.0,8.0,363.0,0.23403125,1551.0749098678061
+234,"left Anterior cingulate area, ventral part, layer 2/3",ACAv2/3-L,232.0,8.0,743.0,0.24753125,3001.6412069183184
+235,"left Anterior cingulate area, ventral part, layer 5",ACAv5-L,232.0,8.0,882.0,0.504171875,1749.4034152539746
+236,"left Anterior cingulate area, ventral part, 6a",ACAv6a-L,232.0,8.0,159.0,0.181234375,877.3170100870765
+237,"left Anterior cingulate area, ventral part, 6b",ACAv6b-L,232.0,8.0,9.0,0.03090625,291.2032355915066
+238,left Prelimbic area,PL-L,5.0,6.0,5999.0,1.198703125,5004.575257113808
+239,"left Prelimbic area, layer 1",PL1-L,238.0,7.0,512.0,0.25490625,2008.581586367537
+241,"left Prelimbic area, layer 2/3",PL2/3-L,238.0,7.0,1384.0,0.20753125,6668.8751694021985
+242,"left Prelimbic area, layer 5",PL5-L,238.0,7.0,3094.0,0.494078125,6262.167546883401
+243,"left Prelimbic area, layer 6a",PL6a-L,238.0,7.0,1006.0,0.231484375,4345.865676679042
+244,"left Prelimbic area, layer 6b",PL6b-L,238.0,7.0,3.0,0.010703125,280.2919708029197
+245,left Infralimbic area,ILA-L,5.0,6.0,2192.0,0.419796875,5221.572933338296
+246,"left Infralimbic area, layer 1",ILA1-L,245.0,7.0,312.0,0.073140625,4265.755180516983
+248,"left Infralimbic area, layer 2/3",ILA2/3-L,245.0,7.0,249.0,0.0715625,3479.475982532751
+249,"left Infralimbic area, layer 5",ILA5-L,245.0,7.0,1084.0,0.167359375,6477.079637755578
+250,"left Infralimbic area, layer 6a",ILA6a-L,245.0,7.0,546.0,0.102421875,5330.892448512586
+251,"left Infralimbic area, layer 6b",ILA6b-L,245.0,7.0,1.0,0.0053125,188.23529411764704
+252,left Orbital area,ORB-L,5.0,6.0,5406.0,2.946921875,1834.456503873215
+258,"left Orbital area, lateral part",ORBl-L,252.0,7.0,1923.0,1.36346875,1410.373358391969
+259,"left Orbital area, lateral part, layer 1",ORBl1-L,258.0,8.0,85.0,0.18784375,452.50374313758107
+260,"left Orbital area, lateral part, layer 2/3",ORBl2/3-L,258.0,8.0,310.0,0.31075,997.586484312148
+261,"left Orbital area, lateral part, layer 5",ORBl5-L,258.0,8.0,1084.0,0.603515625,1796.1423948220065
+262,"left Orbital area, lateral part, layer 6a",ORBl6a-L,258.0,8.0,440.0,0.2386875,1843.414506415292
+263,"left Orbital area, lateral part, layer 6b",ORBl6b-L,258.0,8.0,4.0,0.022671875,176.4300482425913
+264,"left Orbital area, medial part",ORBm-L,252.0,7.0,1657.0,0.694828125,2384.762418763633
+265,"left Orbital area, medial part, layer 1",ORBm1-L,264.0,8.0,572.0,0.205578125,2782.397203009805
+267,"left Orbital area, medial part, layer 2/3",ORBm2/3-L,264.0,8.0,233.0,0.158234375,1472.4992594055495
+268,"left Orbital area, medial part, layer 5",ORBm5-L,264.0,8.0,599.0,0.2359375,2538.8079470198677
+269,"left Orbital area, medial part, layer 6a",ORBm6a-L,264.0,8.0,253.0,0.093203125,2714.501257334451
+270,"left Orbital area, medial part, layer 6b",ORBm6b-L,264.0,8.0,0.0,0.001875,0.0
+272,"left Orbital area, ventrolateral part",ORBvl-L,252.0,7.0,1826.0,0.888625,2054.860036573358
+273,"left Orbital area, ventrolateral part, layer 1",ORBvl1-L,272.0,8.0,188.0,0.19271875,975.514837035836
+274,"left Orbital area, ventrolateral part, layer 2/3",ORBvl2/3-L,272.0,8.0,562.0,0.26178125,2146.8306076160916
+275,"left Orbital area, ventrolateral part, layer 5",ORBvl5-L,272.0,8.0,818.0,0.309953125,2639.1087362000303
+276,"left Orbital area, ventrolateral part, layer 6a",ORBvl6a-L,272.0,8.0,256.0,0.119,2151.2605042016808
+277,"left Orbital area, ventrolateral part, layer 6b",ORBvl6b-L,272.0,8.0,2.0,0.005171875,386.70694864048335
+278,left Agranular insular area,AI-L,5.0,6.0,11143.0,3.94978125,2821.1688938469692
+279,"left Agranular insular area, dorsal part",AId-L,278.0,7.0,5553.0,1.86365625,2979.626741787816
+280,"left Agranular insular area, dorsal part, layer 1",AId1-L,279.0,8.0,548.0,0.23034375,2379.0530457197124
+281,"left Agranular insular area, dorsal part, layer 2/3",AId2/3-L,279.0,8.0,1558.0,0.46315625,3363.875581944538
+282,"left Agranular insular area, dorsal part, layer 5",AId5-L,279.0,8.0,2207.0,0.75421875,2926.206753677232
+283,"left Agranular insular area, dorsal part, layer 6a",AId6a-L,279.0,8.0,1237.0,0.39071875,3165.9601695593055
+284,"left Agranular insular area, dorsal part, layer 6b",AId6b-L,279.0,8.0,3.0,0.02521875,118.95910780669145
+285,"left Agranular insular area, posterior part",AIp-L,278.0,7.0,3715.0,1.217265625,3051.922212951672
+286,"left Agranular insular area, posterior part, layer 1",AIp1-L,285.0,8.0,270.0,0.210953125,1279.9051922079846
+287,"left Agranular insular area, posterior part, layer 2/3",AIp2/3-L,285.0,8.0,1158.0,0.40159375,2883.5110108162785
+288,"left Agranular insular area, posterior part, layer 5",AIp5-L,285.0,8.0,1125.0,0.37634375,2989.2883832931993
+289,"left Agranular insular area, posterior part, layer 6a",AIp6a-L,285.0,8.0,1141.0,0.218109375,5231.3202951500825
+290,"left Agranular insular area, posterior part, layer 6b",AIp6b-L,285.0,8.0,21.0,0.010265625,2045.662100456621
+291,"left Agranular insular area, ventral part",AIv-L,278.0,7.0,1875.0,0.868859375,2158.0016904346576
+292,"left Agranular insular area, ventral part, layer 1",AIv1-L,291.0,8.0,246.0,0.12546875,1960.6475716064758
+293,"left Agranular insular area, ventral part, layer 2/3",AIv2/3-L,291.0,8.0,513.0,0.29709375,1726.7276743452194
+294,"left Agranular insular area, ventral part, layer 5",AIv5-L,291.0,8.0,828.0,0.3605625,2296.411856474259
+295,"left Agranular insular area, ventral part, layer 6a",AIv6a-L,291.0,8.0,288.0,0.084234375,3419.0317195325542
+296,"left Agranular insular area, ventral part, layer 6b",AIv6b-L,291.0,8.0,0.0,0.0015,0.0
+297,left Retrosplenial area,RSP-L,5.0,6.0,9462.0,5.243828125,1804.4069665231448
+298,"left Retrosplenial area, lateral agranular part",RSPagl-L,297.0,7.0,4071.0,1.178046875,3455.7198753232974
+299,"left Retrosplenial area, lateral agranular part, layer 1",RSPagl1-L,298.0,8.0,1076.0,0.253203125,4249.552607219995
+300,"left Retrosplenial area, lateral agranular part, layer 2/3",RSPagl2/3-L,298.0,8.0,1355.0,0.334421875,4051.7684436761206
+301,"left Retrosplenial area, lateral agranular part, layer 5",RSPagl5-L,298.0,8.0,913.0,0.366734375,2489.54028375442
+302,"left Retrosplenial area, lateral agranular part, layer 6a",RSPagl6a-L,298.0,8.0,588.0,0.20546875,2861.7490494296576
+303,"left Retrosplenial area, lateral agranular part, layer 6b",RSPagl6b-L,298.0,8.0,139.0,0.01821875,7629.502572898799
+325,"left Retrosplenial area, dorsal part",RSPd-L,297.0,7.0,3469.0,1.899359375,1826.405284676577
+326,"left Retrosplenial area, dorsal part, layer 1",RSPd1-L,325.0,8.0,949.0,0.415375,2284.682515798977
+327,"left Retrosplenial area, dorsal part, layer 2/3",RSPd2/3-L,325.0,8.0,1078.0,0.486953125,2213.7654420022463
+329,"left Retrosplenial area, dorsal part, layer 5",RSPd5-L,325.0,8.0,750.0,0.603390625,1242.9758914467723
+330,"left Retrosplenial area, dorsal part, layer 6a",RSPd6a-L,325.0,8.0,652.0,0.37765625,1726.4377327265204
+331,"left Retrosplenial area, dorsal part, layer 6b",RSPd6b-L,325.0,8.0,40.0,0.015984375,2502.4437927663735
+332,"left Retrosplenial area, ventral part",RSPv-L,297.0,7.0,1922.0,2.166421875,887.1771570345687
+333,"left Retrosplenial area, ventral part, layer 1",RSPv1-L,332.0,8.0,419.0,0.46271875,905.5176605659485
+335,"left Retrosplenial area, ventral part, layer 2/3",RSPv2/3-L,332.0,8.0,871.0,0.5099375,1708.0524574089961
+336,"left Retrosplenial area, ventral part, layer 5",RSPv5-L,332.0,8.0,478.0,0.8398125,569.1746669643522
+337,"left Retrosplenial area, ventral part, layer 6a",RSPv6a-L,332.0,8.0,142.0,0.329203125,431.3446295505245
+338,"left Retrosplenial area, ventral part, layer 6b",RSPv6b-L,332.0,8.0,12.0,0.02475,484.8484848484848
+339,left Posterior parietal association areas,PTLp-L,5.0,6.0,3474.0,1.227125,2831.0074360802687
+346,left Anterior area,VISa-L,339.0,7.0,1358.0,0.7190625,1888.5701868752715
+347,"left Anterior area, layer 1",VISa1-L,346.0,8.0,264.0,0.118875,2220.8201892744482
+348,"left Anterior area, layer 2/3",VISa2/3-L,346.0,8.0,394.0,0.2134375,1845.9736456808198
+349,"left Anterior area, layer 4",VISa4-L,346.0,8.0,189.0,0.077578125,2436.2537764350454
+350,"left Anterior area, layer 5",VISa5-L,346.0,8.0,308.0,0.177453125,1735.6696310645418
+351,"left Anterior area, layer 6a",VISa6a-L,346.0,8.0,179.0,0.1115625,1604.4817927170868
+352,"left Anterior area, layer 6b",VISa6b-L,346.0,8.0,24.0,0.02015625,1190.6976744186047
+353,left Rostrolateral visual area,VISrl-L,339.0,7.0,2116.0,0.5080625,4164.841923975889
+354,"left Rostrolateral area, layer 1",VISrl1-L,353.0,8.0,192.0,0.08478125,2264.65167711021
+355,"left Rostrolateral area, layer 2/3",VISrl2/3-L,353.0,8.0,739.0,0.13790625,5358.712893723091
+356,"left Rostrolateral area, layer 4",VISrl4-L,353.0,8.0,324.0,0.073390625,4414.732808175431
+357,"left Rostrolateral area, layer 5",VISrl5-L,353.0,8.0,554.0,0.12178125,4549.140364382859
+358,"left Rostrolateral area, layer 6a",VISrl6a-L,353.0,8.0,271.0,0.0756875,3580.511973575557
+359,"left Rostrolateral area, layer 6b",VISrl6b-L,353.0,8.0,36.0,0.014515625,2480.0861141011837
+360,left Temporal association areas,TEa-L,5.0,6.0,14173.0,1.55525,9113.00434013824
+361,"left Temporal association areas, layer 1",TEa1-L,360.0,7.0,1573.0,0.267375,5883.122954651707
+362,"left Temporal association areas, layer 2/3",TEa2/3-L,360.0,7.0,3516.0,0.351671875,9997.956191407116
+363,"left Temporal association areas, layer 4",TEa4-L,360.0,7.0,1835.0,0.1561875,11748.699479791916
+364,"left Temporal association areas, layer 5",TEa5-L,360.0,7.0,4793.0,0.4753125,10083.892176199868
+365,"left Temporal association areas, layer 6a",TEa6a-L,360.0,7.0,2229.0,0.261359375,8528.486877503437
+366,"left Temporal association areas, layer 6b",TEa6b-L,360.0,7.0,227.0,0.04334375,5237.2025955299205
+367,left Perirhinal area,PERI-L,5.0,6.0,713.0,0.395078125,1804.706347636939
+368,"left Perirhinal area, layer 1",PERI1-L,367.0,7.0,474.0,0.1113125,4258.281864121281
+369,"left Perirhinal area, layer 2/3",PERI2/3-L,367.0,7.0,178.0,0.16634375,1070.0732669547247
+370,"left Perirhinal area, layer 5",PERI5-L,367.0,7.0,34.0,0.0840625,404.46096654275095
+371,"left Perirhinal area, layer 6a",PERI6a-L,367.0,7.0,22.0,0.026703125,823.8736102984201
+372,"left Perirhinal area, layer 6b",PERI6b-L,367.0,7.0,5.0,0.00665625,751.1737089201878
+373,left Ectorhinal area,ECT-L,5.0,6.0,3356.0,0.85571875,3921.849322572399
+374,left Ectorhinal area/Layer 1,ECT1-L,373.0,7.0,848.0,0.132234375,6412.855961243059
+375,left Ectorhinal area/Layer 2/3,ECT2/3-L,373.0,7.0,980.0,0.23665625,4141.027333949557
+376,left Ectorhinal area/Layer 5,ECT5-L,373.0,7.0,760.0,0.26471875,2870.9715499940976
+377,left Ectorhinal area/Layer 6a,ECT6a-L,373.0,7.0,718.0,0.195265625,3677.0424901976476
+378,left Ectorhinal area/Layer 6b,ECT6b-L,373.0,7.0,50.0,0.02684375,1862.6309662398137
+379,left Olfactory areas,OLF-L,4.0,5.0,41622.0,23.352796875,1782.3132801946235
+380,left Main olfactory bulb,MOB-L,379.0,6.0,12441.0,8.23196875,1511.3031132437184
+386,left Accessory olfactory bulb,AOB-L,379.0,6.0,297.0,0.325625,912.0921305182342
+387,"left Accessory olfactory bulb, glomerular layer",AOBgl-L,386.0,7.0,48.0,0.0773125,620.8569118835893
+388,"left Accessory olfactory bulb, granular layer",AOBgr-L,386.0,7.0,145.0,0.110171875,1316.1253722876188
+389,"left Accessory olfactory bulb, mitral layer",AOBmi-L,386.0,7.0,104.0,0.138140625,752.8560117633752
+390,left Anterior olfactory nucleus,AON-L,379.0,6.0,2991.0,2.434671875,1228.502300746379
+398,left Taenia tecta,TT-L,379.0,6.0,885.0,0.71946875,1230.0742735525344
+399,"left Taenia tecta, dorsal part",TTd-L,398.0,7.0,654.0,0.36028125,1815.248503773094
+405,"left Taenia tecta, ventral part",TTv-L,398.0,7.0,231.0,0.3591875,643.1181485992691
+410,left Dorsal peduncular area,DP-L,379.0,6.0,449.0,0.250140625,1794.9903179461553
+416,left Piriform area,PIR-L,379.0,6.0,11950.0,5.782515625,2066.5746147465015
+421,left Nucleus of the lateral olfactory tract,NLOT-L,379.0,6.0,348.0,0.15934375,2183.9576387526963
+423,"left Nucleus of the lateral olfactory tract, molecular layer",NLOT1-L,421.0,7.0,96.0,0.05571875,1722.9388670779585
+424,"left Nucleus of the lateral olfactory tract, pyramidal layer",NLOT2-L,421.0,7.0,219.0,0.07475,2929.7658862876256
+425,"left Nucleus of the lateral olfactory tract, layer 3",NLOT3-L,421.0,7.0,33.0,0.028875,1142.857142857143
+426,left Cortical amygdalar area,COA-L,379.0,6.0,5329.0,1.6323125,3264.693494658651
+427,"left Cortical amygdalar area, anterior part",COAa-L,426.0,7.0,2706.0,0.383734375,7051.752921535893
+431,"left Cortical amygdalar area, posterior part",COAp-L,426.0,7.0,2623.0,1.248578125,2100.7896482248557
+432,"left Cortical amygdalar area, posterior part, lateral zone",COApl-L,431.0,8.0,1480.0,0.601015625,2462.4983751462364
+438,"left Cortical amygdalar area, posterior part, medial zone",COApm-L,431.0,8.0,1143.0,0.6475625,1765.0805906765754
+444,left Piriform-amygdalar area,PAA-L,379.0,6.0,2219.0,0.595578125,3725.791641524779
+449,left Postpiriform transition area,TR-L,379.0,6.0,798.0,0.699453125,1140.8913213448006
+454,left Hippocampal formation,HPF-L,4.0,5.0,22228.0,21.319921875,1042.5929386760477
+455,left Hippocampal region,HIP-L,454.0,6.0,9689.0,11.863359375,816.7163864577777
+456,left Ammon's horn,CA-L,455.0,7.0,6063.0,8.473609375,715.5156358620791
+457,left Field CA1,CA1-L,456.0,8.0,4216.0,5.10415625,825.99352243576
+462,left Field CA2,CA2-L,456.0,8.0,78.0,0.237890625,327.8817733990148
+467,left Field CA3,CA3-L,456.0,8.0,1769.0,3.1315625,564.8937231813193
+473,left Dentate gyrus,DG-L,455.0,7.0,3567.0,3.2985,1081.400636653024
+474,"left Dentate gyrus, molecular layer",DG-mo-L,473.0,8.0,1795.0,2.154328125,833.2064086105731
+475,"left Dentate gyrus, polymorph layer",DG-po-L,473.0,8.0,743.0,0.342515625,2169.24410382738
+476,"left Dentate gyrus, granule cell layer",DG-sg-L,473.0,8.0,1029.0,0.80165625,1283.5925622734185
+490,left Fasciola cinerea,FC-L,455.0,7.0,58.0,0.030546875,1898.7212276214832
+491,left Induseum griseum,IG-L,455.0,7.0,1.0,0.060703125,16.473616473616474
+492,left Retrohippocampal region,RHP-L,454.0,6.0,12352.0,9.24640625,1335.8703550365851
+493,left Entorhinal area,ENT-L,492.0,7.0,6515.0,5.704109375,1142.1590246067117
+494,"left Entorhinal area, lateral part",ENTl-L,493.0,8.0,3839.0,3.1885625,1203.990826587216
+495,"left Entorhinal area, lateral part, layer 1",ENTl1-L,494.0,9.0,1041.0,0.4903125,2123.135755258126
+496,"left Entorhinal area, lateral part, layer 2",ENTl2-L,494.0,9.0,1524.0,0.801859375,1900.58263021493
+500,"left Entorhinal area, lateral part, layer 3",ENTl3-L,494.0,9.0,418.0,0.6590625,634.2342342342342
+503,"left Entorhinal area, lateral part, layer 5",ENTl5-L,494.0,9.0,520.0,0.7134375,728.8655278142795
+505,"left Entorhinal area, lateral part, layer 6a",ENTl6a-L,494.0,9.0,336.0,0.523890625,641.3552447135315
+507,"left Entorhinal area, medial part, dorsal zone",ENTm-L,493.0,8.0,2676.0,2.515546875,1063.7845895835273
+508,"left Entorhinal area, medial part, dorsal zone, layer 1",ENTm1-L,507.0,9.0,787.0,0.62259375,1264.0666566280179
+509,"left Entorhinal area, medial part, dorsal zone, layer 2",ENTm2-L,507.0,9.0,536.0,0.630703125,849.8451628886411
+512,"left Entorhinal area, medial part, dorsal zone, layer 3",ENTm3-L,507.0,9.0,404.0,0.491546875,821.8951651355733
+514,"left Entorhinal area, medial part, dorsal zone, layer 5",ENTm5-L,507.0,9.0,473.0,0.456796875,1035.4711818026337
+516,"left Entorhinal area, medial part, dorsal zone, layer 6",ENTm6-L,507.0,9.0,476.0,0.31390625,1516.376306620209
+523,left Parasubiculum,PAR-L,492.0,7.0,1010.0,0.466609375,2164.5514516291064
+527,left Postsubiculum,POST-L,492.0,7.0,739.0,0.54015625,1368.1226496962684
+531,left Presubiculum,PRE-L,492.0,7.0,952.0,0.46190625,2061.0242879372167
+535,left Subiculum,SUB-L,492.0,7.0,1089.0,1.0515625,1035.6017830609212
+544,left Prosubiculum,ProS-L,492.0,7.0,1166.0,0.64990625,1794.1049189786988
+553,left Hippocampo-amygdalar transition area,HATA-L,492.0,7.0,392.0,0.2110625,1857.2697660645545
+554,left Area prostriata,APr-L,492.0,7.0,489.0,0.16109375,3035.4995150339473
+555,left Cortical subplate,CTXsp-L,3.0,4.0,11398.0,4.45309375,2559.5688390795726
+557,left Claustrum,CLA-L,555.0,5.0,752.0,0.276015625,2724.4834418341356
+558,left Endopiriform nucleus,EP-L,555.0,5.0,1729.0,1.395171875,1239.2738349889687
+559,"left Endopiriform nucleus, dorsal part",EPd-L,558.0,6.0,1084.0,0.908828125,1192.7447777873292
+560,"left Endopiriform nucleus, ventral part",EPv-L,558.0,6.0,645.0,0.48634375,1326.2224506843154
+561,left Lateral amygdalar nucleus,LA-L,555.0,5.0,2415.0,0.418609375,5769.1015639580455
+562,left Basolateral amygdalar nucleus,BLA-L,555.0,5.0,2843.0,0.950453125,2991.204852948429
+563,"left Basolateral amygdalar nucleus, anterior part",BLAa-L,562.0,6.0,1685.0,0.385328125,4372.896476217509
+564,"left Basolateral amygdalar nucleus, posterior part",BLAp-L,562.0,6.0,876.0,0.355703125,2462.727871732923
+565,"left Basolateral amygdalar nucleus, ventral part",BLAv-L,562.0,6.0,282.0,0.209421875,1346.5642020443183
+566,left Basomedial amygdalar nucleus,BMA-L,555.0,5.0,2394.0,0.7424375,3224.513847967001
+567,"left Basomedial amygdalar nucleus, anterior part",BMAa-L,566.0,6.0,1312.0,0.383953125,3417.0837911528915
+568,"left Basomedial amygdalar nucleus, posterior part",BMAp-L,566.0,6.0,1082.0,0.358484375,3018.262650917491
+569,left Posterior amygdalar nucleus,PA-L,555.0,5.0,976.0,0.483109375,2020.246450402665
+570,left Cerebral nuclei,CNU-L,2.0,3.0,33135.0,27.140265625,1220.8797237959973
+571,left Striatum,STR-L,570.0,4.0,30419.0,22.469265625,1353.8048153276038
+572,left Striatum dorsal region,STRd-L,571.0,5.0,13087.0,13.00915625,1005.9837662415654
+573,left Caudoputamen,CP-L,572.0,6.0,13087.0,13.00915625,1005.9837662415654
+574,left Striatum ventral region,STRv-L,571.0,5.0,2693.0,4.32478125,622.6904539969507
+575,left Nucleus accumbens,ACB-L,574.0,6.0,1247.0,2.19953125,566.9389784755274
+576,left Fundus of striatum,FS-L,574.0,6.0,181.0,0.2160625,837.7205669655772
+577,left Olfactory tubercle,OT-L,574.0,6.0,1265.0,1.9091875,662.585523946705
+585,left Lateral septal complex,LSX-L,571.0,5.0,5637.0,1.776625,3172.869907830859
+586,left Lateral septal nucleus,LS-L,585.0,6.0,5484.0,1.524359375,3597.5768509312315
+587,"left Lateral septal nucleus, caudal (caudodorsal) part",LSc-L,586.0,7.0,378.0,0.281609375,1342.2848582366976
+588,"left Lateral septal nucleus, rostral (rostroventral) part",LSr-L,586.0,7.0,3058.0,0.939234375,3255.843356457221
+589,"left Lateral septal nucleus, ventral part",LSv-L,586.0,7.0,2048.0,0.303515625,6747.593307593307
+590,left Septofimbrial nucleus,SF-L,585.0,6.0,145.0,0.2335625,620.8188386406208
+591,left Septohippocampal nucleus,SH-L,585.0,6.0,8.0,0.018703125,427.7360066833751
+592,left Striatum-like amygdalar nuclei,sAMY-L,571.0,5.0,6004.0,2.023546875,2967.0674172052477
+593,left Anterior amygdalar area,AAA-L,592.0,6.0,185.0,0.247109375,748.656338918748
+594,left Bed nucleus of the accessory olfactory tract,BA-L,592.0,6.0,18.0,0.012578125,1431.0559006211179
+595,left Central amygdalar nucleus,CEA-L,592.0,6.0,2140.0,0.659015625,3247.267468051308
+596,"left Central amygdalar nucleus, capsular part",CEAc-L,595.0,7.0,583.0,0.154609375,3770.793329964629
+597,"left Central amygdalar nucleus, lateral part",CEAl-L,595.0,7.0,513.0,0.130015625,3945.6796058166087
+598,"left Central amygdalar nucleus, medial part",CEAm-L,595.0,7.0,1044.0,0.374390625,2788.531363465632
+599,left Intercalated amygdalar nucleus,IA-L,592.0,6.0,267.0,0.091609375,2914.5488657683777
+600,left Medial amygdalar nucleus,MEA-L,592.0,6.0,3394.0,1.013234375,3349.6692213980605
+608,left Pallidum,PAL-L,570.0,4.0,2716.0,4.671,581.4600727895526
+609,"left Pallidum, dorsal region",PALd-L,608.0,5.0,142.0,0.993390625,142.94477562640577
+610,"left Globus pallidus, external segment",GPe-L,609.0,6.0,113.0,0.78159375,144.57638638998841
+611,"left Globus pallidus, internal segment",GPi-L,609.0,6.0,29.0,0.211796875,136.92364441165623
+612,"left Pallidum, ventral region",PALv-L,608.0,5.0,475.0,1.696140625,280.04753438412575
+613,left Substantia innominata,SI-L,612.0,6.0,452.0,1.513796875,298.58695539981215
+614,left Magnocellular nucleus,MA-L,612.0,6.0,23.0,0.18234375,126.13538988860326
+615,"left Pallidum, medial region",PALm-L,608.0,5.0,227.0,0.7436875,305.2357340953021
+616,left Medial septal complex,MSC-L,615.0,6.0,132.0,0.56753125,232.5863113264688
+617,left Medial septal nucleus,MS-L,616.0,7.0,86.0,0.200890625,428.09364548494983
+618,left Diagonal band nucleus,NDB-L,616.0,7.0,46.0,0.366640625,125.46345621137866
+619,left Triangular nucleus of septum,TRS-L,615.0,6.0,95.0,0.17615625,539.2939506829874
+620,"left Pallidum, caudal region",PALc-L,608.0,5.0,1658.0,0.673984375,2459.997681696998
+621,left Bed nuclei of the stria terminalis,BST-L,620.0,6.0,1658.0,0.670234375,2473.7615106655785
+638,left Bed nucleus of the anterior commissure,BAC-L,620.0,6.0,0.0,0.00375,0.0
+639,left Brain stem,BS-L,1.0,2.0,60750.0,59.824375,1015.4723722562918
+640,left Interbrain,IB-L,639.0,3.0,25324.0,17.695015625,1431.1374760371257
+641,left Thalamus,TH-L,640.0,4.0,9689.0,10.120140625,957.3977634327587
+642,"left Thalamus, sensory-motor cortex related",DORsm-L,641.0,5.0,1865.0,3.337578125,558.7884178741134
+643,left Ventral group of the dorsal thalamus,VENT-L,642.0,6.0,361.0,2.42896875,148.62274370553345
+644,left Ventral anterior-lateral complex of the thalamus,VAL-L,643.0,7.0,36.0,0.40915625,87.9859466890705
+645,left Ventral medial nucleus of the thalamus,VM-L,643.0,7.0,108.0,0.46290625,233.30858030108686
+646,left Ventral posterior complex of the thalamus,VP-L,643.0,7.0,174.0,1.417203125,122.77703663686178
+647,left Ventral posterolateral nucleus of the thalamus,VPL-L,646.0,8.0,35.0,0.438765625,79.76923898721556
+648,"left Ventral posterolateral nucleus of the thalamus, parvicellular part",VPLpc-L,646.0,8.0,1.0,0.04940625,20.24035420619861
+649,left Ventral posteromedial nucleus of the thalamus,VPM-L,646.0,8.0,54.0,0.8220625,65.68843609822854
+650,"left Ventral posteromedial nucleus of the thalamus, parvicellular part",VPMpc-L,646.0,8.0,84.0,0.10696875,785.2760736196319
+651,left Posterior triangular thalamic nucleus,PoT-L,643.0,7.0,43.0,0.139703125,307.79554859635385
+652,left Subparafascicular nucleus,SPF-L,642.0,6.0,602.0,0.10190625,5907.390371051824
+653,"left Subparafascicular nucleus, magnocellular part",SPFm-L,652.0,7.0,492.0,0.03465625,14196.573489630298
+654,"left Subparafascicular nucleus, parvicellular part",SPFp-L,652.0,7.0,110.0,0.06725,1635.6877323420074
+655,left Subparafascicular area,SPA-L,642.0,6.0,286.0,0.064859375,4409.5398699108655
+656,left Peripeduncular nucleus,PP-L,642.0,6.0,155.0,0.0305625,5071.5746421267895
+657,"left Geniculate group, dorsal thalamus",GENd-L,642.0,6.0,461.0,0.71128125,648.1261807477704
+658,left Medial geniculate complex,MG-L,657.0,7.0,203.0,0.34965625,580.5702028778264
+659,"left Medial geniculate complex, dorsal part",MGd-L,658.0,8.0,105.0,0.086046875,1220.265117123661
+660,"left Medial geniculate complex, ventral part",MGv-L,658.0,8.0,58.0,0.138546875,418.6308785384008
+661,"left Medial geniculate complex, medial part",MGm-L,658.0,8.0,40.0,0.1250625,319.84007996002003
+662,left Dorsal part of the lateral geniculate complex,LGd-L,657.0,7.0,258.0,0.361625,713.4462495679227
+663,"left Dorsal part of the lateral geniculate complex, shell",LGd-sh-L,662.0,8.0,74.0,0.103984375,711.6453794139744
+664,"left Dorsal part of the lateral geniculate complex, core",LGd-co-L,662.0,8.0,181.0,0.209796875,862.7392567215313
+665,"left Dorsal part of the lateral geniculate complex, ipsilateral zone",LGd-ip-L,662.0,8.0,3.0,0.04784375,62.70411495754409
+666,"left Thalamus, polymodal association cortex related",DORpm-L,641.0,5.0,7200.0,6.323328125,1138.640895691302
+667,left Lateral group of the dorsal thalamus,LAT-L,666.0,6.0,339.0,1.53896875,220.2773773021707
+668,left Lateral posterior nucleus of the thalamus,LP-L,667.0,7.0,180.0,0.6015625,299.2207792207792
+669,left Posterior complex of the thalamus,PO-L,667.0,7.0,34.0,0.626140625,54.30090085593791
+670,left Posterior limiting nucleus of the thalamus,POL-L,667.0,7.0,85.0,0.102546875,828.8892274874296
+671,left Suprageniculate nucleus,SGN-L,667.0,7.0,27.0,0.090890625,297.06034038164
+672,left Ethmoid nucleus of the thalamus,Eth-L,667.0,7.0,13.0,0.117828125,110.33019493435883
+674,left Anterior group of the dorsal thalamus,ATN-L,666.0,6.0,888.0,1.07915625,822.865085570324
+675,left Anteroventral nucleus of thalamus,AV-L,674.0,7.0,373.0,0.2078125,1794.8872180451126
+676,left Anteromedial nucleus,AM-L,674.0,7.0,68.0,0.205328125,331.17723156532986
+677,"left Anteromedial nucleus, dorsal part",AMd-L,676.0,8.0,38.0,0.122265625,310.79872204472844
+678,"left Anteromedial nucleus, ventral part",AMv-L,676.0,8.0,30.0,0.0830625,361.1738148984199
+679,left Anterodorsal nucleus,AD-L,674.0,7.0,133.0,0.08021875,1657.966497857421
+680,left Interanteromedial nucleus of the thalamus,IAM-L,674.0,7.0,14.0,0.02125,658.8235294117646
+681,left Interanterodorsal nucleus of the thalamus,IAD-L,674.0,7.0,158.0,0.056375,2802.660753880266
+682,left Lateral dorsal nucleus of thalamus,LD-L,674.0,7.0,142.0,0.508171875,279.4330166343818
+683,left Medial group of the dorsal thalamus,MED-L,666.0,6.0,1046.0,1.003234375,1042.6277508682856
+684,left Intermediodorsal nucleus of the thalamus,IMD-L,683.0,7.0,188.0,0.08503125,2210.951855935318
+685,left Mediodorsal nucleus of thalamus,MD-L,683.0,7.0,694.0,0.6888125,1007.5310770347518
+689,left Submedial nucleus of the thalamus,SMT-L,683.0,7.0,41.0,0.153609375,266.91079239141493
+690,left Perireunensis nucleus,PR-L,683.0,7.0,123.0,0.07578125,1623.0927835051548
+691,left Midline group of the dorsal thalamus,MTN-L,666.0,6.0,2553.0,0.584015625,4371.458383497873
+692,left Paraventricular nucleus of the thalamus,PVT-L,691.0,7.0,1729.0,0.217140625,7962.5818521983165
+693,left Parataenial nucleus,PT-L,691.0,7.0,457.0,0.115015625,3973.3731829914414
+694,left Nucleus of reuniens,RE-L,691.0,7.0,190.0,0.210328125,903.3504197310749
+695,left Xiphoid thalamic nucleus,Xi-L,691.0,7.0,177.0,0.04153125,4261.851015801354
+696,left Intralaminar nuclei of the dorsal thalamus,ILM-L,666.0,6.0,1192.0,0.800203125,1489.6217757210084
+697,left Rhomboid nucleus,RH-L,696.0,7.0,92.0,0.04453125,2065.964912280702
+698,left Central medial nucleus of the thalamus,CM-L,696.0,7.0,143.0,0.12253125,1167.0492221372099
+699,left Paracentral nucleus,PCN-L,696.0,7.0,34.0,0.11903125,285.6392754003675
+700,left Central lateral nucleus of the thalamus,CL-L,696.0,7.0,178.0,0.181703125,979.6199157279216
+701,left Parafascicular nucleus,PF-L,696.0,7.0,124.0,0.2445,507.157464212679
+702,left Posterior intralaminar thalamic nucleus,PIL-L,696.0,7.0,621.0,0.08790625,7064.344116601493
+703,left Reticular nucleus of the thalamus,RT-L,666.0,6.0,146.0,0.7235,201.7968210089841
+704,"left Geniculate group, ventral thalamus",GENv-L,666.0,6.0,340.0,0.26103125,1302.5260385490244
+705,left Intergeniculate leaflet of the lateral geniculate complex,IGL-L,704.0,7.0,57.0,0.0344375,1655.1724137931033
+706,left Intermediate geniculate nucleus,IntG-L,704.0,7.0,14.0,0.011171875,1253.1468531468531
+707,left Ventral part of the lateral geniculate complex,LGv-L,704.0,7.0,265.0,0.202109375,1311.171240819482
+710,left Subgeniculate nucleus,SubG-L,704.0,7.0,4.0,0.0133125,300.46948356807513
+711,left Epithalamus,EPI-L,666.0,6.0,696.0,0.33321875,2088.7179968114037
+712,left Medial habenula,MH-L,711.0,7.0,418.0,0.160234375,2608.678693320331
+713,left Lateral habenula,LH-L,711.0,7.0,278.0,0.172984375,1607.081564447656
+715,left Hypothalamus,HY-L,640.0,4.0,15635.0,7.574875,2064.0604630439448
+716,left Periventricular zone,PVZ-L,715.0,5.0,1139.0,0.38225,2979.7253106605626
+717,left Supraoptic nucleus,SO-L,716.0,6.0,40.0,0.02325,1720.4301075268818
+718,left Accessory supraoptic group,ASO-L,716.0,6.0,5.0,0.003046875,1641.0256410256409
+720,left Paraventricular hypothalamic nucleus,PVH-L,716.0,6.0,482.0,0.092796875,5194.140427681427
+731,"left Periventricular hypothalamic nucleus, anterior part",PVa-L,716.0,6.0,43.0,0.024609375,1747.3015873015875
+732,"left Periventricular hypothalamic nucleus, intermediate part",PVi-L,716.0,6.0,230.0,0.096640625,2379.9514955537593
+733,left Arcuate hypothalamic nucleus,ARH-L,716.0,6.0,339.0,0.14190625,2388.9011231006384
+734,left Periventricular region,PVR-L,715.0,5.0,2917.0,1.01753125,2866.742421915789
+735,left Anterodorsal preoptic nucleus,ADP-L,734.0,6.0,148.0,0.050390625,2937.0542635658912
+737,left Anteroventral preoptic nucleus,AVP-L,734.0,6.0,91.0,0.045921875,1981.6264035386184
+738,left Anteroventral periventricular nucleus,AVPV-L,734.0,6.0,84.0,0.090265625,930.5868097628527
+739,left Dorsomedial nucleus of the hypothalamus,DMH-L,734.0,6.0,1308.0,0.186125,7027.535258562793
+743,left Median preoptic nucleus,MEPO-L,734.0,6.0,10.0,0.01821875,548.885077186964
+744,left Medial preoptic area,MPO-L,734.0,6.0,568.0,0.27884375,2036.9830774403229
+745,left Vascular organ of the lamina terminalis,OV-L,734.0,6.0,1.0,0.004171875,239.7003745318352
+746,left Posterodorsal preoptic nucleus,PD-L,734.0,6.0,34.0,0.005765625,5897.018970189702
+747,left Parastrial nucleus,PS-L,734.0,6.0,127.0,0.048296875,2629.56971853769
+749,"left Periventricular hypothalamic nucleus, posterior part",PVp-L,734.0,6.0,136.0,0.062953125,2160.337552742616
+750,"left Periventricular hypothalamic nucleus, preoptic part",PVpo-L,734.0,6.0,81.0,0.070546875,1148.1727574750832
+751,left Subparaventricular zone,SBPV-L,734.0,6.0,131.0,0.0540625,2423.121387283237
+752,left Suprachiasmatic nucleus,SCH-L,734.0,6.0,73.0,0.033,2212.121212121212
+753,left Subfornical organ,SFO-L,734.0,6.0,1.0,0.010421875,95.95202398800599
+754,left Ventromedial preoptic nucleus,VMPO-L,734.0,6.0,57.0,0.025109375,2270.068450528936
+755,left Ventrolateral preoptic nucleus,VLPO-L,734.0,6.0,67.0,0.0334375,2003.7383177570093
+756,left Hypothalamic medial zone,MEZ-L,715.0,5.0,4800.0,1.916609375,2504.422686547696
+757,left Anterior hypothalamic nucleus,AHN-L,756.0,6.0,667.0,0.3546875,1880.5286343612336
+762,left Mammillary body,MBO-L,756.0,6.0,347.0,0.50525,686.7887184562098
+763,left Lateral mammillary nucleus,LM-L,762.0,7.0,15.0,0.03884375,386.16251005631534
+764,left Medial mammillary nucleus,MM-L,762.0,7.0,60.0,0.268203125,223.71103990678708
+765,"left Medial mammillary nucleus, median part",MMme-L,764.0,8.0,4.0,0.0375,106.66666666666667
+766,"left Medial mammillary nucleus, lateral part",MMl-L,764.0,8.0,33.0,0.106578125,309.6320187655769
+767,"left Medial mammillary nucleus, medial part",MMm-L,764.0,8.0,13.0,0.0681875,190.65077910174153
+768,"left Medial mammillary nucleus, posterior part",MMp-L,764.0,8.0,9.0,0.01821875,493.99656946826764
+769,"left Medial mammillary nucleus, dorsal part",MMd-L,764.0,8.0,1.0,0.03771875,26.512013256006625
+770,left Supramammillary nucleus,SUM-L,762.0,7.0,168.0,0.1266875,1326.0976813024172
+773,left Tuberomammillary nucleus,TM-L,762.0,7.0,104.0,0.071515625,1454.227660039327
+774,"left Tuberomammillary nucleus, dorsal part",TMd-L,773.0,8.0,30.0,0.017328125,1731.2894499549143
+775,"left Tuberomammillary nucleus, ventral part",TMv-L,773.0,8.0,74.0,0.0541875,1365.6286043829296
+776,left Medial preoptic nucleus,MPN-L,756.0,6.0,551.0,0.201140625,2739.376990600482
+780,left Dorsal premammillary nucleus,PMd-L,756.0,6.0,180.0,0.065859375,2733.0960854092527
+781,left Ventral premammillary nucleus,PMv-L,756.0,6.0,198.0,0.09790625,2022.34280242579
+782,"left Paraventricular hypothalamic nucleus, descending division",PVHd-L,756.0,6.0,332.0,0.06534375,5080.822572931611
+787,left Ventromedial hypothalamic nucleus,VMH-L,756.0,6.0,671.0,0.2743125,2446.115288220551
+792,left Posterior hypothalamic nucleus,PH-L,756.0,6.0,1854.0,0.352109375,5265.40936321278
+793,left Hypothalamic lateral zone,LZ-L,715.0,5.0,3300.0,2.8434375,1160.5670952851963
+794,left Lateral hypothalamic area,LHA-L,793.0,6.0,1093.0,1.0360625,1054.9556614586475
+795,left Lateral preoptic area,LPO-L,793.0,6.0,249.0,0.277265625,898.0557903634826
+796,left Preparasubthalamic nucleus,PST-L,793.0,6.0,12.0,0.006453125,1859.5641646489105
+797,left Parasubthalamic nucleus,PSTN-L,793.0,6.0,556.0,0.0831875,6683.696468820436
+798,left Perifornical nucleus,PeF-L,793.0,6.0,110.0,0.107046875,1027.5872135454679
+799,left Retrochiasmatic area,RCH-L,793.0,6.0,51.0,0.0739375,689.7717666948436
+800,left Subthalamic nucleus,STN-L,793.0,6.0,17.0,0.09725,174.80719794344472
+801,left Tuberal nucleus,TU-L,793.0,6.0,476.0,0.26178125,1818.3120448848035
+802,left Zona incerta,ZI-L,793.0,6.0,736.0,0.900453125,817.3662565722119
+804,left Fields of Forel,FF-L,802.0,7.0,31.0,0.120953125,256.2976359643457
+805,left Median eminence,ME-L,715.0,5.0,3.0,0.038703125,77.51312071053694
+806,left Midbrain,MB-L,639.0,3.0,31373.0,18.33484375,1711.1135730294945
+807,"left Midbrain, sensory related",MBsen-L,806.0,4.0,9914.0,3.427421875,2892.5531672403185
+808,"left Superior colliculus, sensory related",SCs-L,807.0,5.0,3055.0,1.07721875,2836.0070784137392
+809,"left Superior colliculus, optic layer",SCop-L,808.0,6.0,1246.0,0.321,3881.619937694704
+810,"left Superior colliculus, superficial gray layer",SCsg-L,808.0,6.0,1577.0,0.5754375,2740.523514717063
+811,"left Superior colliculus, zonal layer",SCzo-L,808.0,6.0,232.0,0.18078125,1283.3189282627484
+812,left Inferior colliculus,IC-L,807.0,5.0,6737.0,2.2235625,3029.822638221323
+813,"left Inferior colliculus, central nucleus",ICc-L,812.0,6.0,2128.0,0.56334375,3777.4449436955674
+814,"left Inferior colliculus, dorsal nucleus",ICd-L,812.0,6.0,2442.0,0.661453125,3691.871589540075
+815,"left Inferior colliculus, external nucleus",ICe-L,812.0,6.0,2167.0,0.998765625,2169.6781965238342
+816,left Nucleus of the brachium of the inferior colliculus,NB-L,807.0,5.0,81.0,0.043703125,1853.4143725420092
+817,left Nucleus sagulum,SAG-L,807.0,5.0,10.0,0.049,204.0816326530612
+818,left Parabigeminal nucleus,PBG-L,807.0,5.0,20.0,0.02240625,892.6080892608089
+819,left Midbrain trigeminal nucleus,MEV-L,807.0,5.0,9.0,0.0048125,1870.1298701298701
+820,left Subcommissural organ,SCO-L,807.0,5.0,2.0,0.00671875,297.6744186046512
+821,"left Midbrain, motor related",MBmot-L,806.0,4.0,16564.0,10.63796875,1557.064171672811
+822,"left Substantia nigra, reticular part",SNr-L,821.0,5.0,33.0,0.773984375,42.636519632583024
+823,left Ventral tegmental area,VTA-L,821.0,5.0,99.0,0.213796875,463.05634729226045
+824,left Paranigral nucleus,PN-L,821.0,5.0,4.0,0.01084375,368.8760806916427
+825,"left Midbrain reticular nucleus, retrorubral area",RR-L,821.0,5.0,58.0,0.069046875,840.0090518216792
+826,left Midbrain reticular nucleus,MRN-L,821.0,5.0,1190.0,2.57221875,462.63561370898174
+830,"left Superior colliculus, motor related",SCm-L,821.0,5.0,6112.0,2.823328125,2164.820994725861
+831,"left Superior colliculus, motor related, deep gray layer",SCdg-L,830.0,6.0,1105.0,0.59640625,1852.7639507466597
+832,"left Superior colliculus, motor related, deep white layer",SCdw-L,830.0,6.0,311.0,0.16553125,1878.799320370021
+833,"left Superior colliculus, motor related, intermediate white layer",SCiw-L,830.0,6.0,1967.0,1.0450625,1882.1840798995274
+834,"left Superior colliculus, motor related, intermediate gray layer",SCig-L,830.0,6.0,2729.0,1.016328125,2685.1564301637327
+838,left Periaqueductal gray,PAG-L,821.0,5.0,7241.0,2.34271875,3090.8533087892006
+839,left Precommissural nucleus,PRC-L,838.0,6.0,287.0,0.085765625,3346.329021679723
+840,left Interstitial nucleus of Cajal,INC-L,838.0,6.0,3.0,0.039546875,75.85934413275385
+841,left Nucleus of Darkschewitsch,ND-L,838.0,6.0,11.0,0.045921875,239.53725757060224
+842,left Supraoculomotor periaqueductal gray,Su3-L,838.0,6.0,18.0,0.020953125,859.0604026845638
+843,left Pretectal region,PRT-L,821.0,5.0,1325.0,1.039640625,1274.4788613853946
+844,left Anterior pretectal nucleus,APN-L,843.0,6.0,205.0,0.63828125,321.1750305997552
+845,left Medial pretectal area,MPT-L,843.0,6.0,170.0,0.022,7727.272727272728
+846,left Nucleus of the optic tract,NOT-L,843.0,6.0,249.0,0.102859375,2420.780799027799
+847,left Nucleus of the posterior commissure,NPC-L,843.0,6.0,458.0,0.143984375,3180.900705371677
+848,left Olivary pretectal nucleus,OP-L,843.0,6.0,45.0,0.02921875,1540.1069518716577
+849,left Posterior pretectal nucleus,PPT-L,843.0,6.0,158.0,0.071984375,2194.920772737139
+850,left Retroparafascicular nucleus,RPF-L,843.0,6.0,40.0,0.0313125,1277.4451097804392
+852,left Cuneiform nucleus,CUN-L,821.0,5.0,421.0,0.275515625,1528.0440083933534
+853,left Red nucleus,RN-L,821.0,5.0,18.0,0.39384375,45.70340395144014
+854,left Oculomotor nucleus,III-L,821.0,5.0,0.0,0.0161875,0.0
+855,left Medial accesory oculomotor nucleus,MA3-L,821.0,5.0,1.0,0.008296875,120.52730696798493
+856,left Edinger-Westphal nucleus,EW-L,821.0,5.0,34.0,0.01075,3162.790697674419
+857,left Trochlear nucleus,IV-L,821.0,5.0,8.0,0.003453125,2316.7420814479638
+858,left Paratrochlear nucleus,Pa4-L,821.0,5.0,0.0,0.007953125,0.0
+859,left Ventral tegmental nucleus,VTN-L,821.0,5.0,0.0,0.0186875,0.0
+860,left Anterior tegmental nucleus,AT-L,821.0,5.0,0.0,0.021578125,0.0
+861,left Lateral terminal nucleus of the accessory optic tract,LT-L,821.0,5.0,11.0,0.00890625,1235.0877192982457
+862,left Dorsal terminal nucleus of the accessory optic tract,DT-L,821.0,5.0,8.0,0.005671875,1410.4683195592288
+863,left Medial terminal nucleus of the accessory optic tract,MT-L,821.0,5.0,1.0,0.021546875,46.410442349528644
+865,"left Midbrain, behavioral state related",MBsta-L,806.0,4.0,381.0,0.901578125,422.592329422367
+866,"left Substantia nigra, compact part",SNc-L,865.0,5.0,15.0,0.098421875,152.40514367359899
+867,left Pedunculopontine nucleus,PPN-L,865.0,5.0,181.0,0.44528125,406.4846655905677
+868,left Midbrain raphe nuclei,RAmb-L,865.0,5.0,185.0,0.357875,516.9402724414949
+869,left Interfascicular nucleus raphe,IF-L,868.0,6.0,63.0,0.042578125,1479.6330275229357
+870,left Interpeduncular nucleus,IPN-L,868.0,6.0,14.0,0.175421875,79.80760666251003
+871,"left Interpeduncular nucleus, rostral",IPR-L,870.0,7.0,5.0,0.038875,128.61736334405145
+872,"left Interpeduncular nucleus, caudal",IPC-L,870.0,7.0,2.0,0.0328125,60.95238095238095
+873,"left Interpeduncular nucleus, apical",IPA-L,870.0,7.0,0.0,0.011953125,0.0
+874,"left Interpeduncular nucleus, lateral",IPL-L,870.0,7.0,4.0,0.031,129.03225806451613
+875,"left Interpeduncular nucleus, intermediate",IPI-L,870.0,7.0,1.0,0.016546875,60.43437204910293
+876,"left Interpeduncular nucleus, dorsomedial",IPDM-L,870.0,7.0,0.0,0.009796875,0.0
+877,"left Interpeduncular nucleus, dorsolateral",IPDL-L,870.0,7.0,0.0,0.018875,0.0
+878,"left Interpeduncular nucleus, rostrolateral",IPRL-L,870.0,7.0,2.0,0.009671875,206.78513731825527
+879,left Rostral linear nucleus raphe,RL-L,868.0,6.0,25.0,0.026359375,948.429164196799
+880,left Central linear nucleus raphe,CLI-L,868.0,6.0,61.0,0.04115625,1482.1564160971907
+881,left Dorsal nucleus raphe,DR-L,868.0,6.0,22.0,0.072359375,304.0380047505938
+882,left Hindbrain,HB-L,639.0,3.0,4053.0,23.794515625,170.33336857429725
+883,left Pons,P-L,882.0,4.0,2528.0,8.338546875,303.17032906288
+884,"left Pons, sensory related",P-sen-L,883.0,5.0,897.0,1.919203125,467.3814815719415
+885,left Nucleus of the lateral lemniscus,NLL-L,884.0,6.0,39.0,0.3616875,107.82789009849664
+889,left Principal sensory nucleus of the trigeminal,PSV-L,884.0,6.0,3.0,0.547578125,5.478670281067199
+890,left Parabrachial nucleus,PB-L,884.0,6.0,821.0,0.56046875,1464.8452746027322
+891,left Koelliker-Fuse subnucleus,KF-L,890.0,7.0,8.0,0.08771875,91.20057000356252
+902,left Superior olivary complex,SOC-L,884.0,6.0,34.0,0.44946875,75.64485851352292
+903,"left Superior olivary complex, periolivary region",POR-L,902.0,7.0,32.0,0.182,175.82417582417582
+904,"left Superior olivary complex, medial part",SOCm-L,902.0,7.0,1.0,0.098046875,10.199203187250996
+905,"left Superior olivary complex, lateral part",SOCl-L,902.0,7.0,1.0,0.169421875,5.902425527990409
+906,"left Pons, motor related",P-mot-L,883.0,5.0,826.0,2.8958125,285.239462154404
+907,left Barrington's nucleus,B-L,906.0,6.0,23.0,0.007671875,2997.9633401221995
+908,left Dorsal tegmental nucleus,DTN-L,906.0,6.0,17.0,0.05184375,327.90837854128995
+910,left Posterodorsal tegmental nucleus,PDTg-L,906.0,6.0,10.0,0.023875,418.848167539267
+911,left Pontine central gray,PCG-L,906.0,6.0,254.0,0.27109375,936.9452449567723
+912,left Pontine gray,PG-L,906.0,6.0,346.0,0.481984375,717.865594709372
+913,"left Pontine reticular nucleus, caudal part",PRNc-L,906.0,6.0,100.0,1.174078125,85.17320770285197
+915,left Supragenual nucleus,SG-L,906.0,6.0,1.0,0.00859375,116.36363636363636
+917,left Supratrigeminal nucleus,SUT-L,906.0,6.0,33.0,0.13021875,253.41972642188625
+918,left Tegmental reticular nucleus,TRN-L,906.0,6.0,9.0,0.3445625,26.12007981135498
+919,left Motor nucleus of trigeminal,V-L,906.0,6.0,19.0,0.177484375,107.05167708425037
+920,left Peritrigeminal zone,P5-L,906.0,6.0,8.0,0.1598125,50.05866249511146
+921,left Accessory trigeminal nucleus,Acs5-L,906.0,6.0,0.0,0.007234375,0.0
+922,left Parvicellular motor 5 nucleus,PC5-L,906.0,6.0,5.0,0.035265625,141.78112538768275
+923,left Intertrigeminal nucleus,I5-L,906.0,6.0,1.0,0.02209375,45.26166902404526
+924,"left Pons, behavioral state related",P-sat-L,883.0,5.0,349.0,1.72528125,202.28585918962486
+925,left Superior central nucleus raphe,CS-L,924.0,6.0,8.0,0.2966875,26.964398567516326
+928,left Locus ceruleus,LC-L,924.0,6.0,13.0,0.007328125,1773.987206823028
+929,left Laterodorsal tegmental nucleus,LDT-L,924.0,6.0,216.0,0.102125,2115.0550795593635
+930,left Nucleus incertus,NI-L,924.0,6.0,5.0,0.051921875,96.29852542882938
+931,left Pontine reticular nucleus,PRNr-L,924.0,6.0,75.0,1.182078125,63.44758304363343
+932,left Nucleus raphe pontis,RPO-L,924.0,6.0,8.0,0.048296875,165.64218699450015
+933,left Subceruleus nucleus,SLC-L,924.0,6.0,3.0,0.013171875,227.75800711743773
+934,left Sublaterodorsal nucleus,SLD-L,924.0,6.0,21.0,0.023671875,887.1287128712872
+935,left Medulla,MY-L,882.0,4.0,1525.0,15.45596875,98.66738375748851
+936,"left Medulla, sensory related",MY-sen-L,935.0,5.0,240.0,3.966765625,60.50269229102741
+937,left Area postrema,AP-L,936.0,6.0,9.0,0.025875,347.82608695652175
+938,left Cochlear nuclei,CN-L,936.0,6.0,49.0,0.81571875,60.06972378653794
+941,left Dorsal cochlear nucleus,DCO-L,938.0,7.0,35.0,0.306,114.37908496732027
+942,left Ventral cochlear nucleus,VCO-L,938.0,7.0,14.0,0.50971875,27.466127153454725
+943,left Dorsal column nuclei,DCN-L,936.0,6.0,8.0,0.207734375,38.510718315156076
+944,left Cuneate nucleus,CU-L,943.0,7.0,5.0,0.1669375,29.95132909022838
+945,left Gracile nucleus,GR-L,943.0,7.0,3.0,0.040796875,73.53504404442742
+946,left External cuneate nucleus,ECU-L,936.0,6.0,4.0,0.10259375,38.98872982028632
+947,left Nucleus of the trapezoid body,NTB-L,936.0,6.0,1.0,0.07734375,12.929292929292929
+948,left Nucleus of the solitary tract,NTS-L,936.0,6.0,98.0,0.423703125,231.29402220009587
+954,"left Spinal nucleus of the trigeminal, caudal part",SPVC-L,936.0,6.0,45.0,0.84128125,53.48984064484975
+955,"left Spinal nucleus of the trigeminal, interpolar part",SPVI-L,936.0,6.0,23.0,0.92271875,24.92633860534426
+956,"left Spinal nucleus of the trigeminal, oral part",SPVO-L,936.0,6.0,3.0,0.498703125,6.015602970203966
+962,left Paratrigeminal nucleus,Pa5-L,936.0,6.0,0.0,0.05109375,0.0
+964,"left Medulla, motor related",MY-mot-L,935.0,5.0,1048.0,8.74534375,119.83519801608713
+965,left Abducens nucleus,VI-L,964.0,6.0,1.0,0.01521875,65.70841889117044
+967,left Facial motor nucleus,VII-L,964.0,6.0,18.0,0.458546875,39.25443827307731
+968,left Accessory facial motor nucleus,ACVII-L,964.0,6.0,0.0,0.002765625,0.0
+970,left Nucleus ambiguus,AMB-L,964.0,6.0,1.0,0.02159375,46.3096960926194
+971,"left Nucleus ambiguus, dorsal division",AMBd-L,970.0,7.0,1.0,0.010625,94.11764705882352
+972,"left Nucleus ambiguus, ventral division",AMBv-L,970.0,7.0,0.0,0.01096875,0.0
+973,left Dorsal motor nucleus of the vagus nerve,DMX-L,964.0,6.0,104.0,0.087015625,1195.1876458969296
+975,left Gigantocellular reticular nucleus,GRN-L,964.0,6.0,34.0,1.306625,26.02123792212762
+976,left Infracerebellar nucleus,ICB-L,964.0,6.0,0.0,0.027125,0.0
+977,left Inferior olivary complex,IO-L,964.0,6.0,2.0,0.255203125,7.836894630502664
+978,left Intermediate reticular nucleus,IRN-L,964.0,6.0,84.0,1.387890625,60.52350126653532
+979,left Inferior salivatory nucleus,ISN-L,964.0,6.0,0.0,0.00359375,0.0
+980,left Linear nucleus of the medulla,LIN-L,964.0,6.0,0.0,0.030859375,0.0
+981,left Lateral reticular nucleus,LRN-L,964.0,6.0,5.0,0.28496875,17.54578352889571
+982,"left Lateral reticular nucleus, magnocellular part",LRNm-L,981.0,7.0,5.0,0.2564375,19.497928345113333
+983,"left Lateral reticular nucleus, parvicellular part",LRNp-L,981.0,7.0,0.0,0.02853125,0.0
+984,left Magnocellular reticular nucleus,MARN-L,964.0,6.0,1.0,0.26578125,3.7624926513815398
+985,left Medullary reticular nucleus,MDRN-L,964.0,6.0,33.0,1.016015625,32.479815455594
+986,"left Medullary reticular nucleus, dorsal part",MDRNd-L,985.0,7.0,21.0,0.546171875,38.449434987841514
+987,"left Medullary reticular nucleus, ventral part",MDRNv-L,985.0,7.0,12.0,0.46984375,25.540405719986698
+988,left Parvicellular reticular nucleus,PARN-L,964.0,6.0,91.0,1.12546875,80.85519922254616
+989,left Parasolitary nucleus,PAS-L,964.0,6.0,1.0,0.014015625,71.3489409141583
+990,left Paragigantocellular reticular nucleus,PGRN-L,964.0,6.0,78.0,0.47425,164.47021613073272
+991,"left Paragigantocellular reticular nucleus, dorsal part",PGRNd-L,990.0,7.0,18.0,0.119265625,150.92362111882616
+992,"left Paragigantocellular reticular nucleus, lateral part",PGRNl-L,990.0,7.0,60.0,0.354984375,169.0215238346758
+993,left Perihypoglossal nuclei,PHY-L,964.0,6.0,74.0,0.135,548.1481481481482
+995,left Nucleus of Roller,NR-L,993.0,7.0,2.0,0.015125,132.2314049586777
+996,left Nucleus prepositus,PRP-L,993.0,7.0,72.0,0.119875,600.6256517205422
+998,left Parapyramidal nucleus,PPY-L,964.0,6.0,6.0,0.047359375,126.69086110194655
+1001,left Vestibular nuclei,VNC-L,964.0,6.0,432.0,1.6041875,269.2952039583901
+1002,left Lateral vestibular nucleus,LAV-L,1001.0,7.0,9.0,0.143515625,62.71094175285792
+1003,left Medial vestibular nucleus,MV-L,1001.0,7.0,360.0,0.909296875,395.9103015723
+1004,left Spinal vestibular nucleus,SPIV-L,1001.0,7.0,49.0,0.37425,130.92852371409484
+1005,left Superior vestibular nucleus,SUV-L,1001.0,7.0,14.0,0.177125,79.04022582921665
+1006,left Nucleus x,x-L,964.0,6.0,0.0,0.028515625,0.0
+1007,left Hypoglossal nucleus,XII-L,964.0,6.0,83.0,0.141640625,585.9900717043574
+1008,left Nucleus y,y-L,964.0,6.0,0.0,0.011703125,0.0
+1010,"left Medulla, behavioral state related",MY-sat-L,935.0,5.0,1.0,0.100828125,9.917867658453432
+1011,left Nucleus raphe magnus,RM-L,1010.0,6.0,1.0,0.05384375,18.57225769007545
+1012,left Nucleus raphe pallidus,RPA-L,1010.0,6.0,0.0,0.030328125,0.0
+1013,left Nucleus raphe obscurus,RO-L,1010.0,6.0,0.0,0.01665625,0.0
+1014,left Cerebellum,CB-L,1.0,2.0,10525.0,26.87484375,391.630183896418
+1015,left Cerebellar cortex,CBX-L,1014.0,3.0,10321.0,25.571265625,403.61709707123657
+1019,left Vermal regions,VERM-L,1015.0,4.0,3981.0,10.09521875,394.3450952957309
+1020,left Lingula (I),LING-L,1019.0,5.0,3.0,0.059890625,50.091312288025044
+1024,left Central lobule,CENT-L,1019.0,5.0,360.0,2.027453125,177.5626748460584
+1025,left Lobule II,CENT2-L,1024.0,6.0,77.0,0.66284375,116.16614021026827
+1029,left Lobule III,CENT3-L,1024.0,6.0,283.0,1.364609375,207.3853552413122
+1033,left Culmen,CUL-L,1019.0,5.0,1112.0,3.3536875,331.57531821316087
+1042,left Lobules IV-V,"CUL4, 5-L",1033.0,6.0,1112.0,3.3536875,331.57531821316087
+1046,left Declive (VI),DEC-L,1019.0,5.0,2043.0,1.66121875,1229.8199740401437
+1050,left Folium-tuber vermis (VII),FOTU-L,1019.0,5.0,124.0,0.525640625,235.9026188282156
+1054,left Pyramus (VIII),PYR-L,1019.0,5.0,78.0,0.621171875,125.56911080367249
+1058,left Uvula (IX),UVU-L,1019.0,5.0,137.0,1.090515625,125.62864470648918
+1062,left Nodulus (X),NOD-L,1019.0,5.0,124.0,0.755640625,164.09917081946196
+1066,left Hemispheric regions,HEM-L,1015.0,4.0,6340.0,15.476046875,409.66533968319993
+1067,left Simple lobule,SIM-L,1066.0,5.0,2641.0,2.8468125,927.7042306087949
+1071,left Ansiform lobule,AN-L,1066.0,5.0,2927.0,5.40478125,541.5575329713853
+1072,left Crus 1,ANcr1-L,1071.0,6.0,1796.0,2.848609375,630.4830756235224
+1076,left Crus 2,ANcr2-L,1071.0,6.0,1131.0,2.556171875,442.45851034567073
+1080,left Paramedian lobule,PRM-L,1066.0,5.0,387.0,2.441015625,158.5405664906385
+1084,left Copula pyramidis,COPY-L,1066.0,5.0,159.0,1.25378125,126.81638044914133
+1088,left Paraflocculus,PFL-L,1066.0,5.0,156.0,2.86209375,54.505552098005175
+1092,left Flocculus,FL-L,1066.0,5.0,70.0,0.6675625,104.85909559030054
+1096,left Cerebellar nuclei,CBN-L,1014.0,3.0,30.0,0.892046875,33.63051969662469
+1097,left Fastigial nucleus,FN-L,1096.0,4.0,6.0,0.25065625,23.937164942027177
+1098,left Interposed nucleus,IP-L,1096.0,4.0,11.0,0.430734375,25.53778067979831
+1099,left Dentate nucleus,DN-L,1096.0,4.0,1.0,0.168,5.952380952380952
+1100,left Vestibulocerebellar nucleus,VeCB-L,1096.0,4.0,12.0,0.04265625,281.31868131868134
+1101,left fiber tracts,fiber tracts-L,0.0,1.0,12829.0,23.43646875,547.3947520357563
+1102,left cranial nerves,cm-L,1101.0,2.0,2641.0,6.16371875,428.47509873807917
+1104,left vomeronasal nerve,von-L,1102.0,3.0,4.0,0.006796875,588.5057471264367
+1105,left olfactory nerve,In-L,1102.0,3.0,1466.0,2.976546875,492.51702108672487
+1106,left olfactory nerve layer of main olfactory bulb,onl-L,1105.0,4.0,956.0,2.066203125,462.684422665366
+1107,"left lateral olfactory tract, general",lotg-L,1105.0,4.0,408.0,0.530796875,768.6556180271409
+1108,"left lateral olfactory tract, body",lot-L,1107.0,5.0,319.0,0.452328125,705.2402500949946
+1109,left dorsal limb,lotd-L,1107.0,5.0,89.0,0.07846875,1134.2094782954998
+1111,"left anterior commissure, olfactory limb",aco-L,1105.0,4.0,102.0,0.379546875,268.7415092009386
+1112,left optic nerve,IIn-L,1102.0,3.0,438.0,0.649859375,673.9919694164603
+1114,left brachium of the superior colliculus,bsc-L,1112.0,4.0,108.0,0.099453125,1085.9387274155538
+1115,left superior colliculus commissure,csc-L,1112.0,4.0,37.0,0.013265625,2789.163722025913
+1116,left optic chiasm,och-L,1112.0,4.0,47.0,0.1520625,309.0834360871352
+1117,left optic tract,opt-L,1112.0,4.0,234.0,0.349609375,669.31843575419
+1119,left oculomotor nerve,IIIn-L,1102.0,3.0,66.0,0.1029375,641.1657559198543
+1120,left medial longitudinal fascicle,mlf-L,1119.0,4.0,6.0,0.07340625,81.73690932311621
+1121,left posterior commissure,pc-L,1119.0,4.0,60.0,0.025453125,2357.2744014732966
+1122,left trochlear nerve,IVn-L,1102.0,3.0,6.0,0.00346875,1729.7297297297298
+1125,left trigeminal nerve,Vn-L,1102.0,3.0,63.0,1.190859375,52.90297185593387
+1126,left motor root of the trigeminal nerve,moV-L,1125.0,4.0,7.0,0.029859375,234.43223443223442
+1127,left sensory root of the trigeminal nerve,sV-L,1125.0,4.0,56.0,1.161,48.23428079242033
+1129,left spinal tract of the trigeminal nerve,sptV-L,1127.0,5.0,36.0,0.813609375,44.24727775537247
+1130,left facial nerve,VIIn-L,1102.0,3.0,6.0,0.053828125,111.46589259796808
+1132,left genu of the facial nerve,gVIIn-L,1130.0,4.0,0.0,0.01440625,0.0
+1133,left vestibulocochlear nerve,VIIIn-L,1102.0,3.0,574.0,0.831171875,690.5912209794153
+1135,left vestibular nerve,vVIIIn-L,1133.0,4.0,1.0,0.125125,7.992007992007993
+1136,left cochlear nerve,cVIIIn-L,1133.0,4.0,573.0,0.706046875,811.5608471463032
+1137,left trapezoid body,tb-L,1136.0,5.0,20.0,0.149625,133.66750208855473
+1139,left dorsal acoustic stria,das-L,1136.0,5.0,0.0,0.00603125,0.0
+1140,left lateral lemniscus,ll-L,1136.0,5.0,118.0,0.416703125,283.1752221680603
+1141,left inferior colliculus commissure,cic-L,1136.0,5.0,9.0,0.008953125,1005.2356020942409
+1142,left brachium of the inferior colliculus,bic-L,1136.0,5.0,426.0,0.124734375,3415.2574220217966
+1144,left vagus nerve,Xn-L,1102.0,3.0,1.0,0.0046875,213.33333333333334
+1145,left solitary tract,ts-L,1144.0,4.0,1.0,0.0046875,213.33333333333334
+1149,left dorsal roots,drt-L,1102.0,3.0,17.0,0.3435625,49.48153538293615
+1150,left cervicothalamic tract,cett-L,1149.0,4.0,17.0,0.3435625,49.48153538293615
+1155,left dorsal column,dc-L,1150.0,5.0,1.0,0.0111875,89.3854748603352
+1156,left cuneate fascicle,cuf-L,1155.0,6.0,1.0,0.0111875,89.3854748603352
+1159,left medial lemniscus,ml-L,1150.0,5.0,16.0,0.332375,48.1383978939451
+1171,left cerebellum related fiber tracts,cbf-L,1101.0,2.0,759.0,4.89825,154.9532996478334
+1172,left cerebellar commissure,cbc-L,1171.0,3.0,1.0,0.0344375,29.038112522686024
+1173,left cerebellar peduncles,cbp-L,1171.0,3.0,255.0,1.408359375,181.06174072224994
+1174,left superior cerebelar peduncles,scp-L,1173.0,4.0,121.0,0.426625,283.62144740697335
+1175,left superior cerebellar peduncle decussation,dscp-L,1174.0,5.0,2.0,0.022609375,88.4588804422944
+1177,left uncinate fascicle,uf-L,1174.0,5.0,2.0,0.042390625,47.18024327312938
+1178,left ventral spinocerebellar tract,sctv-L,1174.0,5.0,26.0,0.142484375,182.4761487005154
+1179,left middle cerebellar peduncle,mcp-L,1173.0,4.0,110.0,0.54659375,201.24635526842377
+1180,left inferior cerebellar peduncle,icp-L,1173.0,4.0,24.0,0.435140625,55.15458364752774
+1181,left dorsal spinocerebellar tract,sctd-L,1180.0,5.0,1.0,0.07328125,13.646055437100213
+1188,left arbor vitae,arb-L,1171.0,3.0,503.0,3.455453125,145.56701590330502
+1189,left supra-callosal cerebral white matter,scwm-L,1101.0,2.0,447.0,0.533921875,837.2011354657458
+1190,left lateral forebrain bundle system,lfbs-L,1101.0,2.0,5442.0,6.926859375,785.6374303830876
+1191,left corpus callosum,cc-L,1190.0,3.0,3143.0,3.89753125,806.4079024382421
+1192,"left corpus callosum, anterior forceps",fa-L,1191.0,4.0,817.0,0.866140625,943.2648422419858
+1193,left external capsule,ec-L,1192.0,5.0,433.0,0.439015625,986.2974694807274
+1194,"left corpus callosum, extreme capsule",ee-L,1191.0,4.0,177.0,0.04671875,3788.628762541806
+1195,left genu of corpus callosum,ccg-L,1191.0,4.0,389.0,0.41365625,940.3943491727733
+1196,"left corpus callosum, posterior forceps",fp-L,1191.0,4.0,411.0,0.681484375,603.0952653903473
+1198,"left corpus callosum, body",ccb-L,1191.0,4.0,1137.0,1.517390625,749.3126563899787
+1199,"left corpus callosum, splenium",ccs-L,1191.0,4.0,212.0,0.372140625,569.6771213838855
+1200,left corticospinal tract,cst-L,1190.0,3.0,308.0,1.846421875,166.8091156036591
+1201,left internal capsule,int-L,1200.0,4.0,162.0,1.04996875,154.29030625911486
+1202,left cerebal peduncle,cpd-L,1200.0,4.0,135.0,0.440984375,306.1332955390993
+1207,left pyramid,py-L,1200.0,4.0,9.0,0.280203125,32.11955612557854
+1208,left pyramidal decussation,pyd-L,1200.0,4.0,0.0,0.033265625,0.0
+1211,left thalamus related,lfbst-L,1190.0,3.0,1991.0,1.18290625,1683.1426835389532
+1212,left external medullary lamina of the thalamus,em-L,1211.0,4.0,9.0,0.055,163.63636363636363
+1216,left optic radiation,or-L,1211.0,4.0,1586.0,0.922203125,1719.7946493620914
+1217,left auditory radiation,ar-L,1211.0,4.0,396.0,0.205703125,1925.1044436004559
+1218,left extrapyramidal fiber systems,eps-L,1101.0,2.0,143.0,0.612609375,233.42770423648838
+1219,left cerebral nuclei related,epsc-L,1218.0,3.0,74.0,0.0560625,1319.9554069119285
+1221,left nigrostriatal tract,nst-L,1219.0,4.0,74.0,0.0560625,1319.9554069119285
+1226,left tectospinal pathway,tsp-L,1218.0,3.0,9.0,0.25309375,35.55994567230522
+1228,left doral tegmental decussation,dtd-L,1226.0,4.0,2.0,0.003390625,589.8617511520738
+1229,left crossed tectospinal pathway,tspc-L,1226.0,4.0,7.0,0.249703125,28.03328953131844
+1230,left rubrospinal tract,rust-L,1218.0,3.0,60.0,0.303453125,197.72411307347718
+1231,left ventral tegmental decussation,vtd-L,1230.0,4.0,7.0,0.01821875,384.2195540308748
+1238,left medial forebrain bundle system,mfbs-L,1101.0,2.0,2909.0,3.52459375,825.3433463076418
+1239,left cerebrum related,mfbc-L,1238.0,3.0,2384.0,3.113984375,765.5786647933968
+1240,left amygdalar capsule,amc-L,1239.0,4.0,358.0,0.0835,4287.425149700599
+1242,"left anterior commissure, temporal limb",act-L,1239.0,4.0,34.0,0.106015625,320.7074428887251
+1243,left cingulum bundle,cing-L,1239.0,4.0,798.0,0.631234375,1264.1897076660314
+1244,left fornix system,fxs-L,1239.0,4.0,1009.0,2.12225,475.4388031570267
+1245,left alveus,alv-L,1244.0,5.0,354.0,0.6995625,506.03055481104263
+1246,left dorsal fornix,df-L,1244.0,5.0,4.0,0.018421875,217.13316369804917
+1247,left fimbria,fi-L,1244.0,5.0,404.0,0.75725,533.5094090458897
+1250,left postcommissural fornix,fxpo-L,1244.0,5.0,78.0,0.1384375,563.4311512415351
+1251,left medial corticohypothalamic tract,mct-L,1250.0,6.0,11.0,0.00415625,2646.616541353383
+1252,left columns of the fornix,fx-L,1250.0,6.0,67.0,0.13428125,498.95275773795674
+1253,left hippocampal commissures,hc-L,1244.0,5.0,169.0,0.508578125,332.2989953608406
+1254,left dorsal hippocampal commissure,dhc-L,1253.0,6.0,165.0,0.475953125,346.6727947211188
+1255,left ventral hippocampal commissure,vhc-L,1253.0,6.0,4.0,0.032625,122.60536398467433
+1259,left stria terminalis,st-L,1239.0,4.0,185.0,0.170984375,1081.9702092661976
+1260,left commissural branch of stria terminalis,stc-L,1259.0,5.0,36.0,0.017703125,2033.5392762577228
+1261,left hypothalamus related,mfsbshy-L,1238.0,3.0,525.0,0.410609375,1278.5874652764564
+1262,left medial forebrain bundle,mfb-L,1261.0,4.0,16.0,0.02484375,644.0251572327044
+1265,left supraoptic commissures,sup-L,1261.0,4.0,6.0,0.013171875,455.51601423487546
+1277,left mammillary related,mfbsma-L,1261.0,4.0,170.0,0.13096875,1298.0195657361012
+1278,left principal mammillary tract,pm-L,1277.0,5.0,15.0,0.016484375,909.9526066350711
+1279,left mammillothalamic tract,mtt-L,1277.0,5.0,132.0,0.0650625,2028.8184438040348
+1280,left mammillotegmental tract,mtg-L,1277.0,5.0,16.0,0.03340625,478.95229186155285
+1281,left mammillary peduncle,mp-L,1277.0,5.0,7.0,0.016015625,437.07317073170736
+1284,left epithalamus related,mfbse-L,1261.0,4.0,333.0,0.241625,1378.1686497672013
+1285,left stria medullaris,sm-L,1284.0,5.0,144.0,0.134828125,1068.0264225286824
+1286,left fasciculus retroflexus,fr-L,1284.0,5.0,162.0,0.083234375,1946.311244602966
+1287,left habenular commissure,hbc-L,1284.0,5.0,27.0,0.0235625,1145.8885941644562
+1292,left ventricular systems,VS-L,0.0,1.0,3087.0,2.95615625,1044.2614459232323
+1293,left lateral ventricle,VL-L,1292.0,2.0,2182.0,1.846671875,1181.5851151141835
+1295,left subependymal zone,SEZ-L,1293.0,3.0,79.0,0.067703125,1166.8589891530116
+1296,left choroid plexus,chpl-L,1293.0,3.0,578.0,0.716796875,806.3651226158038
+1299,left third ventricle,V3-L,1292.0,2.0,499.0,0.433359375,1151.4692626645033
+1300,left cerebral aqueduct,AQ-L,1292.0,2.0,62.0,0.19671875,315.17077045274027
+1301,left fourth ventricle,V4-L,1292.0,2.0,344.0,0.479390625,717.5776539226231
+1302,left lateral recess,V4r-L,1301.0,3.0,49.0,0.2315625,211.6059379217274
+1303,"left central canal, spinal cord/medulla",c-L,1292.0,2.0,0.0,1.5625e-05,0.0
+10000,right root,root-R,-1.0,0.0,476556.0,253.297921875,1881.4050919658775
+10001,right Basic cell groups and regions,grey-R,10000.0,1.0,453336.0,225.007921875,2014.755730475323
+10002,right Cerebrum,CH-R,10001.0,2.0,366534.0,137.983015625,2656.370411530495
+10003,right Cerebral cortex,CTX-R,10002.0,3.0,326960.0,110.7961875,2951.0040677166803
+10004,right Cortical plate,CTXpl-R,10003.0,4.0,313313.0,106.3434375,2946.2372795688498
+10005,right Isocortex,Isocortex-R,10004.0,5.0,226135.0,61.67009375,3666.8502713278267
+10006,"right Frontal pole, cerebral cortex",FRP-R,10005.0,6.0,550.0,0.486109375,1131.4326122593295
+10007,"right Frontal pole, layer 1",FRP1-R,10006.0,7.0,73.0,0.126671875,576.2920932527446
+10008,"right Frontal pole, layer 2/3",FRP2/3-R,10006.0,7.0,76.0,0.117,649.5726495726495
+10009,"right Frontal pole, layer 5",FRP5-R,10006.0,7.0,196.0,0.18575,1055.1816958277254
+10010,"right Frontal pole, layer 6a",FRP6a-R,10006.0,7.0,205.0,0.05615625,3650.5286588759045
+10011,"right Frontal pole, layer 6b",FRP6b-R,10006.0,7.0,0.0,0.00053125,0.0
+10012,right Somatomotor areas,MO-R,10005.0,6.0,24101.0,12.226390625,1971.2277105492856
+10018,right Primary motor area,MOp-R,10012.0,7.0,13042.0,5.676359375,2297.59941864146
+10019,"right Primary motor area, Layer 1",MOp1-R,10018.0,8.0,994.0,0.665328125,1493.9996712148609
+10020,"right Primary motor area, Layer 2/3",MOp2/3-R,10018.0,8.0,4563.0,1.844640625,2473.6525576628237
+10021,"right Primary motor area, Layer 5",MOp5-R,10018.0,8.0,4625.0,1.6365625,2826.0454458659538
+10022,"right Primary motor area, Layer 6a",MOp6a-R,10018.0,8.0,2763.0,1.438171875,1921.1890094846972
+10023,"right Primary motor area, Layer 6b",MOp6b-R,10018.0,8.0,97.0,0.09165625,1058.3020797817935
+10024,right Secondary motor area,MOs-R,10012.0,7.0,11059.0,6.55003125,1688.3888912743737
+10025,"right Secondary motor area, layer 1",MOs1-R,10024.0,8.0,1023.0,1.159859375,882.0034756368634
+10026,"right Secondary motor area, layer 2/3",MOs2/3-R,10024.0,8.0,2965.0,1.902859375,1558.1813553615857
+10027,"right Secondary motor area, layer 5",MOs5-R,10024.0,8.0,5070.0,2.261203125,2242.1691991956714
+10028,"right Secondary motor area, layer 6a",MOs6a-R,10024.0,8.0,1961.0,1.188921875,1649.3934893745648
+10029,"right Secondary motor area, layer 6b",MOs6b-R,10024.0,8.0,40.0,0.0371875,1075.6302521008404
+10030,right Somatosensory areas,SS-R,10005.0,6.0,49517.0,16.666015625,2971.136060002344
+10037,right Primary somatosensory area,SSp-R,10030.0,7.0,29842.0,12.1554375,2455.0329842097417
+10044,"right Primary somatosensory area, nose",SSp-n-R,10037.0,8.0,4728.0,1.5095625,3132.033287790337
+10045,"right Primary somatosensory area, nose, layer 1",SSp-n1-R,10044.0,9.0,204.0,0.202515625,1007.3296813517476
+10046,"right Primary somatosensory area, nose, layer 2/3",SSp-n2/3-R,10044.0,9.0,962.0,0.32015625,3004.7828208882383
+10047,"right Primary somatosensory area, nose, layer 4",SSp-n4-R,10044.0,9.0,873.0,0.273953125,3186.6765527861744
+10048,"right Primary somatosensory area, nose, layer 5",SSp-n5-R,10044.0,9.0,1003.0,0.283515625,3537.72389087903
+10049,"right Primary somatosensory area, nose, layer 6a",SSp-n6a-R,10044.0,9.0,1647.0,0.402546875,4091.448977215386
+10050,"right Primary somatosensory area, nose, layer 6b",SSp-n6b-R,10044.0,9.0,39.0,0.026875,1451.1627906976744
+10051,"right Primary somatosensory area, barrel field",SSp-bfd-R,10037.0,8.0,8260.0,3.144515625,2626.795661096453
+10052,"right Primary somatosensory area, barrel field, layer 1",SSp-bfd1-R,10051.0,9.0,275.0,0.41946875,655.5911495194815
+10053,"right Primary somatosensory area, barrel field, layer 2/3",SSp-bfd2/3-R,10051.0,9.0,1241.0,0.75809375,1637.000700770848
+10054,"right Primary somatosensory area, barrel field, layer 4",SSp-bfd4-R,10051.0,9.0,1322.0,0.641375,2061.196647826934
+10055,"right Primary somatosensory area, barrel field, layer 5",SSp-bfd5-R,10051.0,9.0,2022.0,0.6041875,3346.643219199338
+10056,"right Primary somatosensory area, barrel field, layer 6a",SSp-bfd6a-R,10051.0,9.0,3126.0,0.64875,4818.49710982659
+10057,"right Primary somatosensory area, barrel field, layer 6b",SSp-bfd6b-R,10051.0,9.0,274.0,0.072640625,3771.9939771993977
+10065,"right Primary somatosensory area, lower limb",SSp-ll-R,10037.0,8.0,1755.0,1.17609375,1492.2279792746115
+10066,"right Primary somatosensory area, lower limb, layer 1",SSp-ll1-R,10065.0,9.0,142.0,0.14996875,946.8639299854135
+10067,"right Primary somatosensory area, lower limb, layer 2/3",SSp-ll2/3-R,10065.0,9.0,465.0,0.32334375,1438.0979994201218
+10068,"right Primary somatosensory area, lower limb, layer 4",SSp-ll4-R,10065.0,9.0,224.0,0.13634375,1642.9062571625027
+10069,"right Primary somatosensory area, lower limb, layer 5",SSp-ll5-R,10065.0,9.0,444.0,0.2776875,1598.9196488858881
+10070,"right Primary somatosensory area, lower limb, layer 6a",SSp-ll6a-R,10065.0,9.0,460.0,0.26378125,1743.8692098092642
+10071,"right Primary somatosensory area, lower limb, layer 6b",SSp-ll6b-R,10065.0,9.0,20.0,0.02496875,801.0012515644555
+10072,"right Primary somatosensory area, mouth",SSp-m-R,10037.0,8.0,8643.0,3.1075,2781.3354786806117
+10073,"right Primary somatosensory area, mouth, layer 1",SSp-m1-R,10072.0,9.0,361.0,0.39221875,920.4047486256075
+10074,"right Primary somatosensory area, mouth, layer 2/3",SSp-m2/3-R,10072.0,9.0,2130.0,0.749703125,2841.124611825514
+10075,"right Primary somatosensory area, mouth, layer 4",SSp-m4-R,10072.0,9.0,1086.0,0.473421875,2293.9370936334535
+10076,"right Primary somatosensory area, mouth, layer 5",SSp-m5-R,10072.0,9.0,1536.0,0.60925,2521.132540008207
+10077,"right Primary somatosensory area, mouth, layer 6a",SSp-m6a-R,10072.0,9.0,3404.0,0.8255625,4123.249299719888
+10078,"right Primary somatosensory area, mouth, layer 6b",SSp-m6b-R,10072.0,9.0,126.0,0.05734375,2197.275204359673
+10079,"right Primary somatosensory area, upper limb",SSp-ul-R,10037.0,8.0,3165.0,1.88615625,1678.0158059545704
+10080,"right Primary somatosensory area, upper limb, layer 1",SSp-ul1-R,10079.0,9.0,189.0,0.231265625,817.2420782379569
+10081,"right Primary somatosensory area, upper limb, layer 2/3",SSp-ul2/3-R,10079.0,9.0,721.0,0.48934375,1473.4018775145282
+10082,"right Primary somatosensory area, upper limb, layer 4",SSp-ul4-R,10079.0,9.0,523.0,0.261640625,1998.9250522544041
+10083,"right Primary somatosensory area, upper limb, layer 5",SSp-ul5-R,10079.0,9.0,804.0,0.3961875,2029.3421675343113
+10084,"right Primary somatosensory area, upper limb, layer 6a",SSp-ul6a-R,10079.0,9.0,908.0,0.47053125,1929.7336786876535
+10085,"right Primary somatosensory area, upper limb, layer 6b",SSp-ul6b-R,10079.0,9.0,20.0,0.0371875,537.8151260504202
+10086,"right Primary somatosensory area, trunk",SSp-tr-R,10037.0,8.0,1505.0,0.700359375,2148.896771746648
+10087,"right Primary somatosensory area, trunk, layer 1",SSp-tr1-R,10086.0,9.0,134.0,0.102109375,1312.318286151492
+10088,"right Primary somatosensory area, trunk, layer 2/3",SSp-tr2/3-R,10086.0,9.0,409.0,0.211515625,1933.6632931964245
+10089,"right Primary somatosensory area, trunk, layer 4",SSp-tr4-R,10086.0,9.0,195.0,0.076625,2544.8613376835237
+10090,"right Primary somatosensory area, trunk, layer 5",SSp-tr5-R,10086.0,9.0,435.0,0.176765625,2460.8857067090958
+10091,"right Primary somatosensory area, trunk, layer 6a",SSp-tr6a-R,10086.0,9.0,296.0,0.116234375,2546.5788412421025
+10092,"right Primary somatosensory area, trunk, layer 6b",SSp-tr6b-R,10086.0,9.0,36.0,0.017109375,2104.109589041096
+10093,"right Primary somatosensory area, unassigned",SSp-un-R,10037.0,8.0,1786.0,0.63125,2829.3069306930693
+10094,"right Primary somatosensory area, unassigned, layer 1",SSp-un1-R,10093.0,9.0,103.0,0.083015625,1240.730284208545
+10095,"right Primary somatosensory area, unassigned, layer 2/3",SSp-un2/3-R,10093.0,9.0,616.0,0.1659375,3712.2410546139363
+10096,"right Primary somatosensory area, unassigned, layer 4",SSp-un4-R,10093.0,9.0,276.0,0.093875,2940.079893475366
+10097,"right Primary somatosensory area, unassigned, layer 5",SSp-un5-R,10093.0,9.0,335.0,0.1288125,2600.6792819019893
+10098,"right Primary somatosensory area, unassigned, layer 6a",SSp-un6a-R,10093.0,9.0,442.0,0.147421875,2998.198198198198
+10099,"right Primary somatosensory area, unassigned, layer 6b",SSp-un6b-R,10093.0,9.0,14.0,0.0121875,1148.7179487179487
+10100,right Supplemental somatosensory area,SSs-R,10030.0,7.0,19675.0,4.510578125,4361.968566945063
+10101,"right Supplemental somatosensory area, layer 1",SSs1-R,10100.0,8.0,459.0,0.623453125,736.2221498208064
+10102,"right Supplemental somatosensory area, layer 2/3",SSs2/3-R,10100.0,8.0,3739.0,1.07234375,3486.7550633833603
+10103,"right Supplemental somatosensory area, layer 4",SSs4-R,10100.0,8.0,3122.0,0.58265625,5358.219361759185
+10104,"right Supplemental somatosensory area, layer 5",SSs5-R,10100.0,8.0,5178.0,1.09278125,4738.368269038291
+10105,"right Supplemental somatosensory area, layer 6a",SSs6a-R,10100.0,8.0,6601.0,1.03634375,6369.508186834726
+10106,"right Supplemental somatosensory area, layer 6b",SSs6b-R,10100.0,8.0,576.0,0.103,5592.233009708738
+10107,right Gustatory areas,GU-R,10005.0,6.0,4184.0,0.883828125,4733.952090515337
+10108,"right Gustatory areas, layer 1",GU1-R,10107.0,7.0,150.0,0.098875,1517.0670037926675
+10109,"right Gustatory areas, layer 2/3",GU2/3-R,10107.0,7.0,836.0,0.201015625,4158.880684026428
+10110,"right Gustatory areas, layer 4",GU4-R,10107.0,7.0,392.0,0.073796875,5311.878043616346
+10111,"right Gustatory areas, layer 5",GU5-R,10107.0,7.0,1360.0,0.272171875,4996.842528273724
+10112,"right Gustatory areas, layer 6a",GU6a-R,10107.0,7.0,1393.0,0.2186875,6369.81994855673
+10113,"right Gustatory areas, layer 6b",GU6b-R,10107.0,7.0,53.0,0.01928125,2748.7844408427877
+10114,right Visceral area,VISC-R,10005.0,6.0,4800.0,1.17634375,4080.439922429137
+10115,"right Visceral area, layer 1",VISC1-R,10114.0,7.0,14.0,0.16690625,83.8794233289646
+10116,"right Visceral area, layer 2/3",VISC2/3-R,10114.0,7.0,345.0,0.271078125,1272.6958326128306
+10117,"right Visceral area, layer 4",VISC4-R,10114.0,7.0,465.0,0.091109375,5103.755788029497
+10118,"right Visceral area, layer 5",VISC5-R,10114.0,7.0,2438.0,0.35278125,6910.7981220657275
+10119,"right Visceral area, layer 6a",VISC6a-R,10114.0,7.0,1430.0,0.269078125,5314.441670054004
+10120,"right Visceral area, layer 6b",VISC6b-R,10114.0,7.0,108.0,0.025390625,4253.538461538462
+10121,right Auditory areas,AUD-R,10005.0,6.0,32217.0,2.89728125,11119.735096480537
+10122,right Dorsal auditory area,AUDd-R,10121.0,7.0,6329.0,0.60696875,10427.225454358237
+10123,"right Dorsal auditory area, layer 1",AUDd1-R,10122.0,8.0,13.0,0.09871875,131.6872427983539
+10124,"right Dorsal auditory area, layer 2/3",AUDd2/3-R,10122.0,8.0,1188.0,0.163453125,7268.138801261829
+10125,"right Dorsal auditory area, layer 4",AUDd4-R,10122.0,8.0,1137.0,0.066390625,17125.911979289245
+10126,"right Dorsal auditory area, layer 5",AUDd5-R,10122.0,8.0,2658.0,0.17121875,15524.00073006023
+10127,"right Dorsal auditory area, layer 6a",AUDd6a-R,10122.0,8.0,1139.0,0.092140625,12361.539765982703
+10128,"right Dorsal auditory area, layer 6b",AUDd6b-R,10122.0,8.0,194.0,0.015046875,12893.042575285566
+10136,right Primary auditory area,AUDp-R,10121.0,7.0,14887.0,1.07509375,13847.164491468768
+10137,"right Primary auditory area, layer 1",AUDp1-R,10136.0,8.0,144.0,0.1886875,763.1666114607485
+10138,"right Primary auditory area, layer 2/3",AUDp2/3-R,10136.0,8.0,2325.0,0.23571875,9863.449555879622
+10139,"right Primary auditory area, layer 4",AUDp4-R,10136.0,8.0,2640.0,0.117359375,22495.00732259353
+10140,"right Primary auditory area, layer 5",AUDp5-R,10136.0,8.0,7220.0,0.35709375,20218.78008226131
+10141,"right Primary auditory area, layer 6a",AUDp6a-R,10136.0,8.0,2151.0,0.14903125,14433.214510379534
+10142,"right Primary auditory area, layer 6b",AUDp6b-R,10136.0,8.0,407.0,0.027203125,14961.516369902354
+10143,right Posterior auditory area,AUDpo-R,10121.0,7.0,3733.0,0.3053125,12226.816786079837
+10144,"right Posterior auditory area, layer 1",AUDpo1-R,10143.0,8.0,25.0,0.056125,445.43429844097994
+10145,"right Posterior auditory area, layer 2/3",AUDpo2/3-R,10143.0,8.0,546.0,0.07325,7453.924914675768
+10146,"right Posterior auditory area, layer 4",AUDpo4-R,10143.0,8.0,769.0,0.0371875,20678.991596638658
+10147,"right Posterior auditory area, layer 5",AUDpo5-R,10143.0,8.0,1811.0,0.090703125,19966.236003445305
+10148,"right Posterior auditory area, layer 6a",AUDpo6a-R,10143.0,8.0,485.0,0.0393125,12337.04292527822
+10149,"right Posterior auditory area, layer 6b",AUDpo6b-R,10143.0,8.0,97.0,0.008734375,11105.545617173522
+10150,right Ventral auditory area,AUDv-R,10121.0,7.0,7268.0,0.90990625,7987.636088882783
+10151,"right Ventral auditory area, layer 1",AUDv1-R,10150.0,8.0,630.0,0.14425,4367.417677642981
+10152,"right Ventral auditory area, layer 2/3",AUDv2/3-R,10150.0,8.0,1379.0,0.1919375,7184.630413546076
+10153,"right Ventral auditory area, layer 4",AUDv4-R,10150.0,8.0,995.0,0.107203125,9281.445853374144
+10154,"right Ventral auditory area, layer 5",AUDv5-R,10150.0,8.0,2756.0,0.302015625,9125.355683170366
+10155,"right Ventral auditory area, layer 6a",AUDv6a-R,10150.0,8.0,1248.0,0.141203125,8838.331304636493
+10156,"right Ventral auditory area, layer 6b",AUDv6b-R,10150.0,8.0,260.0,0.023296875,11160.295103957074
+10157,right Visual areas,VIS-R,10005.0,6.0,42134.0,6.726890625,6263.517923632065
+10164,right Anterolateral visual area,VISal-R,10157.0,7.0,2787.0,0.377265625,7387.367985090081
+10165,"right Anterolateral visual area, layer 1",VISal1-R,10164.0,8.0,10.0,0.058296875,171.53578129187886
+10166,"right Anterolateral visual area, layer 2/3",VISal2/3-R,10164.0,8.0,485.0,0.09903125,4897.44398863995
+10167,"right Anterolateral visual area, layer 4",VISal4-R,10164.0,8.0,395.0,0.0520625,7587.03481392557
+10168,"right Anterolateral visual area, layer 5",VISal5-R,10164.0,8.0,1240.0,0.10153125,12212.988611880579
+10169,"right Anterolateral visual area, layer 6a",VISal6a-R,10164.0,8.0,558.0,0.055359375,10079.593564775614
+10170,"right Anterolateral visual area, layer 6b",VISal6b-R,10164.0,8.0,99.0,0.010984375,9012.802275960172
+10171,right Anteromedial visual area,VISam-R,10157.0,7.0,2512.0,0.395453125,6352.206724880477
+10172,"right Anteromedial visual area, layer 1",VISam1-R,10171.0,8.0,364.0,0.067546875,5388.850335415221
+10173,"right Anteromedial visual area, layer 2/3",VISam2/3-R,10171.0,8.0,451.0,0.103828125,4343.717080511663
+10174,"right Anteromedial visual area, layer 4",VISam4-R,10171.0,8.0,358.0,0.030125,11883.817427385893
+10175,"right Anteromedial visual area, layer 5",VISam5-R,10171.0,8.0,749.0,0.11346875,6600.936381162214
+10176,"right Anteromedial visual area, layer 6a",VISam6a-R,10171.0,8.0,504.0,0.068171875,7393.078157231263
+10177,"right Anteromedial visual area, layer 6b",VISam6b-R,10171.0,8.0,86.0,0.0123125,6984.771573604061
+10178,right Lateral visual area,VISl-R,10157.0,7.0,5430.0,0.612828125,8860.559394202086
+10179,"right Lateral visual area, layer 1",VISl1-R,10178.0,8.0,442.0,0.09240625,4783.226242813663
+10180,"right Lateral visual area, layer 2/3",VISl2/3-R,10178.0,8.0,1563.0,0.150921875,10356.351589191427
+10181,"right Lateral visual area, layer 4",VISl4-R,10178.0,8.0,1012.0,0.089609375,11293.461203138622
+10182,"right Lateral visual area, layer 5",VISl5-R,10178.0,8.0,1462.0,0.15721875,9299.145299145299
+10183,"right Lateral visual area, layer 6a",VISl6a-R,10178.0,8.0,837.0,0.10365625,8074.7663551401865
+10184,"right Lateral visual area, layer 6b",VISl6b-R,10178.0,8.0,114.0,0.019015625,5995.069843878389
+10185,right Primary visual area,VISp-R,10157.0,7.0,16025.0,3.535171875,4533.018638591652
+10186,"right Primary visual area, layer 1",VISp1-R,10185.0,8.0,1797.0,0.631125,2847.2964943553175
+10187,"right Primary visual area, layer 2/3",VISp2/3-R,10185.0,8.0,5111.0,1.000015625,5110.920141872783
+10188,"right Primary visual area, layer 4",VISp4-R,10185.0,8.0,2445.0,0.5121875,4773.642464917632
+10189,"right Primary visual area, layer 5",VISp5-R,10185.0,8.0,3588.0,0.77603125,4623.525147988564
+10190,"right Primary visual area, layer 6a",VISp6a-R,10185.0,8.0,2787.0,0.53453125,5213.914060216311
+10191,"right Primary visual area, layer 6b",VISp6b-R,10185.0,8.0,297.0,0.08128125,3653.9792387543253
+10192,right Posterolateral visual area,VISpl-R,10157.0,7.0,1735.0,0.39575,4384.0808591282375
+10193,"right Posterolateral visual area, layer 1",VISpl1-R,10192.0,8.0,375.0,0.094359375,3974.167908594138
+10194,"right Posterolateral visual area, layer 2/3",VISpl2/3-R,10192.0,8.0,462.0,0.10425,4431.654676258993
+10195,"right Posterolateral visual area, layer 4",VISpl4-R,10192.0,8.0,136.0,0.017875,7608.391608391609
+10196,"right Posterolateral visual area, layer 5",VISpl5-R,10192.0,8.0,588.0,0.121453125,4841.373986877654
+10197,"right Posterolateral visual area, layer 6a",VISpl6a-R,10192.0,8.0,171.0,0.05359375,3190.67055393586
+10198,"right Posterolateral visual area, layer 6b",VISpl6b-R,10192.0,8.0,3.0,0.00421875,711.1111111111111
+10199,right posteromedial visual area,VISpm-R,10157.0,7.0,3791.0,0.522546875,7254.851538438537
+10200,"right posteromedial visual area, layer 1",VISpm1-R,10199.0,8.0,370.0,0.094328125,3922.478052012589
+10201,"right posteromedial visual area, layer 2/3",VISpm2/3-R,10199.0,8.0,1010.0,0.1465625,6891.257995735607
+10202,"right posteromedial visual area, layer 4",VISpm4-R,10199.0,8.0,388.0,0.04925,7878.172588832487
+10203,"right posteromedial visual area, layer 5",VISpm5-R,10199.0,8.0,1154.0,0.143078125,8065.523643114557
+10204,"right posteromedial visual area, layer 6a",VISpm6a-R,10199.0,8.0,733.0,0.075609375,9694.5649927671
+10205,"right posteromedial visual area, layer 6b",VISpm6b-R,10199.0,8.0,136.0,0.01371875,9913.439635535307
+10206,right Laterointermediate area,VISli-R,10157.0,7.0,3132.0,0.24634375,12713.941392870734
+10207,"right Laterointermediate area, layer 1",VISli1-R,10206.0,8.0,118.0,0.0373125,3162.4790619765495
+10208,"right Laterointermediate area, layer 2/3",VISli2/3-R,10206.0,8.0,766.0,0.0584375,13108.021390374332
+10209,"right Laterointermediate area, layer 4",VISli4-R,10206.0,8.0,592.0,0.028546875,20737.821565407772
+10210,"right Laterointermediate area, layer 5",VISli5-R,10206.0,8.0,1138.0,0.074296875,15316.929547844375
+10211,"right Laterointermediate area, layer 6a",VISli6a-R,10206.0,8.0,459.0,0.03953125,11611.06719367589
+10212,"right Laterointermediate area, layer 6b",VISli6b-R,10206.0,8.0,59.0,0.00821875,7178.7072243346
+10213,right Postrhinal area,VISpor-R,10157.0,7.0,6722.0,0.64153125,10478.055433776608
+10214,"right Postrhinal area, layer 1",VISpor1-R,10213.0,8.0,662.0,0.1253125,5282.793017456359
+10215,"right Postrhinal area, layer 2/3",VISpor2/3-R,10213.0,8.0,2395.0,0.18690625,12813.91071727136
+10216,"right Postrhinal area, layer 4",VISpor4-R,10213.0,8.0,724.0,0.03025,23933.88429752066
+10217,"right Postrhinal area, layer 5",VISpor5-R,10213.0,8.0,2125.0,0.19259375,11033.587538536427
+10218,"right Postrhinal area, layer 6a",VISpor6a-R,10213.0,8.0,780.0,0.09009375,8657.648283038501
+10219,"right Postrhinal area, layer 6b",VISpor6b-R,10213.0,8.0,36.0,0.016375,2198.473282442748
+10220,right Anterior cingulate area,ACA-R,10005.0,6.0,6917.0,2.78553125,2483.188799264054
+10226,"right Anterior cingulate area, dorsal part",ACAd-R,10220.0,7.0,3942.0,1.573359375,2505.4670043199762
+10227,"right Anterior cingulate area, dorsal part, layer 1",ACAd1-R,10226.0,8.0,322.0,0.306203125,1051.5895290095423
+10228,"right Anterior cingulate area, dorsal part, layer 2/3",ACAd2/3-R,10226.0,8.0,1232.0,0.30678125,4015.8908016705714
+10229,"right Anterior cingulate area, dorsal part, layer 5",ACAd5-R,10226.0,8.0,1738.0,0.59771875,2907.7220682804414
+10230,"right Anterior cingulate area, dorsal part, layer 6a",ACAd6a-R,10226.0,8.0,647.0,0.3501875,1847.581652686061
+10231,"right Anterior cingulate area, dorsal part, layer 6b",ACAd6b-R,10226.0,8.0,3.0,0.01246875,240.6015037593985
+10232,"right Anterior cingulate area, ventral part",ACAv-R,10220.0,7.0,2975.0,1.212171875,2454.272419082484
+10233,"right Anterior cingulate area, ventral part, layer 1",ACAv1-R,10232.0,8.0,329.0,0.239359375,1374.5022521052288
+10234,"right Anterior cingulate area, ventral part, layer 2/3",ACAv2/3-R,10232.0,8.0,1183.0,0.261859375,4517.69198639537
+10235,"right Anterior cingulate area, ventral part, layer 5",ACAv5-R,10232.0,8.0,1174.0,0.49821875,2356.3946559618644
+10236,"right Anterior cingulate area, ventral part, 6a",ACAv6a-R,10232.0,8.0,286.0,0.181671875,1574.266792809839
+10237,"right Anterior cingulate area, ventral part, 6b",ACAv6b-R,10232.0,8.0,3.0,0.0310625,96.57947686116701
+10238,right Prelimbic area,PL-R,10005.0,6.0,6995.0,1.20953125,5783.232140550317
+10239,"right Prelimbic area, layer 1",PL1-R,10238.0,7.0,383.0,0.26446875,1448.186222379771
+10241,"right Prelimbic area, layer 2/3",PL2/3-R,10238.0,7.0,1746.0,0.211390625,8259.59050927637
+10242,"right Prelimbic area, layer 5",PL5-R,10238.0,7.0,3559.0,0.490953125,7249.164571464944
+10243,"right Prelimbic area, layer 6a",PL6a-R,10238.0,7.0,1300.0,0.232,5603.448275862069
+10244,"right Prelimbic area, layer 6b",PL6b-R,10238.0,7.0,7.0,0.01071875,653.0612244897959
+10245,right Infralimbic area,ILA-R,10005.0,6.0,3105.0,0.423375,7333.92382639504
+10246,"right Infralimbic area, layer 1",ILA1-R,10245.0,7.0,147.0,0.077,1909.090909090909
+10248,"right Infralimbic area, layer 2/3",ILA2/3-R,10245.0,7.0,678.0,0.071515625,9480.445706794844
+10249,"right Infralimbic area, layer 5",ILA5-R,10245.0,7.0,1576.0,0.166921875,9441.542637835813
+10250,"right Infralimbic area, layer 6a",ILA6a-R,10245.0,7.0,703.0,0.102484375,6859.582253392286
+10251,"right Infralimbic area, layer 6b",ILA6b-R,10245.0,7.0,1.0,0.005453125,183.3810888252149
+10252,right Orbital area,ORB-R,10005.0,6.0,8588.0,2.954953125,2906.3066778766583
+10258,"right Orbital area, lateral part",ORBl-R,10252.0,7.0,4782.0,1.363578125,3506.9497759800156
+10259,"right Orbital area, lateral part, layer 1",ORBl1-R,10258.0,8.0,270.0,0.187265625,1441.8022528160202
+10260,"right Orbital area, lateral part, layer 2/3",ORBl2/3-R,10258.0,8.0,888.0,0.310640625,2858.608721895277
+10261,"right Orbital area, lateral part, layer 5",ORBl5-R,10258.0,8.0,2809.0,0.60409375,4649.9405100615595
+10262,"right Orbital area, lateral part, layer 6a",ORBl6a-R,10258.0,8.0,783.0,0.23884375,3278.2938636660997
+10263,"right Orbital area, lateral part, layer 6b",ORBl6b-R,10258.0,8.0,32.0,0.022734375,1407.5601374570447
+10264,"right Orbital area, medial part",ORBm-R,10252.0,7.0,1966.0,0.703078125,2796.275307242705
+10265,"right Orbital area, medial part, layer 1",ORBm1-R,10264.0,8.0,279.0,0.21559375,1294.1005942890274
+10267,"right Orbital area, medial part, layer 2/3",ORBm2/3-R,10264.0,8.0,364.0,0.15665625,2323.5587472571315
+10268,"right Orbital area, medial part, layer 5",ORBm5-R,10264.0,8.0,853.0,0.2356875,3619.199151418722
+10269,"right Orbital area, medial part, layer 6a",ORBm6a-R,10264.0,8.0,470.0,0.09321875,5041.904123365739
+10270,"right Orbital area, medial part, layer 6b",ORBm6b-R,10264.0,8.0,0.0,0.001921875,0.0
+10272,"right Orbital area, ventrolateral part",ORBvl-R,10252.0,7.0,1840.0,0.888296875,2071.379571159698
+10273,"right Orbital area, ventrolateral part, layer 1",ORBvl1-R,10272.0,8.0,175.0,0.193109375,906.2221862610244
+10274,"right Orbital area, ventrolateral part, layer 2/3",ORBvl2/3-R,10272.0,8.0,564.0,0.2616875,2155.2424170050153
+10275,"right Orbital area, ventrolateral part, layer 5",ORBvl5-R,10272.0,8.0,831.0,0.30940625,2685.789314210686
+10276,"right Orbital area, ventrolateral part, layer 6a",ORBvl6a-R,10272.0,8.0,268.0,0.11915625,2249.14765276685
+10277,"right Orbital area, ventrolateral part, layer 6b",ORBvl6b-R,10272.0,8.0,2.0,0.0049375,405.0632911392405
+10278,right Agranular insular area,AI-R,10005.0,6.0,10644.0,3.947640625,2696.2940680548904
+10279,"right Agranular insular area, dorsal part",AId-R,10278.0,7.0,6665.0,1.8626875,3578.16327215381
+10280,"right Agranular insular area, dorsal part, layer 1",AId1-R,10279.0,8.0,567.0,0.230171875,2463.376552847736
+10281,"right Agranular insular area, dorsal part, layer 2/3",AId2/3-R,10279.0,8.0,1488.0,0.46253125,3217.079927031957
+10282,"right Agranular insular area, dorsal part, layer 5",AId5-R,10279.0,8.0,2639.0,0.75565625,3492.3286878127456
+10283,"right Agranular insular area, dorsal part, layer 6a",AId6a-R,10279.0,8.0,1953.0,0.3905625,5000.4800768122905
+10284,"right Agranular insular area, dorsal part, layer 6b",AId6b-R,10279.0,8.0,18.0,0.023765625,757.396449704142
+10285,"right Agranular insular area, posterior part",AIp-R,10278.0,7.0,2515.0,1.217875,2065.0723596428206
+10286,"right Agranular insular area, posterior part, layer 1",AIp1-R,10285.0,8.0,24.0,0.211859375,113.28269046389852
+10287,"right Agranular insular area, posterior part, layer 2/3",AIp2/3-R,10285.0,8.0,566.0,0.401546875,1409.5490096890928
+10288,"right Agranular insular area, posterior part, layer 5",AIp5-R,10285.0,8.0,1196.0,0.376234375,3178.8695543834874
+10289,"right Agranular insular area, posterior part, layer 6a",AIp6a-R,10285.0,8.0,701.0,0.217828125,3218.1335628721035
+10290,"right Agranular insular area, posterior part, layer 6b",AIp6b-R,10285.0,8.0,28.0,0.01040625,2690.6906906906906
+10291,"right Agranular insular area, ventral part",AIv-R,10278.0,7.0,1464.0,0.867078125,1688.429171246824
+10292,"right Agranular insular area, ventral part, layer 1",AIv1-R,10291.0,8.0,157.0,0.12509375,1255.0587059705222
+10293,"right Agranular insular area, ventral part, layer 2/3",AIv2/3-R,10291.0,8.0,447.0,0.2971875,1504.1009463722398
+10294,"right Agranular insular area, ventral part, layer 5",AIv5-R,10291.0,8.0,607.0,0.359796875,1687.063012984757
+10295,"right Agranular insular area, ventral part, layer 6a",AIv6a-R,10291.0,8.0,253.0,0.08346875,3031.0745039311123
+10296,"right Agranular insular area, ventral part, layer 6b",AIv6b-R,10291.0,8.0,0.0,0.00153125,0.0
+10297,right Retrosplenial area,RSP-R,10005.0,6.0,10181.0,5.25715625,1936.5983272800763
+10298,"right Retrosplenial area, lateral agranular part",RSPagl-R,10297.0,7.0,4659.0,1.1773125,3957.318044274566
+10299,"right Retrosplenial area, lateral agranular part, layer 1",RSPagl1-R,10298.0,8.0,1323.0,0.252921875,5230.864273799963
+10300,"right Retrosplenial area, lateral agranular part, layer 2/3",RSPagl2/3-R,10298.0,8.0,1215.0,0.33521875,3624.498927938846
+10301,"right Retrosplenial area, lateral agranular part, layer 5",RSPagl5-R,10298.0,8.0,1353.0,0.366015625,3696.563500533618
+10302,"right Retrosplenial area, lateral agranular part, layer 6a",RSPagl6a-R,10298.0,8.0,732.0,0.205265625,3566.110984242978
+10303,"right Retrosplenial area, lateral agranular part, layer 6b",RSPagl6b-R,10298.0,8.0,36.0,0.017890625,2012.2270742358078
+10325,"right Retrosplenial area, dorsal part",RSPd-R,10297.0,7.0,3593.0,1.896390625,1894.651846847218
+10326,"right Retrosplenial area, dorsal part, layer 1",RSPd1-R,10325.0,8.0,792.0,0.412265625,1921.0915292779987
+10327,"right Retrosplenial area, dorsal part, layer 2/3",RSPd2/3-R,10325.0,8.0,893.0,0.486953125,1833.8520776512114
+10329,"right Retrosplenial area, dorsal part, layer 5",RSPd5-R,10325.0,8.0,990.0,0.601875,1644.859813084112
+10330,"right Retrosplenial area, dorsal part, layer 6a",RSPd6a-R,10325.0,8.0,899.0,0.379296875,2370.175077239959
+10331,"right Retrosplenial area, dorsal part, layer 6b",RSPd6b-R,10325.0,8.0,19.0,0.016,1187.5
+10332,"right Retrosplenial area, ventral part",RSPv-R,10297.0,7.0,1929.0,2.183453125,883.4629779377561
+10333,"right Retrosplenial area, ventral part, layer 1",RSPv1-R,10332.0,8.0,257.0,0.48365625,531.3691283840537
+10335,"right Retrosplenial area, ventral part, layer 2/3",RSPv2/3-R,10332.0,8.0,543.0,0.50909375,1066.601190841569
+10336,"right Retrosplenial area, ventral part, layer 5",RSPv5-R,10332.0,8.0,776.0,0.83690625,927.2245248497069
+10337,"right Retrosplenial area, ventral part, layer 6a",RSPv6a-R,10332.0,8.0,341.0,0.32978125,1034.0187624372215
+10338,"right Retrosplenial area, ventral part, layer 6b",RSPv6b-R,10332.0,8.0,12.0,0.024015625,499.6746909564086
+10339,right Posterior parietal association areas,PTLp-R,10005.0,6.0,5190.0,1.226875,4230.259806418747
+10346,right Anterior area,VISa-R,10339.0,7.0,2931.0,0.718921875,4076.938123492208
+10347,"right Anterior area, layer 1",VISa1-R,10346.0,8.0,171.0,0.1199375,1425.7425742574258
+10348,"right Anterior area, layer 2/3",VISa2/3-R,10346.0,8.0,732.0,0.212921875,3437.880678065605
+10349,"right Anterior area, layer 4",VISa4-R,10346.0,8.0,379.0,0.077625,4882.447665056361
+10350,"right Anterior area, layer 5",VISa5-R,10346.0,8.0,901.0,0.1774375,5077.8443113772455
+10351,"right Anterior area, layer 6a",VISa6a-R,10346.0,8.0,643.0,0.11134375,5774.908784731967
+10352,"right Anterior area, layer 6b",VISa6b-R,10346.0,8.0,105.0,0.01965625,5341.81240063593
+10353,right Rostrolateral visual area,VISrl-R,10339.0,7.0,2259.0,0.507953125,4447.260758559169
+10354,"right Rostrolateral area, layer 1",VISrl1-R,10353.0,8.0,19.0,0.084875,223.8586156111929
+10355,"right Rostrolateral area, layer 2/3",VISrl2/3-R,10353.0,8.0,435.0,0.13784375,3155.7469961459988
+10356,"right Rostrolateral area, layer 4",VISrl4-R,10353.0,8.0,280.0,0.0730625,3832.3353293413174
+10357,"right Rostrolateral area, layer 5",VISrl5-R,10353.0,8.0,828.0,0.122328125,6768.6805466854
+10358,"right Rostrolateral area, layer 6a",VISrl6a-R,10353.0,8.0,594.0,0.0756875,7848.0594549958705
+10359,"right Rostrolateral area, layer 6b",VISrl6b-R,10353.0,8.0,103.0,0.01415625,7275.938189845474
+10360,right Temporal association areas,TEa-R,10005.0,6.0,11027.0,1.551015625,7109.5350828590135
+10361,"right Temporal association areas, layer 1",TEa1-R,10360.0,7.0,600.0,0.26396875,2272.996330058009
+10362,"right Temporal association areas, layer 2/3",TEa2/3-R,10360.0,7.0,2612.0,0.34825,7500.358937544867
+10363,"right Temporal association areas, layer 4",TEa4-R,10360.0,7.0,1530.0,0.1559375,9811.623246492985
+10364,"right Temporal association areas, layer 5",TEa5-R,10360.0,7.0,3750.0,0.47590625,7879.703197846215
+10365,"right Temporal association areas, layer 6a",TEa6a-R,10360.0,7.0,2182.0,0.263484375,8281.325979956116
+10366,"right Temporal association areas, layer 6b",TEa6b-R,10360.0,7.0,353.0,0.04346875,8120.77641984184
+10367,right Perirhinal area,PERI-R,10005.0,6.0,1470.0,0.395,3721.518987341772
+10368,"right Perirhinal area, layer 1",PERI1-R,10367.0,7.0,336.0,0.1109375,3028.7323943661972
+10369,"right Perirhinal area, layer 2/3",PERI2/3-R,10367.0,7.0,654.0,0.166546875,3926.822403602589
+10370,"right Perirhinal area, layer 5",PERI5-R,10367.0,7.0,296.0,0.084,3523.8095238095234
+10371,"right Perirhinal area, layer 6a",PERI6a-R,10367.0,7.0,161.0,0.027,5962.962962962963
+10372,"right Perirhinal area, layer 6b",PERI6b-R,10367.0,7.0,23.0,0.006515625,3529.9760191846526
+10373,right Ectorhinal area,ECT-R,10005.0,6.0,4515.0,0.85615625,5273.57009891594
+10374,right Ectorhinal area/Layer 1,ECT1-R,10373.0,7.0,422.0,0.12846875,3284.8455363658477
+10375,right Ectorhinal area/Layer 2/3,ECT2/3-R,10373.0,7.0,1944.0,0.239046875,8132.296228511667
+10376,right Ectorhinal area/Layer 5,ECT5-R,10373.0,7.0,1016.0,0.264375,3843.026004728132
+10377,right Ectorhinal area/Layer 6a,ECT6a-R,10373.0,7.0,984.0,0.194765625,5052.22623345367
+10378,right Ectorhinal area/Layer 6b,ECT6b-R,10373.0,7.0,149.0,0.0295,5050.847457627119
+10379,right Olfactory areas,OLF-R,10004.0,5.0,46366.0,23.3463125,1986.0095678921457
+10380,right Main olfactory bulb,MOB-R,10379.0,6.0,7861.0,8.23128125,955.0153568133758
+10386,right Accessory olfactory bulb,AOB-R,10379.0,6.0,551.0,0.32590625,1690.670246428229
+10387,"right Accessory olfactory bulb, glomerular layer",AOBgl-R,10386.0,7.0,79.0,0.07715625,1023.8963142972864
+10388,"right Accessory olfactory bulb, granular layer",AOBgr-R,10386.0,7.0,330.0,0.11025,2993.197278911565
+10389,"right Accessory olfactory bulb, mitral layer",AOBmi-R,10386.0,7.0,142.0,0.1385,1025.2707581227437
+10390,right Anterior olfactory nucleus,AON-R,10379.0,6.0,4634.0,2.43503125,1903.0556589366151
+10398,right Taenia tecta,TT-R,10379.0,6.0,1482.0,0.724765625,2044.79896518271
+10399,"right Taenia tecta, dorsal part",TTd-R,10398.0,7.0,933.0,0.364328125,2560.8783291160958
+10405,"right Taenia tecta, ventral part",TTv-R,10398.0,7.0,549.0,0.3604375,1523.1489509276919
+10410,right Dorsal peduncular area,DP-R,10379.0,6.0,479.0,0.251671875,1903.2718693735644
+10416,right Piriform area,PIR-R,10379.0,6.0,17102.0,5.783140625,2957.21669400007
+10421,right Nucleus of the lateral olfactory tract,NLOT-R,10379.0,6.0,447.0,0.159328125,2805.5310385407474
+10423,"right Nucleus of the lateral olfactory tract, molecular layer",NLOT1-R,10421.0,7.0,142.0,0.055703125,2549.2286115007014
+10424,"right Nucleus of the lateral olfactory tract, pyramidal layer",NLOT2-R,10421.0,7.0,276.0,0.074671875,3696.1707470182046
+10425,"right Nucleus of the lateral olfactory tract, layer 3",NLOT3-R,10421.0,7.0,29.0,0.028953125,1001.6189962223422
+10426,right Cortical amygdalar area,COA-R,10379.0,6.0,6078.0,1.632734375,3722.5895975884014
+10427,"right Cortical amygdalar area, anterior part",COAa-R,10426.0,7.0,2089.0,0.384109375,5438.555099052191
+10431,"right Cortical amygdalar area, posterior part",COAp-R,10426.0,7.0,3989.0,1.248625,3194.7141856041644
+10432,"right Cortical amygdalar area, posterior part, lateral zone",COApl-R,10431.0,8.0,1832.0,0.601015625,3048.1736643702066
+10438,"right Cortical amygdalar area, posterior part, medial zone",COApm-R,10431.0,8.0,2157.0,0.647609375,3330.7115110864474
+10444,right Piriform-amygdalar area,PAA-R,10379.0,6.0,1781.0,0.595671875,2989.9011095664036
+10449,right Postpiriform transition area,TR-R,10379.0,6.0,2496.0,0.699109375,3570.25679994636
+10454,right Hippocampal formation,HPF-R,10004.0,5.0,40812.0,21.32703125,1913.6278050889055
+10455,right Hippocampal region,HIP-R,10454.0,6.0,14133.0,11.8685,1190.7991742848717
+10456,right Ammon's horn,CA-R,10455.0,7.0,10421.0,8.47478125,1229.6482578827624
+10457,right Field CA1,CA1-R,10456.0,8.0,6551.0,5.105078125,1283.2320759048127
+10462,right Field CA2,CA2-R,10456.0,8.0,205.0,0.2374375,863.3851013424586
+10467,right Field CA3,CA3-R,10456.0,8.0,3665.0,3.132265625,1170.0795650113487
+10473,right Dentate gyrus,DG-R,10455.0,7.0,3699.0,3.298953125,1121.2647951765
+10474,"right Dentate gyrus, molecular layer",DG-mo-R,10473.0,8.0,1628.0,2.156515625,754.9214951781303
+10475,"right Dentate gyrus, polymorph layer",DG-po-R,10473.0,8.0,800.0,0.341859375,2340.1435166141046
+10476,"right Dentate gyrus, granule cell layer",DG-sg-R,10473.0,8.0,1271.0,0.800578125,1587.6027089798388
+10490,right Fasciola cinerea,FC-R,10455.0,7.0,8.0,0.031125,257.0281124497992
+10491,right Induseum griseum,IG-R,10455.0,7.0,5.0,0.063640625,78.56616744414436
+10492,right Retrohippocampal region,RHP-R,10454.0,6.0,26253.0,9.247609375,2838.895863288992
+10493,right Entorhinal area,ENT-R,10492.0,7.0,20598.0,5.70525,3610.3588799789663
+10494,"right Entorhinal area, lateral part",ENTl-R,10493.0,8.0,11946.0,3.1900625,3744.754217197939
+10495,"right Entorhinal area, lateral part, layer 1",ENTl1-R,10494.0,9.0,1945.0,0.49084375,3962.564461704972
+10496,"right Entorhinal area, lateral part, layer 2",ENTl2-R,10494.0,9.0,3444.0,0.801296875,4298.032486399002
+10500,"right Entorhinal area, lateral part, layer 3",ENTl3-R,10494.0,9.0,2099.0,0.657828125,3190.8030688107174
+10503,"right Entorhinal area, lateral part, layer 5",ENTl5-R,10494.0,9.0,2923.0,0.714703125,4089.810017271157
+10505,"right Entorhinal area, lateral part, layer 6a",ENTl6a-R,10494.0,9.0,1535.0,0.525390625,2921.635687732342
+10507,"right Entorhinal area, medial part, dorsal zone",ENTm-R,10493.0,8.0,8652.0,2.5151875,3439.9025917550875
+10508,"right Entorhinal area, medial part, dorsal zone, layer 1",ENTm1-R,10507.0,9.0,1758.0,0.622875,2822.3961468994585
+10509,"right Entorhinal area, medial part, dorsal zone, layer 2",ENTm2-R,10507.0,9.0,2281.0,0.62978125,3621.892522205131
+10512,"right Entorhinal area, medial part, dorsal zone, layer 3",ENTm3-R,10507.0,9.0,1718.0,0.491859375,3492.868261380603
+10514,"right Entorhinal area, medial part, dorsal zone, layer 5",ENTm5-R,10507.0,9.0,1701.0,0.45671875,3724.3927471775573
+10516,"right Entorhinal area, medial part, dorsal zone, layer 6",ENTm6-R,10507.0,9.0,1194.0,0.313953125,3803.115512865177
+10523,right Parasubiculum,PAR-R,10492.0,7.0,392.0,0.466046875,841.1171086599389
+10527,right Postsubiculum,POST-R,10492.0,7.0,233.0,0.54021875,431.30676230693587
+10531,right Presubiculum,PRE-R,10492.0,7.0,352.0,0.4620625,761.8017043148925
+10535,right Subiculum,SUB-R,10492.0,7.0,1920.0,1.052015625,1825.0679499175692
+10544,right Prosubiculum,ProS-R,10492.0,7.0,1695.0,0.649890625,2608.131175919025
+10553,right Hippocampo-amygdalar transition area,HATA-R,10492.0,7.0,929.0,0.21071875,4408.72015423402
+10554,right Area prostriata,APr-R,10492.0,7.0,134.0,0.16140625,830.2032913843175
+10555,right Cortical subplate,CTXsp-R,10003.0,4.0,13647.0,4.45275,3064.8475661108305
+10557,right Claustrum,CLA-R,10555.0,5.0,1469.0,0.27528125,5336.360540356454
+10558,right Endopiriform nucleus,EP-R,10555.0,5.0,3080.0,1.394734375,2208.3057929937377
+10559,"right Endopiriform nucleus, dorsal part",EPd-R,10558.0,6.0,1992.0,0.908265625,2193.191006210325
+10560,"right Endopiriform nucleus, ventral part",EPv-R,10558.0,6.0,1088.0,0.48646875,2236.5259844542943
+10561,right Lateral amygdalar nucleus,LA-R,10555.0,5.0,1736.0,0.420140625,4131.949867975753
+10562,right Basolateral amygdalar nucleus,BLA-R,10555.0,5.0,3097.0,0.94975,3260.8581205580417
+10563,"right Basolateral amygdalar nucleus, anterior part",BLAa-R,10562.0,6.0,1776.0,0.3850625,4612.238273007629
+10564,"right Basolateral amygdalar nucleus, posterior part",BLAp-R,10562.0,6.0,1014.0,0.355421875,2852.9476414472238
+10565,"right Basolateral amygdalar nucleus, ventral part",BLAv-R,10562.0,6.0,307.0,0.209265625,1467.0350182931381
+10566,right Basomedial amygdalar nucleus,BMA-R,10555.0,5.0,2642.0,0.743,3555.8546433378197
+10567,"right Basomedial amygdalar nucleus, anterior part",BMAa-R,10566.0,6.0,1455.0,0.38415625,3787.521353615879
+10568,"right Basomedial amygdalar nucleus, posterior part",BMAp-R,10566.0,6.0,1187.0,0.35884375,3307.8463816075937
+10569,right Posterior amygdalar nucleus,PA-R,10555.0,5.0,1252.0,0.48284375,2592.971328716588
+10570,right Cerebral nuclei,CNU-R,10002.0,3.0,39574.0,27.186828125,1455.6313747983427
+10571,right Striatum,STR-R,10570.0,4.0,35054.0,22.490421875,1558.6190510265828
+10572,right Striatum dorsal region,STRd-R,10571.0,5.0,10592.0,13.0101875,814.1312336966704
+10573,right Caudoputamen,CP-R,10572.0,6.0,10592.0,13.0101875,814.1312336966704
+10574,right Striatum ventral region,STRv-R,10571.0,5.0,5297.0,4.3243125,1224.9345994305454
+10575,right Nucleus accumbens,ACB-R,10574.0,6.0,3182.0,2.198734375,1447.196185305467
+10576,right Fundus of striatum,FS-R,10574.0,6.0,399.0,0.215703125,1849.7645780514306
+10577,right Olfactory tubercle,OT-R,10574.0,6.0,1716.0,1.909875,898.488120950324
+10585,right Lateral septal complex,LSX-R,10571.0,5.0,7320.0,1.786109375,4098.293252617858
+10586,right Lateral septal nucleus,LS-R,10585.0,6.0,6999.0,1.527,4583.4970530451865
+10587,"right Lateral septal nucleus, caudal (caudodorsal) part",LSc-R,10586.0,7.0,108.0,0.281171875,384.106696304529
+10588,"right Lateral septal nucleus, rostral (rostroventral) part",LSr-R,10586.0,7.0,3917.0,0.94175,4159.27794000531
+10589,"right Lateral septal nucleus, ventral part",LSv-R,10586.0,7.0,2974.0,0.304078125,9780.381275371255
+10590,right Septofimbrial nucleus,SF-R,10585.0,6.0,305.0,0.240625,1267.5324675324675
+10591,right Septohippocampal nucleus,SH-R,10585.0,6.0,16.0,0.018484375,865.5959425190194
+10592,right Striatum-like amygdalar nuclei,sAMY-R,10571.0,5.0,8543.0,2.02428125,4220.263365083286
+10593,right Anterior amygdalar area,AAA-R,10592.0,6.0,114.0,0.247453125,460.69331312748625
+10594,right Bed nucleus of the accessory olfactory tract,BA-R,10592.0,6.0,65.0,0.01246875,5213.032581453634
+10595,right Central amygdalar nucleus,CEA-R,10592.0,6.0,2169.0,0.6586875,3292.9120409906063
+10596,"right Central amygdalar nucleus, capsular part",CEAc-R,10595.0,7.0,443.0,0.154875,2860.371267150928
+10597,"right Central amygdalar nucleus, lateral part",CEAl-R,10595.0,7.0,532.0,0.12990625,4095.261005532836
+10598,"right Central amygdalar nucleus, medial part",CEAm-R,10595.0,7.0,1194.0,0.37390625,3193.3138320100293
+10599,right Intercalated amygdalar nucleus,IA-R,10592.0,6.0,298.0,0.09121875,3266.872216512504
+10600,right Medial amygdalar nucleus,MEA-R,10592.0,6.0,5897.0,1.014453125,5812.984212552946
+10608,right Pallidum,PAL-R,10570.0,4.0,4520.0,4.69640625,962.4380344013042
+10609,"right Pallidum, dorsal region",PALd-R,10608.0,5.0,315.0,0.994328125,316.7968320316797
+10610,"right Globus pallidus, external segment",GPe-R,10609.0,6.0,233.0,0.7826875,297.69224626686895
+10611,"right Globus pallidus, internal segment",GPi-R,10609.0,6.0,82.0,0.211640625,387.44924326319676
+10612,"right Pallidum, ventral region",PALv-R,10608.0,5.0,1048.0,1.69628125,617.8220740222177
+10613,right Substantia innominata,SI-R,10612.0,6.0,1032.0,1.514046875,681.6169413513039
+10614,right Magnocellular nucleus,MA-R,10612.0,6.0,16.0,0.182234375,87.79902254994427
+10615,"right Pallidum, medial region",PALm-R,10608.0,5.0,581.0,0.766171875,758.315488936474
+10616,right Medial septal complex,MSC-R,10615.0,6.0,408.0,0.586015625,696.2271697107052
+10617,right Medial septal nucleus,MS-R,10616.0,7.0,373.0,0.21390625,1743.754565376187
+10618,right Diagonal band nucleus,NDB-R,10616.0,7.0,35.0,0.372109375,94.05836657568759
+10619,right Triangular nucleus of septum,TRS-R,10615.0,6.0,173.0,0.18015625,960.2775368603643
+10620,"right Pallidum, caudal region",PALc-R,10608.0,5.0,2259.0,0.6740625,3351.3212795549375
+10621,right Bed nuclei of the stria terminalis,BST-R,10620.0,6.0,2251.0,0.670265625,3358.370049187589
+10638,right Bed nucleus of the anterior commissure,BAC-R,10620.0,6.0,8.0,0.003796875,2106.9958847736625
+10639,right Brain stem,BS-R,10001.0,2.0,70720.0,60.070484375,1177.2836649446444
+10640,right Interbrain,IB-R,10639.0,3.0,32596.0,17.777890625,1833.5133614874514
+10641,right Thalamus,TH-R,10640.0,4.0,10641.0,10.156609375,1047.6921585851578
+10642,"right Thalamus, sensory-motor cortex related",DORsm-R,10641.0,5.0,1888.0,3.340140625,565.2456623738708
+10643,right Ventral group of the dorsal thalamus,VENT-R,10642.0,6.0,327.0,2.429421875,134.5999241074587
+10644,right Ventral anterior-lateral complex of the thalamus,VAL-R,10643.0,7.0,24.0,0.40825,58.78750765462339
+10645,right Ventral medial nucleus of the thalamus,VM-R,10643.0,7.0,140.0,0.463640625,301.9580089643784
+10646,right Ventral posterior complex of the thalamus,VP-R,10643.0,7.0,116.0,1.41740625,81.83962784134754
+10647,right Ventral posterolateral nucleus of the thalamus,VPL-R,10646.0,8.0,30.0,0.43796875,68.49803781662504
+10648,"right Ventral posterolateral nucleus of the thalamus, parvicellular part",VPLpc-R,10646.0,8.0,1.0,0.0494375,20.2275600505689
+10649,right Ventral posteromedial nucleus of the thalamus,VPM-R,10646.0,8.0,31.0,0.82265625,37.68281101614435
+10650,"right Ventral posteromedial nucleus of the thalamus, parvicellular part",VPMpc-R,10646.0,8.0,54.0,0.10734375,503.05676855895194
+10651,right Posterior triangular thalamic nucleus,PoT-R,10643.0,7.0,47.0,0.140125,335.41480820695807
+10652,right Subparafascicular nucleus,SPF-R,10642.0,6.0,584.0,0.1019375,5729.000613120785
+10653,"right Subparafascicular nucleus, magnocellular part",SPFm-R,10652.0,7.0,401.0,0.034859375,11503.361721201256
+10654,"right Subparafascicular nucleus, parvicellular part",SPFp-R,10652.0,7.0,183.0,0.067078125,2728.1621243885393
+10655,right Subparafascicular area,SPA-R,10642.0,6.0,240.0,0.067234375,3569.602602835231
+10656,right Peripeduncular nucleus,PP-R,10642.0,6.0,91.0,0.030875,2947.3684210526317
+10657,"right Geniculate group, dorsal thalamus",GENd-R,10642.0,6.0,646.0,0.710671875,908.9989666468791
+10658,right Medial geniculate complex,MG-R,10657.0,7.0,132.0,0.350015625,377.12602115976966
+10659,"right Medial geniculate complex, dorsal part",MGd-R,10658.0,8.0,81.0,0.08615625,940.1523394994559
+10660,"right Medial geniculate complex, ventral part",MGv-R,10658.0,8.0,49.0,0.13859375,353.5512965050733
+10661,"right Medial geniculate complex, medial part",MGm-R,10658.0,8.0,2.0,0.125265625,15.966072096794313
+10662,right Dorsal part of the lateral geniculate complex,LGd-R,10657.0,7.0,514.0,0.36065625,1425.1797937787019
+10663,"right Dorsal part of the lateral geniculate complex, shell",LGd-sh-R,10662.0,8.0,208.0,0.1035,2009.6618357487923
+10664,"right Dorsal part of the lateral geniculate complex, core",LGd-co-R,10662.0,8.0,291.0,0.20915625,1391.304347826087
+10665,"right Dorsal part of the lateral geniculate complex, ipsilateral zone",LGd-ip-R,10662.0,8.0,15.0,0.048,312.5
+10666,"right Thalamus, polymodal association cortex related",DORpm-R,10641.0,5.0,8010.0,6.356421875,1260.1429164894755
+10667,right Lateral group of the dorsal thalamus,LAT-R,10666.0,6.0,554.0,1.540796875,359.5542079484033
+10668,right Lateral posterior nucleus of the thalamus,LP-R,10667.0,7.0,308.0,0.602390625,511.29613778434884
+10669,right Posterior complex of the thalamus,PO-R,10667.0,7.0,59.0,0.626046875,94.2421444081164
+10670,right Posterior limiting nucleus of the thalamus,POL-R,10667.0,7.0,110.0,0.10290625,1068.9341026419677
+10671,right Suprageniculate nucleus,SGN-R,10667.0,7.0,23.0,0.090875,253.0949105914718
+10672,right Ethmoid nucleus of the thalamus,Eth-R,10667.0,7.0,54.0,0.118578125,455.39596784820134
+10674,right Anterior group of the dorsal thalamus,ATN-R,10666.0,6.0,700.0,1.079328125,648.5516163122313
+10675,right Anteroventral nucleus of thalamus,AV-R,10674.0,7.0,129.0,0.20815625,619.7267677525897
+10676,right Anteromedial nucleus,AM-R,10674.0,7.0,98.0,0.2054375,477.0307271067843
+10677,"right Anteromedial nucleus, dorsal part",AMd-R,10676.0,8.0,60.0,0.122453125,489.9834120199056
+10678,"right Anteromedial nucleus, ventral part",AMv-R,10676.0,8.0,38.0,0.082984375,457.91752965543213
+10679,right Anterodorsal nucleus,AD-R,10674.0,7.0,66.0,0.07990625,825.9679311693391
+10680,right Interanteromedial nucleus of the thalamus,IAM-R,10674.0,7.0,42.0,0.02159375,1945.0072358900147
+10681,right Interanterodorsal nucleus of the thalamus,IAD-R,10674.0,7.0,192.0,0.056515625,3397.2905722974842
+10682,right Lateral dorsal nucleus of thalamus,LD-R,10674.0,7.0,173.0,0.50771875,340.73982889148766
+10683,right Medial group of the dorsal thalamus,MED-R,10666.0,6.0,1504.0,1.01,1489.1089108910892
+10684,right Intermediodorsal nucleus of the thalamus,IMD-R,10683.0,7.0,206.0,0.0910625,2262.1825669183254
+10685,right Mediodorsal nucleus of thalamus,MD-R,10683.0,7.0,1126.0,0.68928125,1633.5857097520063
+10689,right Submedial nucleus of the thalamus,SMT-R,10683.0,7.0,13.0,0.153921875,84.45843061618109
+10690,right Perireunensis nucleus,PR-R,10683.0,7.0,159.0,0.075734375,2099.442954404786
+10691,right Midline group of the dorsal thalamus,MTN-R,10666.0,6.0,2804.0,0.60178125,4659.500441397933
+10692,right Paraventricular nucleus of the thalamus,PVT-R,10691.0,7.0,2020.0,0.227078125,8895.616871946604
+10693,right Parataenial nucleus,PT-R,10691.0,7.0,507.0,0.114765625,4417.699115044248
+10694,right Nucleus of reuniens,RE-R,10691.0,7.0,208.0,0.21415625,971.2534656354882
+10695,right Xiphoid thalamic nucleus,Xi-R,10691.0,7.0,69.0,0.04578125,1507.1672354948805
+10696,right Intralaminar nuclei of the dorsal thalamus,ILM-R,10666.0,6.0,1130.0,0.805875,1402.2025748410113
+10697,right Rhomboid nucleus,RH-R,10696.0,7.0,81.0,0.046546875,1740.1812688821751
+10698,right Central medial nucleus of the thalamus,CM-R,10696.0,7.0,197.0,0.127234375,1548.3237136190592
+10699,right Paracentral nucleus,PCN-R,10696.0,7.0,34.0,0.119375,284.8167539267016
+10700,right Central lateral nucleus of the thalamus,CL-R,10696.0,7.0,319.0,0.179890625,1773.2997481108312
+10701,right Parafascicular nucleus,PF-R,10696.0,7.0,181.0,0.245109375,738.4458468795818
+10702,right Posterior intralaminar thalamic nucleus,PIL-R,10696.0,7.0,318.0,0.08771875,3625.22265764161
+10703,right Reticular nucleus of the thalamus,RT-R,10666.0,6.0,66.0,0.72375,91.19170984455958
+10704,"right Geniculate group, ventral thalamus",GENv-R,10666.0,6.0,825.0,0.26209375,3147.728627638011
+10705,right Intergeniculate leaflet of the lateral geniculate complex,IGL-R,10704.0,7.0,99.0,0.034546875,2865.6716417910447
+10706,right Intermediate geniculate nucleus,IntG-R,10704.0,7.0,18.0,0.011453125,1571.6234652114597
+10707,right Ventral part of the lateral geniculate complex,LGv-R,10704.0,7.0,705.0,0.202453125,3482.2875665663346
+10710,right Subgeniculate nucleus,SubG-R,10704.0,7.0,3.0,0.013640625,219.93127147766324
+10711,right Epithalamus,EPI-R,10666.0,6.0,427.0,0.332796875,1283.064932625945
+10712,right Medial habenula,MH-R,10711.0,7.0,124.0,0.159953125,775.2271173195272
+10713,right Lateral habenula,LH-R,10711.0,7.0,303.0,0.17284375,1753.0283854637498
+10715,right Hypothalamus,HY-R,10640.0,4.0,21955.0,7.62128125,2880.7492178562497
+10716,right Periventricular zone,PVZ-R,10715.0,5.0,811.0,0.3959375,2048.3030781373322
+10717,right Supraoptic nucleus,SO-R,10716.0,6.0,29.0,0.02359375,1229.1390728476822
+10718,right Accessory supraoptic group,ASO-R,10716.0,6.0,8.0,0.003015625,2652.8497409326424
+10720,right Paraventricular hypothalamic nucleus,PVH-R,10716.0,6.0,495.0,0.095890625,5162.1313345282715
+10731,"right Periventricular hypothalamic nucleus, anterior part",PVa-R,10716.0,6.0,36.0,0.02525,1425.7425742574258
+10732,"right Periventricular hypothalamic nucleus, intermediate part",PVi-R,10716.0,6.0,56.0,0.103765625,539.6777593735883
+10733,right Arcuate hypothalamic nucleus,ARH-R,10716.0,6.0,187.0,0.144421875,1294.817699880991
+10734,right Periventricular region,PVR-R,10715.0,5.0,3829.0,1.0321875,3709.597335755374
+10735,right Anterodorsal preoptic nucleus,ADP-R,10734.0,6.0,252.0,0.049375,5103.79746835443
+10737,right Anteroventral preoptic nucleus,AVP-R,10734.0,6.0,84.0,0.046234375,1816.8300101385603
+10738,right Anteroventral periventricular nucleus,AVPV-R,10734.0,6.0,84.0,0.09271875,905.9656218402426
+10739,right Dorsomedial nucleus of the hypothalamus,DMH-R,10734.0,6.0,1846.0,0.1899375,9718.986508719972
+10743,right Median preoptic nucleus,MEPO-R,10734.0,6.0,50.0,0.022328125,2239.328201539538
+10744,right Medial preoptic area,MPO-R,10734.0,6.0,667.0,0.278109375,2398.336985223889
+10745,right Vascular organ of the lamina terminalis,OV-R,10734.0,6.0,0.0,0.004578125,0.0
+10746,right Posterodorsal preoptic nucleus,PD-R,10734.0,6.0,33.0,0.00584375,5647.058823529412
+10747,right Parastrial nucleus,PS-R,10734.0,6.0,279.0,0.04815625,5793.640493186243
+10749,"right Periventricular hypothalamic nucleus, posterior part",PVp-R,10734.0,6.0,55.0,0.064015625,859.1652428606296
+10750,"right Periventricular hypothalamic nucleus, preoptic part",PVpo-R,10734.0,6.0,152.0,0.072546875,2095.197070859358
+10751,right Subparaventricular zone,SBPV-R,10734.0,6.0,141.0,0.0554375,2543.4047350620067
+10752,right Suprachiasmatic nucleus,SCH-R,10734.0,6.0,58.0,0.033078125,1753.4246575342465
+10753,right Subfornical organ,SFO-R,10734.0,6.0,0.0,0.011171875,0.0
+10754,right Ventromedial preoptic nucleus,VMPO-R,10734.0,6.0,53.0,0.025046875,2116.032439176544
+10755,right Ventrolateral preoptic nucleus,VLPO-R,10734.0,6.0,75.0,0.033609375,2231.5202231520225
+10756,right Hypothalamic medial zone,MEZ-R,10715.0,5.0,6563.0,1.929375,3401.6196954972465
+10757,right Anterior hypothalamic nucleus,AHN-R,10756.0,6.0,697.0,0.35571875,1959.413159975402
+10762,right Mammillary body,MBO-R,10756.0,6.0,689.0,0.510859375,1348.7077534791251
+10763,right Lateral mammillary nucleus,LM-R,10762.0,7.0,16.0,0.038515625,415.41582150101425
+10764,right Medial mammillary nucleus,MM-R,10762.0,7.0,77.0,0.2724375,282.63363156687313
+10765,"right Medial mammillary nucleus, median part",MMme-R,10764.0,8.0,8.0,0.040109375,199.4546162835995
+10766,"right Medial mammillary nucleus, lateral part",MMl-R,10764.0,8.0,32.0,0.10684375,299.50277859023106
+10767,"right Medial mammillary nucleus, medial part",MMm-R,10764.0,8.0,30.0,0.06790625,441.785549930971
+10768,"right Medial mammillary nucleus, posterior part",MMp-R,10764.0,8.0,3.0,0.01909375,157.11947626841246
+10769,"right Medial mammillary nucleus, dorsal part",MMd-R,10764.0,8.0,4.0,0.038484375,103.93828664230612
+10770,right Supramammillary nucleus,SUM-R,10762.0,7.0,389.0,0.128078125,3037.2087349030135
+10773,right Tuberomammillary nucleus,TM-R,10762.0,7.0,207.0,0.071828125,2881.8794866217095
+10774,"right Tuberomammillary nucleus, dorsal part",TMd-R,10773.0,8.0,18.0,0.01771875,1015.873015873016
+10775,"right Tuberomammillary nucleus, ventral part",TMv-R,10773.0,8.0,189.0,0.054109375,3492.9252093560494
+10776,right Medial preoptic nucleus,MPN-R,10756.0,6.0,652.0,0.203484375,3204.1772249097753
+10780,right Dorsal premammillary nucleus,PMd-R,10756.0,6.0,257.0,0.06590625,3899.478425794215
+10781,right Ventral premammillary nucleus,PMv-R,10756.0,6.0,568.0,0.09784375,5805.174065793676
+10782,"right Paraventricular hypothalamic nucleus, descending division",PVHd-R,10756.0,6.0,387.0,0.065421875,5915.452591354191
+10787,right Ventromedial hypothalamic nucleus,VMH-R,10756.0,6.0,1148.0,0.275203125,4171.4642593538865
+10792,right Posterior hypothalamic nucleus,PH-R,10756.0,6.0,2165.0,0.3549375,6099.665434055291
+10793,right Hypothalamic lateral zone,LZ-R,10715.0,5.0,5874.0,2.84278125,2066.2863173168885
+10794,right Lateral hypothalamic area,LHA-R,10793.0,6.0,2337.0,1.03534375,2257.2213334943103
+10795,right Lateral preoptic area,LPO-R,10793.0,6.0,372.0,0.27771875,1339.4846404861032
+10796,right Preparasubthalamic nucleus,PST-R,10793.0,6.0,19.0,0.006296875,3017.369727047146
+10797,right Parasubthalamic nucleus,PSTN-R,10793.0,6.0,633.0,0.082875,7638.009049773756
+10798,right Perifornical nucleus,PeF-R,10793.0,6.0,353.0,0.107453125,3285.153409917115
+10799,right Retrochiasmatic area,RCH-R,10793.0,6.0,115.0,0.073703125,1560.313758744965
+10800,right Subthalamic nucleus,STN-R,10793.0,6.0,1.0,0.097484375,10.258054175348613
+10801,right Tuberal nucleus,TU-R,10793.0,6.0,1305.0,0.26165625,4987.459691866715
+10802,right Zona incerta,ZI-R,10793.0,6.0,739.0,0.90025,820.8830880311025
+10804,right Fields of Forel,FF-R,10802.0,7.0,30.0,0.12028125,249.41543257989088
+10805,right Median eminence,ME-R,10715.0,5.0,6.0,0.040625,147.69230769230768
+10806,right Midbrain,MB-R,10639.0,3.0,33994.0,18.4108125,1846.4149803274572
+10807,"right Midbrain, sensory related",MBsen-R,10806.0,4.0,9123.0,3.4318125,2658.3620171556577
+10808,"right Superior colliculus, sensory related",SCs-R,10807.0,5.0,2997.0,1.081125,2772.1123829344438
+10809,"right Superior colliculus, optic layer",SCop-R,10808.0,6.0,1543.0,0.322046875,4791.227985056523
+10810,"right Superior colliculus, superficial gray layer",SCsg-R,10808.0,6.0,1334.0,0.576546875,2313.7754410688635
+10811,"right Superior colliculus, zonal layer",SCzo-R,10808.0,6.0,120.0,0.18253125,657.4216743708268
+10812,right Inferior colliculus,IC-R,10807.0,5.0,5997.0,2.223328125,2697.3076679808564
+10813,"right Inferior colliculus, central nucleus",ICc-R,10812.0,6.0,2752.0,0.562953125,4888.5064808903935
+10814,"right Inferior colliculus, dorsal nucleus",ICd-R,10812.0,6.0,1478.0,0.661171875,2235.4247902635
+10815,"right Inferior colliculus, external nucleus",ICe-R,10812.0,6.0,1767.0,0.999203125,1768.4092010821123
+10816,right Nucleus of the brachium of the inferior colliculus,NB-R,10807.0,5.0,77.0,0.04390625,1753.7366548042705
+10817,right Nucleus sagulum,SAG-R,10807.0,5.0,21.0,0.04921875,426.6666666666667
+10818,right Parabigeminal nucleus,PBG-R,10807.0,5.0,21.0,0.02215625,947.8138222849084
+10819,right Midbrain trigeminal nucleus,MEV-R,10807.0,5.0,7.0,0.00465625,1503.3557046979865
+10820,right Subcommissural organ,SCO-R,10807.0,5.0,3.0,0.007421875,404.2105263157895
+10821,"right Midbrain, motor related",MBmot-R,10806.0,4.0,19501.0,10.657703125,1829.756352872702
+10822,"right Substantia nigra, reticular part",SNr-R,10821.0,5.0,91.0,0.774140625,117.5497022908467
+10823,right Ventral tegmental area,VTA-R,10821.0,5.0,202.0,0.21378125,944.8910977927203
+10824,right Paranigral nucleus,PN-R,10821.0,5.0,8.0,0.011125,719.1011235955057
+10825,"right Midbrain reticular nucleus, retrorubral area",RR-R,10821.0,5.0,92.0,0.069171875,1330.0203297944433
+10826,right Midbrain reticular nucleus,MRN-R,10821.0,5.0,2204.0,2.569109375,857.8848457940799
+10830,"right Superior colliculus, motor related",SCm-R,10821.0,5.0,7046.0,2.833859375,2486.3619070724003
+10831,"right Superior colliculus, motor related, deep gray layer",SCdg-R,10830.0,6.0,1010.0,0.598640625,1687.1557956829274
+10832,"right Superior colliculus, motor related, deep white layer",SCdw-R,10830.0,6.0,252.0,0.167015625,1508.8408644400786
+10833,"right Superior colliculus, motor related, intermediate white layer",SCiw-R,10830.0,6.0,2220.0,1.047703125,2118.9208536530805
+10834,"right Superior colliculus, motor related, intermediate gray layer",SCig-R,10830.0,6.0,3564.0,1.0205,3492.4056834884864
+10838,right Periaqueductal gray,PAG-R,10821.0,5.0,7152.0,2.3488125,3044.942923285703
+10839,right Precommissural nucleus,PRC-R,10838.0,6.0,269.0,0.085609375,3142.179229786457
+10840,right Interstitial nucleus of Cajal,INC-R,10838.0,6.0,2.0,0.039921875,50.09784735812133
+10841,right Nucleus of Darkschewitsch,ND-R,10838.0,6.0,7.0,0.0458125,152.7967257844475
+10842,right Supraoculomotor periaqueductal gray,Su3-R,10838.0,6.0,30.0,0.021015625,1427.5092936802973
+10843,right Pretectal region,PRT-R,10821.0,5.0,2075.0,1.03975,1995.672036547247
+10844,right Anterior pretectal nucleus,APN-R,10843.0,6.0,760.0,0.63775,1191.689533516268
+10845,right Medial pretectal area,MPT-R,10843.0,6.0,57.0,0.022078125,2581.7409766454352
+10846,right Nucleus of the optic tract,NOT-R,10843.0,6.0,362.0,0.10275,3523.1143552311437
+10847,right Nucleus of the posterior commissure,NPC-R,10843.0,6.0,414.0,0.144828125,2858.560794044665
+10848,right Olivary pretectal nucleus,OP-R,10843.0,6.0,71.0,0.029109375,2439.0767579173375
+10849,right Posterior pretectal nucleus,PPT-R,10843.0,6.0,378.0,0.07215625,5238.631442182763
+10850,right Retroparafascicular nucleus,RPF-R,10843.0,6.0,33.0,0.031078125,1061.84012066365
+10852,right Cuneiform nucleus,CUN-R,10821.0,5.0,505.0,0.275609375,1832.303418561143
+10853,right Red nucleus,RN-R,10821.0,5.0,30.0,0.394328125,76.07877322978167
+10854,right Oculomotor nucleus,III-R,10821.0,5.0,2.0,0.016375,122.13740458015266
+10855,right Medial accesory oculomotor nucleus,MA3-R,10821.0,5.0,2.0,0.007953125,251.47347740667976
+10856,right Edinger-Westphal nucleus,EW-R,10821.0,5.0,64.0,0.01525,4196.7213114754095
+10857,right Trochlear nucleus,IV-R,10821.0,5.0,2.0,0.003640625,549.3562231759656
+10858,right Paratrochlear nucleus,Pa4-R,10821.0,5.0,1.0,0.0080625,124.03100775193798
+10859,right Ventral tegmental nucleus,VTN-R,10821.0,5.0,0.0,0.01909375,0.0
+10860,right Anterior tegmental nucleus,AT-R,10821.0,5.0,1.0,0.0215,46.51162790697675
+10861,right Lateral terminal nucleus of the accessory optic tract,LT-R,10821.0,5.0,4.0,0.009015625,443.6741767764298
+10862,right Dorsal terminal nucleus of the accessory optic tract,DT-R,10821.0,5.0,5.0,0.00565625,883.9779005524862
+10863,right Medial terminal nucleus of the accessory optic tract,MT-R,10821.0,5.0,15.0,0.02146875,698.6899563318776
+10865,"right Midbrain, behavioral state related",MBsta-R,10806.0,4.0,471.0,0.921734375,510.9932023529013
+10866,"right Substantia nigra, compact part",SNc-R,10865.0,5.0,19.0,0.09890625,192.10110584518168
+10867,right Pedunculopontine nucleus,PPN-R,10865.0,5.0,220.0,0.445140625,494.22584155288007
+10868,right Midbrain raphe nuclei,RAmb-R,10865.0,5.0,232.0,0.3776875,614.2644381929505
+10869,right Interfascicular nucleus raphe,IF-R,10868.0,6.0,79.0,0.04428125,1784.0508115737473
+10870,right Interpeduncular nucleus,IPN-R,10868.0,6.0,10.0,0.18109375,55.220017256255396
+10871,"right Interpeduncular nucleus, rostral",IPR-R,10870.0,7.0,0.0,0.041,0.0
+10872,"right Interpeduncular nucleus, caudal",IPC-R,10870.0,7.0,0.0,0.035359375,0.0
+10873,"right Interpeduncular nucleus, apical",IPA-R,10870.0,7.0,1.0,0.01353125,73.90300230946882
+10874,"right Interpeduncular nucleus, lateral",IPL-R,10870.0,7.0,4.0,0.030984375,129.0973272818961
+10875,"right Interpeduncular nucleus, intermediate",IPI-R,10870.0,7.0,2.0,0.016328125,122.48803827751198
+10876,"right Interpeduncular nucleus, dorsomedial",IPDM-R,10870.0,7.0,0.0,0.009171875,0.0
+10877,"right Interpeduncular nucleus, dorsolateral",IPDL-R,10870.0,7.0,1.0,0.019015625,52.58833196384552
+10878,"right Interpeduncular nucleus, rostrolateral",IPRL-R,10870.0,7.0,2.0,0.009453125,211.5702479338843
+10879,right Rostral linear nucleus raphe,RL-R,10868.0,6.0,25.0,0.029046875,860.6777837547069
+10880,right Central linear nucleus raphe,CLI-R,10868.0,6.0,77.0,0.04228125,1821.138211382114
+10881,right Dorsal nucleus raphe,DR-R,10868.0,6.0,41.0,0.080984375,506.27049971059233
+10882,right Hindbrain,HB-R,10639.0,3.0,4130.0,23.88178125,172.93517417173396
+10883,right Pons,P-R,10882.0,4.0,2821.0,8.36934375,337.063464504012
+10884,"right Pons, sensory related",P-sen-R,10883.0,5.0,1123.0,1.923828125,583.7319796954315
+10885,right Nucleus of the lateral lemniscus,NLL-R,10884.0,6.0,43.0,0.3621875,118.7230371009491
+10889,right Principal sensory nucleus of the trigeminal,PSV-R,10884.0,6.0,17.0,0.55128125,30.83725412391588
+10890,right Parabrachial nucleus,PB-R,10884.0,6.0,961.0,0.560875,1713.3942500557164
+10891,right Koelliker-Fuse subnucleus,KF-R,10890.0,7.0,28.0,0.087625,319.54350927246793
+10902,right Superior olivary complex,SOC-R,10884.0,6.0,102.0,0.449484375,226.92668682865784
+10903,"right Superior olivary complex, periolivary region",POR-R,10902.0,7.0,91.0,0.18303125,497.1828581184907
+10904,"right Superior olivary complex, medial part",SOCm-R,10902.0,7.0,0.0,0.097515625,0.0
+10905,"right Superior olivary complex, lateral part",SOCl-R,10902.0,7.0,11.0,0.1689375,65.11283758786534
+10906,"right Pons, motor related",P-mot-R,10883.0,5.0,975.0,2.897453125,336.50242400383956
+10907,right Barrington's nucleus,B-R,10906.0,6.0,25.0,0.007859375,3180.9145129224653
+10908,right Dorsal tegmental nucleus,DTN-R,10906.0,6.0,6.0,0.051859375,115.69749924676107
+10910,right Posterodorsal tegmental nucleus,PDTg-R,10906.0,6.0,6.0,0.02396875,250.32594524119946
+10911,right Pontine central gray,PCG-R,10906.0,6.0,147.0,0.27228125,539.8829335475726
+10912,right Pontine gray,PG-R,10906.0,6.0,483.0,0.4820625,1001.9447685725398
+10913,"right Pontine reticular nucleus, caudal part",PRNc-R,10906.0,6.0,91.0,1.174015625,77.51174521207926
+10915,right Supragenual nucleus,SG-R,10906.0,6.0,0.0,0.008765625,0.0
+10917,right Supratrigeminal nucleus,SUT-R,10906.0,6.0,121.0,0.12978125,932.3380688658801
+10918,right Tegmental reticular nucleus,TRN-R,10906.0,6.0,54.0,0.3451875,156.43671917436177
+10919,right Motor nucleus of trigeminal,V-R,10906.0,6.0,9.0,0.177078125,50.82502426541957
+10920,right Peritrigeminal zone,P5-R,10906.0,6.0,26.0,0.16075,161.74183514774495
+10921,right Accessory trigeminal nucleus,Acs5-R,10906.0,6.0,0.0,0.007046875,0.0
+10922,right Parvicellular motor 5 nucleus,PC5-R,10906.0,6.0,6.0,0.03484375,172.19730941704037
+10923,right Intertrigeminal nucleus,I5-R,10906.0,6.0,1.0,0.021953125,45.55160142348755
+10924,"right Pons, behavioral state related",P-sat-R,10883.0,5.0,283.0,1.73153125,163.43915248425347
+10925,right Superior central nucleus raphe,CS-R,10924.0,6.0,20.0,0.30234375,66.14987080103359
+10928,right Locus ceruleus,LC-R,10924.0,6.0,23.0,0.00721875,3186.147186147186
+10929,right Laterodorsal tegmental nucleus,LDT-R,10924.0,6.0,98.0,0.10184375,962.2583614605708
+10930,right Nucleus incertus,NI-R,10924.0,6.0,0.0,0.053953125,0.0
+10931,right Pontine reticular nucleus,PRNr-R,10924.0,6.0,128.0,1.181421875,108.34402401766938
+10932,right Nucleus raphe pontis,RPO-R,10924.0,6.0,6.0,0.048015625,124.95932313699967
+10933,right Subceruleus nucleus,SLC-R,10924.0,6.0,3.0,0.013296875,225.6169212690952
+10934,right Sublaterodorsal nucleus,SLD-R,10924.0,6.0,5.0,0.0234375,213.33333333333334
+10935,right Medulla,MY-R,10882.0,4.0,1309.0,15.5124375,84.38390162732323
+10936,"right Medulla, sensory related",MY-sen-R,10935.0,5.0,362.0,3.969296875,91.20003149172358
+10937,right Area postrema,AP-R,10936.0,6.0,2.0,0.027203125,73.52096496266513
+10938,right Cochlear nuclei,CN-R,10936.0,6.0,63.0,0.813140625,77.47737360926962
+10941,right Dorsal cochlear nucleus,DCO-R,10938.0,7.0,30.0,0.305296875,98.26500844464915
+10942,right Ventral cochlear nucleus,VCO-R,10938.0,7.0,33.0,0.50784375,64.98061657744138
+10943,right Dorsal column nuclei,DCN-R,10936.0,6.0,13.0,0.207484375,62.65532043075533
+10944,right Cuneate nucleus,CU-R,10943.0,7.0,8.0,0.16653125,48.03903171326703
+10945,right Gracile nucleus,GR-R,10943.0,7.0,5.0,0.040953125,122.09080503624571
+10946,right External cuneate nucleus,ECU-R,10936.0,6.0,10.0,0.1025625,97.50152346130409
+10947,right Nucleus of the trapezoid body,NTB-R,10936.0,6.0,6.0,0.077265625,77.65419615773509
+10948,right Nucleus of the solitary tract,NTS-R,10936.0,6.0,156.0,0.425578125,366.5601938539487
+10954,"right Spinal nucleus of the trigeminal, caudal part",SPVC-R,10936.0,6.0,65.0,0.84040625,77.34354664782657
+10955,"right Spinal nucleus of the trigeminal, interpolar part",SPVI-R,10936.0,6.0,42.0,0.92325,45.4914703493095
+10956,"right Spinal nucleus of the trigeminal, oral part",SPVO-R,10936.0,6.0,4.0,0.500953125,7.984779015002651
+10962,right Paratrigeminal nucleus,Pa5-R,10936.0,6.0,1.0,0.051453125,19.43516550258123
+10964,"right Medulla, motor related",MY-mot-R,10935.0,5.0,704.0,8.74478125,80.50515843378014
+10965,right Abducens nucleus,VI-R,10964.0,6.0,0.0,0.015234375,0.0
+10967,right Facial motor nucleus,VII-R,10964.0,6.0,16.0,0.458765625,34.87619631483941
+10968,right Accessory facial motor nucleus,ACVII-R,10964.0,6.0,0.0,0.00275,0.0
+10970,right Nucleus ambiguus,AMB-R,10964.0,6.0,3.0,0.021578125,139.0296886314265
+10971,"right Nucleus ambiguus, dorsal division",AMBd-R,10970.0,7.0,2.0,0.010609375,188.5125184094256
+10972,"right Nucleus ambiguus, ventral division",AMBv-R,10970.0,7.0,1.0,0.01096875,91.16809116809118
+10973,right Dorsal motor nucleus of the vagus nerve,DMX-R,10964.0,6.0,185.0,0.08703125,2125.673249551167
+10975,right Gigantocellular reticular nucleus,GRN-R,10964.0,6.0,12.0,1.31015625,9.159212880143114
+10976,right Infracerebellar nucleus,ICB-R,10964.0,6.0,0.0,0.02690625,0.0
+10977,right Inferior olivary complex,IO-R,10964.0,6.0,0.0,0.25446875,0.0
+10978,right Intermediate reticular nucleus,IRN-R,10964.0,6.0,77.0,1.38815625,55.46926003466829
+10979,right Inferior salivatory nucleus,ISN-R,10964.0,6.0,0.0,0.00359375,0.0
+10980,right Linear nucleus of the medulla,LIN-R,10964.0,6.0,2.0,0.030828125,64.87582361885454
+10981,right Lateral reticular nucleus,LRN-R,10964.0,6.0,18.0,0.284796875,63.202940692379435
+10982,"right Lateral reticular nucleus, magnocellular part",LRNm-R,10981.0,7.0,17.0,0.256109375,66.37789030565555
+10983,"right Lateral reticular nucleus, parvicellular part",LRNp-R,10981.0,7.0,1.0,0.0286875,34.85838779956427
+10984,right Magnocellular reticular nucleus,MARN-R,10964.0,6.0,0.0,0.267015625,0.0
+10985,right Medullary reticular nucleus,MDRN-R,10964.0,6.0,17.0,1.015984375,16.732540793257773
+10986,"right Medullary reticular nucleus, dorsal part",MDRNd-R,10985.0,7.0,15.0,0.54640625,27.45210180154418
+10987,"right Medullary reticular nucleus, ventral part",MDRNv-R,10985.0,7.0,2.0,0.469578125,4.259142182144878
+10988,right Parvicellular reticular nucleus,PARN-R,10964.0,6.0,89.0,1.121953125,79.32595223173873
+10989,right Parasolitary nucleus,PAS-R,10964.0,6.0,1.0,0.013953125,71.66853303471444
+10990,right Paragigantocellular reticular nucleus,PGRN-R,10964.0,6.0,31.0,0.474515625,65.32977707530706
+10991,"right Paragigantocellular reticular nucleus, dorsal part",PGRNd-R,10990.0,7.0,7.0,0.1194375,58.608058608058606
+10992,"right Paragigantocellular reticular nucleus, lateral part",PGRNl-R,10990.0,7.0,24.0,0.355078125,67.59075907590758
+10993,right Perihypoglossal nuclei,PHY-R,10964.0,6.0,41.0,0.135953125,301.57453166302724
+10995,right Nucleus of Roller,NR-R,10993.0,7.0,0.0,0.015234375,0.0
+10996,right Nucleus prepositus,PRP-R,10993.0,7.0,41.0,0.12071875,339.63241004400726
+10998,right Parapyramidal nucleus,PPY-R,10964.0,6.0,1.0,0.047296875,21.143045920052856
+11001,right Vestibular nuclei,VNC-R,10964.0,6.0,127.0,1.603921875,79.18091397063839
+11002,right Lateral vestibular nucleus,LAV-R,11001.0,7.0,8.0,0.14403125,55.543501844217836
+11003,right Medial vestibular nucleus,MV-R,11001.0,7.0,76.0,0.908359375,83.66732605143201
+11004,right Spinal vestibular nucleus,SPIV-R,11001.0,7.0,31.0,0.374609375,82.75286757038582
+11005,right Superior vestibular nucleus,SUV-R,11001.0,7.0,12.0,0.176921875,67.82654773469928
+11006,right Nucleus x,x-R,10964.0,6.0,1.0,0.028453125,35.14552443712246
+11007,right Hypoglossal nucleus,XII-R,10964.0,6.0,83.0,0.13971875,594.0505479758443
+11008,right Nucleus y,y-R,10964.0,6.0,0.0,0.01175,0.0
+11010,"right Medulla, behavioral state related",MY-sat-R,10935.0,5.0,0.0,0.124921875,0.0
+11011,right Nucleus raphe magnus,RM-R,11010.0,6.0,0.0,0.065796875,0.0
+11012,right Nucleus raphe pallidus,RPA-R,11010.0,6.0,0.0,0.037421875,0.0
+11013,right Nucleus raphe obscurus,RO-R,11010.0,6.0,0.0,0.021703125,0.0
+11014,right Cerebellum,CB-R,10001.0,2.0,16082.0,26.954421875,596.6367995047194
+11015,right Cerebellar cortex,CBX-R,11014.0,3.0,15865.0,25.6495,618.5305756447494
+11019,right Vermal regions,VERM-R,11015.0,4.0,5250.0,10.172,516.1226897365316
+11020,right Lingula (I),LING-R,11019.0,5.0,7.0,0.06121875,114.34405308831036
+11024,right Central lobule,CENT-R,11019.0,5.0,553.0,2.047734375,270.05455724695736
+11025,right Lobule II,CENT2-R,11024.0,6.0,68.0,0.6715,101.26582278481013
+11029,right Lobule III,CENT3-R,11024.0,6.0,485.0,1.376234375,352.4109038476822
+11033,right Culmen,CUL-R,11019.0,5.0,2215.0,3.371953125,656.8893213780959
+11042,right Lobules IV-V,"CUL4, 5-R",11033.0,6.0,2215.0,3.371953125,656.8893213780959
+11046,right Declive (VI),DEC-R,11019.0,5.0,1744.0,1.671640625,1043.2864420245828
+11050,right Folium-tuber vermis (VII),FOTU-R,11019.0,5.0,208.0,0.529578125,392.76546779571004
+11054,right Pyramus (VIII),PYR-R,11019.0,5.0,169.0,0.62671875,269.65843929194716
+11058,right Uvula (IX),UVU-R,11019.0,5.0,146.0,1.10084375,132.62554290742898
+11062,right Nodulus (X),NOD-R,11019.0,5.0,208.0,0.7623125,272.853980487005
+11066,right Hemispheric regions,HEM-R,11015.0,4.0,10615.0,15.4775,685.8342755612987
+11067,right Simple lobule,SIM-R,11066.0,5.0,2631.0,2.84803125,923.7960433193982
+11071,right Ansiform lobule,AN-R,11066.0,5.0,6008.0,5.403171875,1111.9394568583848
+11072,right Crus 1,ANcr1-R,11071.0,6.0,3247.0,2.84675,1140.5989286027925
+11076,right Crus 2,ANcr2-R,11071.0,6.0,2761.0,2.556421875,1080.0251816809384
+11080,right Paramedian lobule,PRM-R,11066.0,5.0,708.0,2.441046875,290.03949381348934
+11084,right Copula pyramidis,COPY-R,11066.0,5.0,380.0,1.25290625,303.2948394981667
+11088,right Paraflocculus,PFL-R,11066.0,5.0,708.0,2.864359375,247.1756882810838
+11092,right Flocculus,FL-R,11066.0,5.0,180.0,0.667984375,269.46738087997943
+11096,right Cerebellar nuclei,CBN-R,11014.0,3.0,35.0,0.89165625,39.25279500928749
+11097,right Fastigial nucleus,FN-R,11096.0,4.0,22.0,0.2503125,87.89013732833958
+11098,right Interposed nucleus,IP-R,11096.0,4.0,0.0,0.430734375,0.0
+11099,right Dentate nucleus,DN-R,11096.0,4.0,1.0,0.16809375,5.949061163785091
+11100,right Vestibulocerebellar nucleus,VeCB-R,11096.0,4.0,12.0,0.042515625,282.24917309812565
+11101,right fiber tracts,fiber tracts-R,10000.0,1.0,19800.0,23.49321875,842.7963920439807
+11102,right cranial nerves,cm-R,11101.0,2.0,1970.0,6.183671875,318.58094022817147
+11104,right vomeronasal nerve,von-R,11102.0,3.0,8.0,0.006671875,1199.063231850117
+11105,right olfactory nerve,In-R,11102.0,3.0,668.0,2.9885,223.52350677597457
+11106,right olfactory nerve layer of main olfactory bulb,onl-R,11105.0,4.0,241.0,2.076671875,116.0510733068988
+11107,"right lateral olfactory tract, general",lotg-R,11105.0,4.0,207.0,0.5313125,389.6012233854841
+11108,"right lateral olfactory tract, body",lot-R,11107.0,5.0,80.0,0.45278125,176.68576161225758
+11109,right dorsal limb,lotd-R,11107.0,5.0,127.0,0.07853125,1617.190608834063
+11111,"right anterior commissure, olfactory limb",aco-R,11105.0,4.0,220.0,0.380515625,578.162854679095
+11112,right optic nerve,IIn-R,11102.0,3.0,628.0,0.653859375,960.4511673477191
+11114,right brachium of the superior colliculus,bsc-R,11112.0,4.0,131.0,0.09996875,1310.409502969678
+11115,right superior colliculus commissure,csc-R,11112.0,4.0,31.0,0.014125,2194.690265486726
+11116,right optic chiasm,och-R,11112.0,4.0,57.0,0.154703125,368.4476315523685
+11117,right optic tract,opt-R,11112.0,4.0,406.0,0.34959375,1161.3479932064004
+11119,right oculomotor nerve,IIIn-R,11102.0,3.0,47.0,0.105359375,446.09224380839385
+11120,right medial longitudinal fascicle,mlf-R,11119.0,4.0,9.0,0.07428125,121.16112747160287
+11121,right posterior commissure,pc-R,11119.0,4.0,38.0,0.027015625,1406.5934065934066
+11122,right trochlear nerve,IVn-R,11102.0,3.0,7.0,0.00353125,1982.300884955752
+11125,right trigeminal nerve,Vn-R,11102.0,3.0,179.0,1.193390625,149.99279887924376
+11126,right motor root of the trigeminal nerve,moV-R,11125.0,4.0,1.0,0.029765625,33.59580052493438
+11127,right sensory root of the trigeminal nerve,sV-R,11125.0,4.0,178.0,1.163625,152.9702438500376
+11129,right spinal tract of the trigeminal nerve,sptV-R,11127.0,5.0,86.0,0.815421875,105.46687872458659
+11130,right facial nerve,VIIn-R,11102.0,3.0,2.0,0.05403125,37.015615962984384
+11132,right genu of the facial nerve,gVIIn-R,11130.0,4.0,0.0,0.014421875,0.0
+11133,right vestibulocochlear nerve,VIIIn-R,11102.0,3.0,407.0,0.83034375,490.158443415754
+11135,right vestibular nerve,vVIIIn-R,11133.0,4.0,4.0,0.125234375,31.940112289457264
+11136,right cochlear nerve,cVIIIn-R,11133.0,4.0,403.0,0.705109375,571.5425355108914
+11137,right trapezoid body,tb-R,11136.0,5.0,7.0,0.15096875,46.36721175740012
+11139,right dorsal acoustic stria,das-R,11136.0,5.0,2.0,0.006046875,330.74935400516796
+11140,right lateral lemniscus,ll-R,11136.0,5.0,276.0,0.416953125,661.9449128724002
+11141,right inferior colliculus commissure,cic-R,11136.0,5.0,19.0,0.009046875,2100.1727115716753
+11142,right brachium of the inferior colliculus,bic-R,11136.0,5.0,99.0,0.12209375,810.8523163552597
+11144,right vagus nerve,Xn-R,11102.0,3.0,0.0,0.004671875,0.0
+11145,right solitary tract,ts-R,11144.0,4.0,0.0,0.004671875,0.0
+11149,right dorsal roots,drt-R,11102.0,3.0,24.0,0.3433125,69.90715456034953
+11150,right cervicothalamic tract,cett-R,11149.0,4.0,24.0,0.3433125,69.90715456034953
+11155,right dorsal column,dc-R,11150.0,5.0,0.0,0.011109375,0.0
+11156,right cuneate fascicle,cuf-R,11155.0,6.0,0.0,0.011109375,0.0
+11159,right medial lemniscus,ml-R,11150.0,5.0,24.0,0.332203125,72.24495555241992
+11171,right cerebellum related fiber tracts,cbf-R,11101.0,2.0,1621.0,4.909875,330.1509712569057
+11172,right cerebellar commissure,cbc-R,11171.0,3.0,1.0,0.03396875,29.438822447102115
+11173,right cerebellar peduncles,cbp-R,11171.0,3.0,257.0,1.41009375,182.25738536888062
+11174,right superior cerebelar peduncles,scp-R,11173.0,4.0,110.0,0.430109375,255.74890107894066
+11175,right superior cerebellar peduncle decussation,dscp-R,11174.0,5.0,4.0,0.024328125,164.41875401412975
+11177,right uncinate fascicle,uf-R,11174.0,5.0,2.0,0.04246875,47.093451066961
+11178,right ventral spinocerebellar tract,sctv-R,11174.0,5.0,64.0,0.142875,447.9440069991251
+11179,right middle cerebellar peduncle,mcp-R,11173.0,4.0,133.0,0.54575,243.70132844709119
+11180,right inferior cerebellar peduncle,icp-R,11173.0,4.0,14.0,0.434234375,32.2406534489583
+11181,right dorsal spinocerebellar tract,sctd-R,11180.0,5.0,3.0,0.07353125,40.79898002549936
+11188,right arbor vitae,arb-R,11171.0,3.0,1363.0,3.4658125,393.2699763763908
+11189,right supra-callosal cerebral white matter,scwm-R,11101.0,2.0,900.0,0.538359375,1671.7457553330432
+11190,right lateral forebrain bundle system,lfbs-R,11101.0,2.0,11394.0,6.942875,1641.1068901571755
+11191,right corpus callosum,cc-R,11190.0,3.0,5329.0,3.907078125,1363.9348458126876
+11192,"right corpus callosum, anterior forceps",fa-R,11191.0,4.0,1612.0,0.864375,1864.9313087490962
+11193,right external capsule,ec-R,11192.0,5.0,1318.0,0.436546875,3019.1488600164644
+11194,"right corpus callosum, extreme capsule",ee-R,11191.0,4.0,82.0,0.04675,1754.0106951871658
+11195,right genu of corpus callosum,ccg-R,11191.0,4.0,255.0,0.416328125,612.4976543441546
+11196,"right corpus callosum, posterior forceps",fp-R,11191.0,4.0,1755.0,0.68109375,2576.7377838953885
+11198,"right corpus callosum, body",ccb-R,11191.0,4.0,1057.0,1.52390625,693.612221880447
+11199,"right corpus callosum, splenium",ccs-R,11191.0,4.0,568.0,0.374625,1516.1828495161828
+11200,right corticospinal tract,cst-R,11190.0,3.0,422.0,1.84884375,228.2507648361307
+11201,right internal capsule,int-R,11200.0,4.0,365.0,1.0495,347.78465936160075
+11202,right cerebal peduncle,cpd-R,11200.0,4.0,55.0,0.441328125,124.6238272260577
+11207,right pyramid,py-R,11200.0,4.0,1.0,0.2803125,3.567447045707915
+11208,right pyramidal decussation,pyd-R,11200.0,4.0,0.0,0.035671875,0.0
+11211,right thalamus related,lfbst-R,11190.0,3.0,5643.0,1.186953125,4754.18942934246
+11212,right external medullary lamina of the thalamus,em-R,11211.0,4.0,0.0,0.055609375,0.0
+11216,right optic radiation,or-R,11211.0,4.0,4861.0,0.92809375,5237.617428196235
+11217,right auditory radiation,ar-R,11211.0,4.0,782.0,0.20325,3847.478474784748
+11218,right extrapyramidal fiber systems,eps-R,11101.0,2.0,126.0,0.61603125,204.5350783746766
+11219,right cerebral nuclei related,epsc-R,11218.0,3.0,44.0,0.0563125,781.354051054384
+11221,right nigrostriatal tract,nst-R,11219.0,4.0,44.0,0.0563125,781.354051054384
+11226,right tectospinal pathway,tsp-R,11218.0,3.0,4.0,0.256890625,15.57082902499848
+11227,right direct tectospinal pathway,tspd-R,11226.0,4.0,0.0,1.5625e-05,0.0
+11228,right doral tegmental decussation,dtd-R,11226.0,4.0,2.0,0.0035625,561.4035087719298
+11229,right crossed tectospinal pathway,tspc-R,11226.0,4.0,2.0,0.2533125,7.895386133728103
+11230,right rubrospinal tract,rust-R,11218.0,3.0,78.0,0.302828125,257.5718487178164
+11231,right ventral tegmental decussation,vtd-R,11230.0,4.0,8.0,0.01896875,421.74629324546953
+11238,right medial forebrain bundle system,mfbs-R,11101.0,2.0,3116.0,3.52559375,883.8227603506501
+11239,right cerebrum related,mfbc-R,11238.0,3.0,2386.0,3.11459375,766.0710164848947
+11240,right amygdalar capsule,amc-R,11239.0,4.0,161.0,0.080890625,1990.3418968514586
+11242,"right anterior commissure, temporal limb",act-R,11239.0,4.0,93.0,0.10659375,872.471416007036
+11243,right cingulum bundle,cing-R,11239.0,4.0,531.0,0.633171875,838.6348493448164
+11244,right fornix system,fxs-R,11239.0,4.0,1424.0,2.1231875,670.6897059256426
+11245,right alveus,alv-R,11244.0,5.0,825.0,0.696984375,1183.6707243257786
+11246,right dorsal fornix,df-R,11244.0,5.0,8.0,0.019,421.0526315789474
+11247,right fimbria,fi-R,11244.0,5.0,185.0,0.757359375,244.26976955292858
+11250,right postcommissural fornix,fxpo-R,11244.0,5.0,179.0,0.13875,1290.09009009009
+11251,right medial corticohypothalamic tract,mct-R,11250.0,6.0,1.0,0.004,250.0
+11252,right columns of the fornix,fx-R,11250.0,6.0,178.0,0.13475,1320.964749536178
+11253,right hippocampal commissures,hc-R,11244.0,5.0,227.0,0.51109375,444.14552124732495
+11254,right dorsal hippocampal commissure,dhc-R,11253.0,6.0,214.0,0.4776875,447.9916263247416
+11255,right ventral hippocampal commissure,vhc-R,11253.0,6.0,13.0,0.03340625,389.1487371375117
+11259,right stria terminalis,st-R,11239.0,4.0,177.0,0.17075,1036.6032210834553
+11260,right commissural branch of stria terminalis,stc-R,11259.0,5.0,60.0,0.017765625,3377.3087071240107
+11261,right hypothalamus related,mfsbshy-R,11238.0,3.0,730.0,0.411,1776.1557177615573
+11262,right medial forebrain bundle,mfb-R,11261.0,4.0,54.0,0.0249375,2165.4135338345864
+11265,right supraoptic commissures,sup-R,11261.0,4.0,6.0,0.012953125,463.20868516284685
+11277,right mammillary related,mfbsma-R,11261.0,4.0,194.0,0.130125,1490.8741594620558
+11278,right principal mammillary tract,pm-R,11277.0,5.0,23.0,0.01675,1373.134328358209
+11279,right mammillothalamic tract,mtt-R,11277.0,5.0,135.0,0.0643125,2099.125364431487
+11280,right mammillotegmental tract,mtg-R,11277.0,5.0,35.0,0.032859375,1065.1450309082263
+11281,right mammillary peduncle,mp-R,11277.0,5.0,1.0,0.016203125,61.716489874638384
+11284,right epithalamus related,mfbse-R,11261.0,4.0,476.0,0.242984375,1958.9736994405505
+11285,right stria medullaris,sm-R,11284.0,5.0,135.0,0.135375,997.229916897507
+11286,right fasciculus retroflexus,fr-R,11284.0,5.0,337.0,0.08365625,4028.3899887934253
+11287,right habenular commissure,hbc-R,11284.0,5.0,4.0,0.023953125,166.99282452707112
+11292,right ventricular systems,VS-R,10000.0,1.0,2015.0,3.015375,668.2419267918584
+11293,right lateral ventricle,VL-R,11292.0,2.0,1368.0,1.853171875,738.1938062274985
+11295,right subependymal zone,SEZ-R,11293.0,3.0,52.0,0.068828125,755.505107832009
+11296,right choroid plexus,chpl-R,11293.0,3.0,380.0,0.727828125,522.1012859320323
+11299,right third ventricle,V3-R,11292.0,2.0,482.0,0.4666875,1032.811035221642
+11300,right cerebral aqueduct,AQ-R,11292.0,2.0,47.0,0.209484375,224.3604087417021
+11301,right fourth ventricle,V4-R,11292.0,2.0,117.0,0.4855625,240.95765220749132
+11302,right lateral recess,V4r-R,11301.0,3.0,56.0,0.231765625,241.62340726757904
+11303,"right central canal, spinal cord/medulla",c-R,11292.0,2.0,1.0,0.00046875,2133.3333333333335

@@ -1,0 +1,79 @@
+ontology_order,structure_id,name,acronym,major_division,DMN_voxels,core_voxels,total_voxels,percent_core,percent_DMN
+232,48,Anterior cingulate area ventral part,ACAv,Isocortex,310599,310599,310599,100,100
+491,19,Induseum griseum,IG,Hippocampal formation,14519,14519,14519,100,100
+245,44,Infralimbic area,ILA,Isocortex,108823,106522,109481,97.3,99.4
+86,361,Primary somatosensory area trunk,SSp-tr,Isocortex,184276,181796,186231,97.62,98.95
+226,39,Anterior cingulate area dorsal part,ACAd,Isocortex,371272,371272,376072,98.72,98.72
+65,337,Primary somatosensory area lower limb,SSp-ll,Isocortex,297958,296228,304462,97.3,97.86
+346,312782546,Anterior area,VISa,Isocortex,189989,172819,198652,87,95.64
+410,814,Dorsal peduncular area,DP,Olfactory areas,61678,17734,65662,27.01,93.93
+272,746,Orbital area ventrolateral part,ORBvl,Isocortex,200308,190965,215027,88.81,93.15
+258,723,Orbital area lateral part,ORBl,Isocortex,315331,259519,338656,76.63,93.11
+238,972,Prelimbic area,PL,Isocortex,251084,251084,281938,89.06,89.06
+264,731,Orbital area medial part,ORBm,Isocortex,148176,141740,168015,84.36,88.19
+171,394,Anteromedial visual area,VISam,Isocortex,93160,78255,109251,71.63,85.27
+698,599,Central medial nucleus of the thalamus,CM,Thalamus,35214,0,43067,0,81.77
+332,886,Retrosplenial area ventral part,RSPv,Isocortex,501317,426427,638748,66.76,78.48
+325,879,Retrosplenial area dorsal part,RSPd,Isocortex,386508,352111,554273,63.53,69.73
+24,993,Secondary motor area,MOs,Isocortex,950739,772276,1494193,51.69,63.63
+199,533,posteromedial visual area,VISpm,Isocortex,97787,48872,154341,31.66,63.36
+353,417,Rostrolateral visual area,VISrl,Isocortex,93237,62759,149397,42.01,62.41
+298,894,Retrosplenial area lateral agranular part,RSPagl,Isocortex,207402,171675,337467,50.87,61.46
+279,104,Agranular insular area dorsal part,AId,Isocortex,306396,49110,500503,9.81,61.22
+291,119,Agranular insular area ventral part,AIv,Isocortex,132152,13100,248497,5.27,53.18
+684,59,Intermediodorsal nucleus of the thalamus,IMD,Thalamus,15811,0,31114,0,50.82
+697,189,Rhomboid nucleus,RH,Thalamus,7517,0,15815,0,47.53
+18,985,Primary motor area,MOp,Isocortex,560021,386296,1403877,27.52,39.89
+79,369,Primary somatosensory area upper limb,SSp-ul,Isocortex,190963,146447,485130,30.19,39.36
+93,182305689,Primary somatosensory area unassigned,SSp-un,Isocortex,52795,39572,167620,23.61,31.5
+680,1120,Interanteromedial nucleus of the thalamus,IAM,Thalamus,2317,0,7765,0,29.84
+6,184,Frontal pole cerebral cortex,FRP,Isocortex,30716,20384,103815,19.63,29.59
+557,583,Claustrum,CLA,Cortical subplate,22651,4813,82210,5.85,27.55
+51,329,Primary somatosensory area barrel field,SSp-bfd,Isocortex,236655,142323,891212,15.97,26.55
+143,1027,Posterior auditory area,AUDpo,Isocortex,25751,0,98025,0,26.27
+701,930,Parafascicular nucleus,PF,Thalamus,20786,177,86757,0.2,23.96
+700,575,Central lateral nucleus of the thalamus,CL,Thalamus,13463,0,56670,0,23.76
+164,402,Anterolateral visual area,VISal,Isocortex,28056,0,119472,0,23.48
+669,1020,Posterior complex of the thalamus,PO,Thalamus,48688,152,212248,0.07,22.94
+685,362,Mediodorsal nucleus of thalamus,MD,Thalamus,48444,0,224711,0,21.56
+122,1011,Dorsal auditory area,AUDd,Isocortex,40420,0,189747,0,21.3
+386,151,Accessory olfactory bulb,AOB,Olfactory areas,14862,11332,73317,15.46,20.27
+398,589,Taenia tecta,TT,Olfactory areas,41005,819,206525,0.4,19.85
+808,302,Superior colliculus sensory related,SCs,Midbrain,52480,792,349665,0.23,15.01
+573,672,Caudoputamen,CP,Striatum,580369,38081,3968263,0.96,14.63
+587,250,Lateral septal nucleus caudal (caudodorsal) part,LSc,Striatum,10224,2749,80510,3.41,12.7
+136,1002,Primary auditory area,AUDp,Isocortex,43403,0,353639,0,12.27
+185,385,Primary visual area,VISp,Isocortex,134653,63722,1135466,5.61,11.86
+390,159,Anterior olfactory nucleus,AON,Olfactory areas,72766,15495,666486,2.32,10.92
+668,218,Lateral posterior nucleus of the thalamus,LP,Thalamus,18505,0,198753,0,9.31
+1101,1009,fiber tracts,fiber tracts,fiber tracts,637953,438930,8155203,5.38,7.82
+681,1113,Interanterodorsal nucleus of the thalamus,IAD,Thalamus,1293,0,19310,0,6.7
+619,581,Triangular nucleus of septum,TRS,Pallidum,3406,849,53169,1.6,6.41
+699,907,Paracentral nucleus,PCN,Thalamus,2310,0,39091,0,5.91
+575,56,Nucleus accumbens,ACB,Striatum,37573,0,700059,0,5.37
+590,310,Septofimbrial nucleus,SF,Striatum,3532,1685,71262,2.36,4.96
+1067,1007,Simple lobule,SIM,Cerebellum,49162,0,1097734,0,4.48
+462,423,Field CA2,CA2,Hippocampal formation,2548,562,74042,0.76,3.44
+206,312782574,Laterointermediate area,VISli,Isocortex,2220,0,83331,0,2.66
+812,4,Inferior colliculus,IC,Midbrain,16965,0,808945,0,2.1
+844,215,Anterior pretectal nucleus,APN,Midbrain,4384,0,217670,0,2.01
+380,507,Main olfactory bulb,MOB,Olfactory areas,33576,19709,1879059,1.05,1.79
+416,961,Piriform area,PIR,Olfactory areas,35569,829,2011676,0.04,1.77
+693,15,Parataenial nucleus,PT,Thalamus,638,0,36880,0,1.73
+689,366,Submedial nucleus of the thalamus,SMT,Thalamus,843,0,51449,0,1.64
+457,382,Field CA1,CA1,Hippocampal formation,27477,7340,1733425,0.42,1.59
+588,258,Lateral septal nucleus rostral (rostroventral) part,LSr,Striatum,3083,837,277126,0.3,1.11
+360,541,Temporal association areas,TEa,Isocortex,5758,0,541543,0,1.06
+107,1057,Gustatory areas,GU,Isocortex,2479,0,260801,0,0.95
+467,463,Field CA3,CA3,Hippocampal formation,10106,1652,1075852,0.15,0.94
+192,425,Posterolateral visual area,VISpl,Isocortex,1179,0,141638,0,0.83
+682,155,Lateral dorsal nucleus of thalamus,LD,Thalamus,1251,0,156147,0,0.8
+559,952,Endopiriform nucleus dorsal part,EPd,Cortical subplate,2174,0,300699,0,0.72
+692,149,Paraventricular nucleus of the thalamus,PVT,Thalamus,319,0,71062,0,0.45
+100,378,Supplemental somatosensory area,SSs,Isocortex,5401,0,1362135,0,0.4
+178,409,Lateral visual area,VISl,Isocortex,596,0,205839,0,0.29
+72,345,Primary somatosensory area mouth,SSp-m,Isocortex,931,0,829275,0,0.11
+826,128,Midbrain reticular nucleus,MRN,Midbrain,685,0,960476,0,0.07
+830,294,Superior colliculus motor related,SCm,Midbrain,501,0,972583,0,0.05
+473,726,Dentate gyrus,DG,Hippocampal formation,429,0,1119108,0,0.04
+1033,928,Culmen,CUL,Cerebellum,204,0,1315598,0,0.02

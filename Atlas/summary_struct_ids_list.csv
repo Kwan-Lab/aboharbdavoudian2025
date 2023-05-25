@@ -1,0 +1,316 @@
+Region_ID,Region Name
+184,Frontal pole cerebral cortex
+985,Primary motor area
+993,Secondary motor area
+353,Primary somatosensory area nose
+329,Primary somatosensory area barrel field
+337,Primary somatosensory area lower limb
+345,Primary somatosensory area mouth
+369,Primary somatosensory area upper limb
+361,Primary somatosensory area trunk
+182305689,Primary somatosensory area unassigned
+378,Supplemental somatosensory area
+1057,Gustatory areas
+677,Visceral area
+1011,Dorsal auditory area
+1002,Primary auditory area
+1027,Posterior auditory area
+1018,Ventral auditory area
+402,Anterolateral visual area
+394,Anteromedial visual area
+409,Lateral visual area
+385,Primary visual area
+425,Posterolateral visual area
+533,posteromedial visual area
+312782574,Laterointermediate area
+312782628,Postrhinal area
+39,Anterior cingulate area dorsal part
+48,Anterior cingulate area ventral part
+972,Prelimbic area
+44,Infralimbic area
+723,Orbital area lateral part
+731,Orbital area medial part
+746,Orbital area ventrolateral part
+104,Agranular insular area dorsal part
+111,Agranular insular area posterior part
+119,Agranular insular area ventral part
+894,Retrosplenial area lateral agranular part
+879,Retrosplenial area dorsal part
+886,Retrosplenial area ventral part
+312782546,Anterior area
+417,Rostrolateral visual area
+541,Temporal association areas
+922,Perirhinal area
+895,Ectorhinal area
+507,Main olfactory bulb
+151,Accessory olfactory bulb
+159,Anterior olfactory nucleus
+589,Taenia tecta
+814,Dorsal peduncular area
+961,Piriform area
+619,Nucleus of the lateral olfactory tract
+639,Cortical amygdalar area anterior part
+647,Cortical amygdalar area posterior part
+788,Piriform-amygdalar area
+566,Postpiriform transition area
+382,Field CA1
+423,Field CA2
+463,Field CA3
+726,Dentate gyrus
+982,Fasciola cinerea
+19,Induseum griseum
+918,Entorhinal area lateral part
+926,Entorhinal area medial part dorsal zone
+843,Parasubiculum
+1037,Postsubiculum
+1084,Presubiculum
+502,Subiculum
+484682470,Prosubiculum
+589508447,Hippocampo-amygdalar transition area
+484682508,Area prostriata
+583,Claustrum
+952,Endopiriform nucleus dorsal part
+966,Endopiriform nucleus ventral part
+131,Lateral amygdalar nucleus
+295,Basolateral amygdalar nucleus
+319,Basomedial amygdalar nucleus
+780,Posterior amygdalar nucleus
+672,Caudoputamen
+56,Nucleus accumbens
+998,Fundus of striatum
+754,Olfactory tubercle
+250,Lateral septal nucleus caudal (caudodorsal) part
+258,Lateral septal nucleus rostral (rostroventral) part
+266,Lateral septal nucleus ventral part
+310,Septofimbrial nucleus
+333,Septohippocampal nucleus
+23,Anterior amygdalar area
+292,Bed nucleus of the accessory olfactory tract
+536,Central amygdalar nucleus
+1105,Intercalated amygdalar nucleus
+403,Medial amygdalar nucleus
+1022,Globus pallidus external segment
+1031,Globus pallidus internal segment
+342,Substantia innominata
+298,Magnocellular nucleus
+564,Medial septal nucleus
+596,Diagonal band nucleus
+581,Triangular nucleus of septum
+351,Bed nuclei of the stria terminalis
+287,Bed nucleus of the anterior commissure
+629,Ventral anterior-lateral complex of the thalamus
+685,Ventral medial nucleus of the thalamus
+718,Ventral posterolateral nucleus of the thalamus
+725,Ventral posterolateral nucleus of the thalamus parvicellular part
+733,Ventral posteromedial nucleus of the thalamus
+741,Ventral posteromedial nucleus of the thalamus parvicellular part
+563807435,Posterior triangular thalamic nucleus
+414,Subparafascicular nucleus magnocellular part
+422,Subparafascicular nucleus parvicellular part
+609,Subparafascicular area
+1044,Peripeduncular nucleus
+475,Medial geniculate complex
+170,Dorsal part of the lateral geniculate complex
+218,Lateral posterior nucleus of the thalamus
+1020,Posterior complex of the thalamus
+1029,Posterior limiting nucleus of the thalamus
+325,Suprageniculate nucleus
+255,Anteroventral nucleus of thalamus
+127,Anteromedial nucleus
+64,Anterodorsal nucleus
+1120,Interanteromedial nucleus of the thalamus
+1113,Interanterodorsal nucleus of the thalamus
+155,Lateral dorsal nucleus of thalamus
+59,Intermediodorsal nucleus of the thalamus
+362,Mediodorsal nucleus of thalamus
+366,Submedial nucleus of the thalamus
+1077,Perireunensis nucleus
+149,Paraventricular nucleus of the thalamus
+15,Parataenial nucleus
+181,Nucleus of reuniens
+560581559,Xiphoid thalamic nucleus
+189,Rhomboid nucleus
+599,Central medial nucleus of the thalamus
+907,Paracentral nucleus
+575,Central lateral nucleus of the thalamus
+930,Parafascicular nucleus
+560581563,Posterior intralaminar thalamic nucleus
+262,Reticular nucleus of the thalamus
+27,Intergeniculate leaflet of the lateral geniculate complex
+563807439,Intermediate geniculate nucleus
+178,Ventral part of the lateral geniculate complex
+321,Subgeniculate nucleus
+483,Medial habenula
+186,Lateral habenula
+390,Supraoptic nucleus
+332,Accessory supraoptic group
+38,Paraventricular hypothalamic nucleus
+30,Periventricular hypothalamic nucleus anterior part
+118,Periventricular hypothalamic nucleus intermediate part
+223,Arcuate hypothalamic nucleus
+72,Anterodorsal preoptic nucleus
+263,Anteroventral preoptic nucleus
+272,Anteroventral periventricular nucleus
+830,Dorsomedial nucleus of the hypothalamus
+452,Median preoptic nucleus
+523,Medial preoptic area
+763,Vascular organ of the lamina terminalis
+914,Posterodorsal preoptic nucleus
+1109,Parastrial nucleus
+126,Periventricular hypothalamic nucleus posterior part
+133,Periventricular hypothalamic nucleus preoptic part
+347,Subparaventricular zone
+286,Suprachiasmatic nucleus
+338,Subfornical organ
+576073699,Ventromedial preoptic nucleus
+689,Ventrolateral preoptic nucleus
+88,Anterior hypothalamic nucleus
+210,Lateral mammillary nucleus
+491,Medial mammillary nucleus
+525,Supramammillary nucleus
+1126,Tuberomammillary nucleus dorsal part
+1,Tuberomammillary nucleus ventral part
+515,Medial preoptic nucleus
+980,Dorsal premammillary nucleus
+1004,Ventral premammillary nucleus
+63,Paraventricular hypothalamic nucleus descending division
+693,Ventromedial hypothalamic nucleus
+946,Posterior hypothalamic nucleus
+194,Lateral hypothalamic area
+226,Lateral preoptic area
+356,Preparasubthalamic nucleus
+364,Parasubthalamic nucleus
+576073704,Perifornical nucleus
+173,Retrochiasmatic area
+470,Subthalamic nucleus
+614,Tuberal nucleus
+797,Zona incerta
+10671,Median eminence
+302,Superior colliculus sensory related
+4,Inferior colliculus
+580,Nucleus of the brachium of the inferior colliculus
+271,Nucleus sagulum
+874,Parabigeminal nucleus
+460,Midbrain trigeminal nucleus
+599626923,Subcommissural organ
+381,Substantia nigra reticular part
+749,Ventral tegmental area
+607344830,Paranigral nucleus
+246,Midbrain reticular nucleus retrorubral area
+128,Midbrain reticular nucleus
+294,Superior colliculus motor related
+795,Periaqueductal gray
+215,Anterior pretectal nucleus
+531,Medial pretectal area
+628,Nucleus of the optic tract
+634,Nucleus of the posterior commissure
+706,Olivary pretectal nucleus
+1061,Posterior pretectal nucleus
+616,Cuneiform nucleus
+214,Red nucleus
+35,Oculomotor nucleus
+549009211,Medial accesory oculomotor nucleus
+975,Edinger-Westphal nucleus
+115,Trochlear nucleus
+606826663,Paratrochlear nucleus
+757,Ventral tegmental nucleus
+231,Anterior tegmental nucleus
+66,Lateral terminal nucleus of the accessory optic tract
+75,Dorsal terminal nucleus of the accessory optic tract
+58,Medial terminal nucleus of the accessory optic tract
+374,Substantia nigra compact part
+1052,Pedunculopontine nucleus
+12,Interfascicular nucleus raphe
+100,Interpeduncular nucleus
+197,Rostral linear nucleus raphe
+591,Central linear nucleus raphe
+872,Dorsal nucleus raphe
+612,Nucleus of the lateral lemniscus
+7,Principal sensory nucleus of the trigeminal
+867,Parabrachial nucleus
+398,Superior olivary complex
+280,Barrington's nucleus
+880,Dorsal tegmental nucleus
+599626927,Posterodorsal tegmental nucleus
+898,Pontine central gray
+931,Pontine gray
+1093,Pontine reticular nucleus caudal part
+318,Supragenual nucleus
+534,Supratrigeminal nucleus
+574,Tegmental reticular nucleus
+621,Motor nucleus of trigeminal
+549009215,Peritrigeminal zone
+549009219,Accessory trigeminal nucleus
+549009223,Parvicellular motor 5 nucleus
+549009227,Intertrigeminal nucleus
+679,Superior central nucleus raphe
+147,Locus ceruleus
+162,Laterodorsal tegmental nucleus
+604,Nucleus incertus
+146,Pontine reticular nucleus
+238,Nucleus raphe pontis
+350,Subceruleus nucleus
+358,Sublaterodorsal nucleus
+207,Area postrema
+96,Dorsal cochlear nucleus
+101,Ventral cochlear nucleus
+711,Cuneate nucleus
+1039,Gracile nucleus
+903,External cuneate nucleus
+642,Nucleus of the trapezoid body
+651,Nucleus of the solitary tract
+429,Spinal nucleus of the trigeminal caudal part
+437,Spinal nucleus of the trigeminal interpolar part
+445,Spinal nucleus of the trigeminal oral part
+589508451,Paratrigeminal nucleus
+653,Abducens nucleus
+661,Facial motor nucleus
+576,Accessory facial motor nucleus
+135,Nucleus ambiguus
+839,Dorsal motor nucleus of the vagus nerve
+1048,Gigantocellular reticular nucleus
+372,Infracerebellar nucleus
+83,Inferior olivary complex
+136,Intermediate reticular nucleus
+106,Inferior salivatory nucleus
+203,Linear nucleus of the medulla
+235,Lateral reticular nucleus
+307,Magnocellular reticular nucleus
+395,Medullary reticular nucleus
+1098,Medullary reticular nucleus dorsal part
+1107,Medullary reticular nucleus ventral part
+852,Parvicellular reticular nucleus
+859,Parasolitary nucleus
+970,Paragigantocellular reticular nucleus dorsal part
+978,Paragigantocellular reticular nucleus lateral part
+177,Nucleus of Roller
+169,Nucleus prepositus
+1069,Parapyramidal nucleus
+209,Lateral vestibular nucleus
+202,Medial vestibular nucleus
+225,Spinal vestibular nucleus
+217,Superior vestibular nucleus
+765,Nucleus x
+773,Hypoglossal nucleus
+781,Nucleus y
+206,Nucleus raphe magnus
+230,Nucleus raphe pallidus
+222,Nucleus raphe obscurus
+912,Lingula (I)
+920,Central lobule
+928,Culmen
+936,Declive (VI)
+944,Folium-tuber vermis (VII)
+951,Pyramus (VIII)
+957,Uvula (IX)
+968,Nodulus (X)
+1007,Simple lobule
+1017,Ansiform lobule
+1025,Paramedian lobule
+1033,Copula pyramidis
+1041,Paraflocculus
+1049,Flocculus
+989,Fastigial nucleus
+91,Interposed nucleus
+846,Dentate nucleus
+589508455,Vestibulocerebellar nucleus
