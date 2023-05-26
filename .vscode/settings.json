@@ -1,7 +1,7 @@
 {
-  "python.analysis.extraPaths": ["./LSP_Repo"],
+  "python.analysis.extraPaths": ["./functionScripts"],
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
   },
-  "python.formatting.provider": "none"
+  "python.formatting.provider": "none",
 }

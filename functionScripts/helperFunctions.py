@@ -398,3 +398,54 @@ def conciseStringReport(strings, counts):
 
     return result_string
 
+def modelStrGen(clf):
+    # Create a string to represent the model
+    # Returns string for plotting and saving model to file.
+
+    from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
+    from sklearn.pipeline import Pipeline
+    from sklearn.base import BaseEstimator
+    # Create a string to represent the model in figure titles
+    elements = []
+    for name, step in clf.steps:
+        elements.append(str(step))
+    modelStr = ' -> '.join(elements)
+
+    # Create a string to represent the model in filenames
+    elements = []
+    for name, step in clf.steps:
+        if isinstance(step, BaseEstimator):
+            elements.append(type(step).__name__)
+        else:
+            elements.append(str(step))
+    saveStr = '_'.join(elements)
+
+    return modelStr, saveStr
+
+def stringReportOut(selected_features_list, selected_features_params, YtickLabs):
+    from collections import Counter
+
+    # Report on which features make the cut.
+    for idx, drug in enumerate(YtickLabs):
+        regionList = np.concatenate(selected_features_list[idx])
+
+        # Process the feature per model list into a string
+        featurePerModelStr = str([len(x) for x in selected_features_list[0]])
+        paramStr = ''
+
+        keyList = selected_features_params[idx][0].keys()
+        for key in list(keyList):
+            keyVals = [x[key] for x in selected_features_params[idx]]
+            paramStr += f"{key}: {str(keyVals)} \n"
+
+        if len(regionList) == 0:
+            continue
+
+        regionDict = dict(Counter(regionList))
+        labels, counts = list(regionDict.keys()), list(regionDict.values())
+
+        finalStr = conciseStringReport(labels, counts)
+
+        print(f'==== {drug} ==== \n Features per Model: {featurePerModelStr}')
+        print(f'Parameters: \n {paramStr}')
+        print(f'Total Regions = {str(len(labels))} \n {finalStr}')

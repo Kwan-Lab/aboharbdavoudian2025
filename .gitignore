@@ -3,4 +3,6 @@ Atlas/allGeneStructureInfo_allgenes_summary_struct.csv
 1.scaled_Debug/
 1.scaled_Output/
 1.scaled_Temp/
+**/__pycache__/
 *.pkl
+*.pyc

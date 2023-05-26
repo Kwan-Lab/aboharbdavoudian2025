@@ -19,8 +19,7 @@ def correlationMatrixPlot(X_data, col_names):
 
     plt.figure(figsize=(40, 40))
     sns.set(font_scale=1)
-    sns.heatmap(corrMat, cmap="coolwarm", xticklabels=col_names,
-                yticklabels=col_names)  # , annot=True
+    sns.heatmap(corrMat, cmap="coolwarm", xticklabels=col_names, yticklabels=col_names)  # , annot=True
     plt.title("Correlation Matrix Heatmap")
     plt.show()
 
@@ -40,45 +39,6 @@ def extract_sorted_correlations(correlation_matrix, variable_names):
     correlation_pairs.sort(key=lambda x: -abs(x[2]))
 
     return correlation_pairs
-
-
-def iterativeCorrShrinkage(X_data, col_names, threshold=0.9):
-    import numpy as np
-    import seaborn as sns
-
-    corrMat = np.corrcoef(X_data, rowvar=False)
-
-    num_variables = len(col_names)
-    correlation_pairs = []
-
-    for i in range(num_variables):
-        for j in range(i+1, num_variables):
-            correlation_pairs.append(
-                [col_names[i], col_names[j], corrMat[i, j]])
-
-    # Sort by the absolute value of the correlation in descending order
-    correlation_pairs.sort(key=lambda x: -abs(x[2]))
-
-    # Go through, finding
-    features_to_remove = []
-    high_corr_cleared = True
-
-    while high_corr_cleared:
-        max_corr_pair = correlation_pairs[0]
-
-        if abs(max_corr_pair[2]) >= threshold:
-            features_to_remove.append(max_corr_pair[1])
-            correlation_pairs = [pair for pair in correlation_pairs if pair[0]
-                                 != max_corr_pair[1] and pair[1] != max_corr_pair[1]]
-        else:
-            high_corr_cleared = False
-
-    # Remove the features from the data and return the new list
-    remaining_col_idx = [i for i, name in enumerate(
-        col_names) if name not in features_to_remove]
-
-    return remaining_col_idx
-
 
 def classifySamples(pandasdf, classifyDict, dirDict):
 
@@ -139,24 +99,21 @@ def classifySamples(pandasdf, classifyDict, dirDict):
     paramGrid = dict()
 
     # Create a model with each of the desired feature counts.
-    pipelineModules = {}
-
     if 'LogReg' in classifyDict['model'] or 'SVM' in classifyDict['model']:
-        paramGrid['cVals'] = [0.001, 0.01, 0.1, 1, 3, 5, 10]
+        paramGrid['classif__C'] = [0.001, 0.01, 0.1, 1, 3, 5, 10]
 
     # Select Classifying model
     match classifyDict['model']:
         # Logistic Regression Models
         case 'LogRegL2':
-            classif = linear_model.LogisticRegression(penalty='l2', multi_class='multinomial', solver='saga', max_iter=max_iter, dual=False)
+            classif = linear_model.LogisticRegression(penalty='l2', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter, dual=False)
         case 'LogRegL1':
-            classif = linear_model.LogisticRegression(penalty='l1', multi_class='multinomial', solver='saga', max_iter=max_iter)
+            classif = linear_model.LogisticRegression(penalty='l1', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter)
         case 'LogRegElastic':
-            classif = linear_model.LogisticRegression(penalty='elasticnet', solver='saga', l1_ratio=0.5, max_iter=max_iter)
-            paramGrid['l1Vals'] = [0, 0.1, 0.5, 0.9, 1]
+            classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
+            paramGrid['classif__l1_ratio'] = [0, 0.1, 0.5, 0.9, 1]
         case _:
             ValueError('Invalid modelStr')
-
 
     # Select Feature selection model
     match classifyDict['model_featureSel']:
@@ -202,41 +159,6 @@ def classifySamples(pandasdf, classifyDict, dirDict):
         # if fit != 'Shuffle' and len(numYDict) != 2:
         #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, numYDict, 8, fit=fit)
 
-
-def nestedCV_gridSearch(clf, X_train, y_train, paramGrid, gridSearchCVNum):
-    from sklearn.model_selection import StratifiedKFold, GridSearchCV
-    from sklearn.multiclass import OneVsRestClassifier
-
-    # Set the grid search values if they're going to be used.
-    cString = next((key for key in clf.get_params().keys() if 'C' in key), None)
-    l1String = next((key for key in clf.get_params().keys() if 'l1_ratio' in key), None)
-
-    # Create a dictionary of the parameters to search over
-    penalty_key = next((key for key in clf.get_params().keys() if 'penalty' in key), None)
-    if penalty_key is not None:
-        penaltyStr = clf.get_params()[penalty_key]
-    else:
-        penaltyStr = None
-
-    paramGridPass = dict()
-    paramGridPass[cString] = paramGrid['cVals']
-    if penaltyStr == 'elasticnet':
-        paramGridPass[l1String] = paramGrid['l1Vals']
-
-    # Perform Grid Search
-    # Do a grid search for the relevant parameters
-    grid_search = GridSearchCV(clf, paramGridPass, cv=gridSearchCVNum, scoring='accuracy')
-    grid_search.fit(X_train, y_train)
-
-    # Report out on those models
-    print({k: v for k, v in grid_search.best_params_.items()})
-
-    # Set the best parameters
-    clf.set_params(**grid_search.best_params_)
-
-    return clf, grid_search.best_params_
-
-
 def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit, nestedCVSwitch=False, paramGrid=None, dirDict=[]):
     # Find the confusion matrix for the model.
     # clf = model, X = Data formated n_samples, n_features, y = n_samples * 1 labels
@@ -249,7 +171,7 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
     from sklearn.metrics import confusion_matrix
     from sklearn.multiclass import OneVsRestClassifier
     from collections import Counter
-    from sklearn.model_selection import StratifiedKFold
+    from sklearn.model_selection import StratifiedKFold, GridSearchCV
     from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
 
     # Initialize matricies for the storing features which go into the confusion matrix and the later PR Curve.
@@ -281,10 +203,7 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
     for clf in modelList:
 
         # Create a string to represent the model
-        if isinstance(clf['featureSel'], SelectKBest):
-            modelStr = f"{str(clf['classif'])}, BestK, k = {clf['featureSel'].k}"
-        elif isinstance(clf['featureSel'], SequentialFeatureSelector):
-            modelStr = f"{str(clf['classif'])}, SFS, k = {clf['featureSel'].n_features_to_select}"
+        modelStr, saveStr = hf.modelStrGen(clf)
 
         penaltyStr = clf['classif'].penalty
         print(f"evaluating model: {modelStr}")
@@ -303,8 +222,14 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
             y_bin_test = y_bin[test_index]
 
             if nestedCVSwitch and paramGrid:
-                # Perform nested CV to find the best parameters
-                clf, bestParams = nestedCV_gridSearch(clf, X_train, y_train, paramGrid, innerLoopKFoldNum)
+                # Do a grid search for the relevant parameters
+                grid_search = GridSearchCV(clf, paramGrid, cv=innerLoopKFoldNum, scoring='accuracy')
+                grid_search.fit(X_train, y_train)
+                best_params = grid_search.best_params_
+                clf.set_params(**best_params)
+
+                # Report out on those models
+                print({k: v for k, v in grid_search.best_params_.items()})
 
             # Fit the model
             clf.fit(X_train, y_train)
@@ -346,140 +271,21 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
             # Append features List in case of LASSO or ElasticNet Regression
             if penaltyStr != 'l2' and penaltyStr != 'None':
 
-                if isinstance(clf['classif'], OneVsRestClassifier):
-                    # Loop over each model in the 'OneVsRestClassifier'
-                    for idx, coef in enumerate(clf.named_steps['onevsrestclassifier'].estimators_):
-                        selected_features = featureNamesSub[coef.coef_[0] != 0]
-                        selected_features_list[idx].append(selected_features)
-                        if nestedCVSwitch:
-                            selected_features_params[idx].append(bestParams)
-                else:
-                    # Loop over each model in the 'OneVsRestClassifier'
-                    for idx, coefSet in enumerate(clf._final_estimator.coef_):
-                        selected_features = featureNamesSub[coefSet != 0]
-                        selected_features_list[idx].append(selected_features)
-                        if nestedCVSwitch:
-                            selected_features_params[idx].append(bestParams)
+                for idx, coefSet in enumerate(clf._final_estimator.coef_):
+                    selected_features = featureNamesSub[coefSet != 0]
+                    selected_features_list[idx].append(selected_features)
+                    if nestedCVSwitch:
+                        selected_features_params[idx].append(best_params)
 
         # Following the CV, concatonate results across all splits and use to Plot PR Curve
         if fit != 'Shuffle':
             pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr)
 
         # Plot Confusion Matrix
-        pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, modelStr, dirDict)
+        pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
 
-        # Report on which features make the cut.
         if fit != 'Shuffle' and penaltyStr != 'l2' and penaltyStr != 'None':
-            for idx, drug in enumerate(YtickLabs):
-                regionList = np.concatenate(selected_features_list[idx])
-
-                # Process the feature per model list into a string
-                featurePerModelStr = str([len(x) for x in selected_features_list[0]])
-                paramStr = ''
-
-                keyList = selected_features_params[idx][0].keys()
-                for key in list(keyList):
-                    keyVals = [x[key] for x in selected_features_params[idx]]
-                    paramStr += f"{key}: {str(keyVals)} \n"
-
-                if len(regionList) == 0:
-                    continue
-
-                regionDict = dict(Counter(regionList))
-                labels, counts = list(regionDict.keys()), list(regionDict.values())
-
-                finalStr = hf.conciseStringReport(labels, counts)
-
-                print(f'==== {drug} ==== \n Features per Model: {featurePerModelStr}')
-                print(f'Parameters: \n {paramStr}')
-                print(f'Total Regions = {str(len(labels))} \n {finalStr}')
-
-def findConfusionMatrix_PerDrug(modelList, X, y, labelDict, featureNames, KfoldNum, fit, nestedCVSwitch=False, paramGrid=None, dirDict=[]):
-    # Find the confusion matrix for the model.
-    # clf = model, X = Data formated n_samples, n_features, y = n_samples * 1 labels
-    # KfoldNum = number of folds to use for cross-validation
-    # leaveOut = train the model n_classes number of time, leaving out a class each time, average across the confusion matricies.
-    # labelDict = converts from numbered classes to labels.
-
-    import numpy as np
-    from sklearn import preprocessing
-    from sklearn.metrics import confusion_matrix
-    from sklearn.multiclass import OneVsRestClassifier
-    from collections import Counter
-    from sklearn.model_selection import StratifiedKFold
-    
-    # Initialize matricies for the storing features which go into the confusion matrix and the later PR Curve.
-    # For each class, store an array of real labels, predicted labels,
-    n_classes = len(np.unique(y))
-    y_real, y_prob = [], []
-
-    # For storing the features used to make the classification for each fold.
-    YtickLabs = [labelDict[x] for x in np.unique(y)]
-
-    # Initialize arrays for conf_matrix
-    conf_matrix_list_of_arrays = []
-    scores = []
-    skf = StratifiedKFold(n_splits=KfoldNum)  # 8 examples of each label
-    
-    
-
-    for clf in modelList:
-        
-        # Estimator name
-        modelStr = f"{str(clf['classif'])}, k = {clf['featureSel'].n_features_to_select}"
-        penaltyStr = clf['classif'].penalty
-
-        print(f"evaluating model: {modelStr}")
-
-        # Pull the relevant labels for this drug
-        skf.get_n_splits(X, y)
-        y = drug_vec
-
-        for train_index, test_index in skf.split(X, y):
-            # Grab training data and test data
-            X_train, X_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
-
-            # Perform nested CV to find the best parameters
-            if nestedCVSwitch and paramGrid:
-                print('Performing nested CV to find the best parameters')
-                clf = nestedCV_gridSearch(clf, X_train, y_train, paramGrid, innerLoopKFoldNum)
-
-            # Fit the model
-            clf.fit(X_train, y_train)
-
-            # if best K, get ride of the non-label names
-            if 'featureSel' in clf.named_steps.keys():
-                featureNamesSub = featureNames[clf['featureSel'].get_support(indices=True)]
-            else:
-                featureNamesSub = featureNames
-
-            # PRedict answers for the X_test set
-            if isinstance(clf['classif'], OneVsRestClassifier):
-                # Reformat the output indicator, since the confusion_matrix fxn doesn't accept it.
-                x_test_predict = np.argmax(clf.predict(X_test), axis=1)
-            else:
-                # create the predictions for the test set based on the model
-                x_test_predict = clf.predict(X_test)
-
-            # Extract the confusion matrix for the split
-            conf_matrix = confusion_matrix(y_test, x_test_predict)
-
-            # In cases where test set has more than 1 instance of a class, normalize reach row.
-            if np.max(np.sum(conf_matrix, axis=1)) != 1:
-                sums = np.sum(conf_matrix, axis=1)
-                conf_matrix = conf_matrix / sums[:, np.newaxis]
-
-            # Append the confusion matrix to the larger stack
-            conf_matrix_list_of_arrays.append(conf_matrix)
-
-        # Following the CV, concatonate results across all splits and use to Plot PR Curve
-        if fit != 'Shuffle':
-            pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr)
-
-        # Plot Confusion Matrix
-        pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, modelStr, dirDict)
-
+            hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs)
 
 def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
     import numpy as np
