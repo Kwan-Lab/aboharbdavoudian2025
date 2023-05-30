@@ -2,6 +2,8 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+from copy import deepcopy
+
 from os.path import exists
 from math import isnan
 from tqdm import tqdm
@@ -10,10 +12,20 @@ import seaborn as sns
 import helperFunctions as hf
 import plotFunctions as pf
 
+from sklearn import preprocessing, linear_model, cluster, svm
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+# Used to create a consistent processing pipeline prior to training/testing.
+from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.metrics import precision_recall_curve, confusion_matrix, PrecisionRecallDisplay
+from sklearn.utils import shuffle
+from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.preprocessing import FunctionTransformer, RobustScaler, normalize
+
 
 def correlationMatrixPlot(X_data, col_names):
-    import numpy as np
-    import seaborn as sns
 
     corrMat = np.corrcoef(X_data, rowvar=False)
 
@@ -24,7 +36,6 @@ def correlationMatrixPlot(X_data, col_names):
     plt.show()
 
     return corrMat
-
 
 def extract_sorted_correlations(correlation_matrix, variable_names):
     num_variables = len(variable_names)
@@ -42,41 +53,36 @@ def extract_sorted_correlations(correlation_matrix, variable_names):
 
 def classifySamples(pandasdf, classifyDict, dirDict):
 
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-    from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-    from sklearn.tree import DecisionTreeClassifier
-    # Used to create a consistent processing pipeline prior to training/testing.
-    from sklearn import preprocessing, linear_model, cluster, svm
-    from sklearn.pipeline import make_pipeline, Pipeline
-    from sklearn.metrics import precision_recall_curve, confusion_matrix, PrecisionRecallDisplay
-    from sklearn.utils import shuffle
-    from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
-    from sklearn.preprocessing import FunctionTransformer
-    from copy import deepcopy
-
     # ================== Perform Filtration and agglomeration as desired ==================
     filtAggFileName = f"{dirDict['tempDir']}lightsheet_data_filtAgg.pkl"
 
-    if not exists(filtAggFileName):
+    if (classifyDict['featurefilt'] or classifyDict['featureAgg']):
 
-        print('Generating filtered and aggregated data file...')
-        # Set to filter features based on outliers (contains 99.9th percentile values)
-        if classifyDict['featureSel_filter']:
-            pandasdf = hf.filter_features(pandasdf, classifyDict)
+        if not exists(filtAggFileName):
 
-        if classifyDict['featureSel_agg']:
-            ls_data_agg = hf.agg_cluster(pandasdf, classifyDict, dirDict)
+            print('Generating filtered and aggregated data file...')
+            # Set to filter features based on outliers (contains 99.9th percentile values)
+            if classifyDict['featurefilt']:
+                pandasdf = hf.filter_features(pandasdf, classifyDict)
+
+            if classifyDict['featureAgg']:
+                ls_data_agg = hf.agg_cluster(pandasdf, classifyDict, dirDict)
+            else:
+                ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
+
+            # Save for later
+            ls_data_agg.to_pickle(filtAggFileName)
+
         else:
-            ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
 
-        # Save for later
-        ls_data_agg.to_pickle(filtAggFileName)
-
+            # Load from file
+            print('Loading filtered and aggregated data from file...')
+            ls_data_agg = pd.read_pickle(filtAggFileName)
     else:
 
-        # Load from file
-        print('Loading filtered and aggregated data from file...')
-        ls_data_agg = pd.read_pickle(filtAggFileName)
+        # Reformat data for classification
+        ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
+
 
 
     # ================== Shape data for classification ==================
@@ -95,25 +101,22 @@ def classifySamples(pandasdf, classifyDict, dirDict):
     # correlation_pairs = extract_sorted_correlations(corrMat, featureNames)
 
     # ================== Pipeline Construction ==================
-    max_iter = 200
+    max_iter = classifyDict['max_iter']
     paramGrid = dict()
+    pipelineList = []
 
     # Create a model with each of the desired feature counts.
     if 'LogReg' in classifyDict['model'] or 'SVM' in classifyDict['model']:
-        paramGrid['classif__C'] = [0.001, 0.01, 0.1, 1, 3, 5, 10]
+        paramGrid['classif__C'] = classifyDict['pGrid']['classif__C']
 
-    # Select Classifying model
-    match classifyDict['model']:
-        # Logistic Regression Models
-        case 'LogRegL2':
-            classif = linear_model.LogisticRegression(penalty='l2', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter, dual=False)
-        case 'LogRegL1':
-            classif = linear_model.LogisticRegression(penalty='l1', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter)
-        case 'LogRegElastic':
-            classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
-            paramGrid['classif__l1_ratio'] = [0, 0.1, 0.5, 0.9, 1]
-        case _:
-            ValueError('Invalid modelStr')
+    # Select Feature scaling model
+    if classifyDict['model_featureScale']:
+        scaleMod = RobustScaler()
+    else:
+        scaleMod = FunctionTransformer(emptyFxn)
+
+    if 'scaleMod' in locals():
+        pipelineList.append(('featureScale', scaleMod))
 
     # Select Feature selection model
     match classifyDict['model_featureSel']:
@@ -131,8 +134,27 @@ def classifySamples(pandasdf, classifyDict, dirDict):
         case _:
             ValueError('Invalid model_featureSel')
 
+    if 'featureSelMod' in locals():
+        pipelineList.append(('featureSel', featureSelMod))
+
+    # Select Classifying model
+    match classifyDict['model']:
+        # Logistic Regression Models
+        case 'LogRegL2':
+            classif = linear_model.LogisticRegression(penalty='l2', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter, dual=False)
+        case 'LogRegL1':
+            classif = linear_model.LogisticRegression(penalty='l1', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter)
+        case 'LogRegElastic':
+            classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
+            paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
+        case _:
+            ValueError('Invalid modelStr')
+
+    pipelineList.append(('classif', classif))
+
     # Create a base model
-    clf = Pipeline([('featureSel', featureSelMod), ('classif', classif)])
+    
+    clf = Pipeline(pipelineList)
     modelList = []
 
     # Iterate over the desired feature counts
@@ -154,7 +176,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             y = shuffle(y)
 
         # Generate a confusion matrix to represent classification accuracy. Also creates the PR Curve
-        findConfusionMatrix(modelList, X, y, numYDict, featureNames, 8, fit=fit, nestedCVSwitch=classifyDict['gridCV'], paramGrid=paramGrid, dirDict=dirDict)
+        findConfusionMatrix(modelList, X, y, numYDict, featureNames, classifyDict['CV_count'], fit=fit, nestedCVSwitch=classifyDict['gridCV'], paramGrid=paramGrid, dirDict=dirDict)
 
         # if fit != 'Shuffle' and len(numYDict) != 2:
         #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, numYDict, 8, fit=fit)
@@ -165,14 +187,6 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
     # KfoldNum = number of folds to use for cross-validation
     # leaveOut = train the model n_classes number of time, leaving out a class each time, average across the confusion matricies.
     # labelDict = converts from numbered classes to labels.
-
-    import numpy as np
-    from sklearn import preprocessing
-    from sklearn.metrics import confusion_matrix
-    from sklearn.multiclass import OneVsRestClassifier
-    from collections import Counter
-    from sklearn.model_selection import StratifiedKFold, GridSearchCV
-    from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
 
     # Initialize matricies for the storing features which go into the confusion matrix and the later PR Curve.
     # For each class, store an array of real labels, predicted labels,
@@ -186,10 +200,12 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
     skf.get_n_splits(X, y)
 
     # Based on kFoldNum, pick a number
+    # in LOOCV, inner loop is outer loop - 1.
     if KfoldNum == 8:
         innerLoopKFoldNum = 7
+    # in 
     elif KfoldNum == 4:
-        innerLoopKFoldNum = 5
+        innerLoopKFoldNum = 3
 
     # Create a label binarizer
     lb = preprocessing.LabelBinarizer()
@@ -241,12 +257,12 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
                 featureNamesSub = featureNames
 
             # PRedict answers for the X_test set
-            if isinstance(clf['classif'], OneVsRestClassifier):
-                # Reformat the output indicator, since the confusion_matrix fxn doesn't accept it.
-                x_test_predict = np.argmax(clf.predict(X_test), axis=1)
-            else:
-                # create the predictions for the test set based on the model
-                x_test_predict = clf.predict(X_test)
+            # if isinstance(clf['classif'], OneVsRestClassifier):
+            #     # Reformat the output indicator, since the confusion_matrix fxn doesn't accept it.
+            #     x_test_predict = np.argmax(clf.predict(X_test), axis=1)
+            # else:
+            # create the predictions for the test set based on the model
+            x_test_predict = clf.predict(X_test)
 
             # Extract the confusion matrix for the split
             conf_matrix = confusion_matrix(y_test, x_test_predict)
@@ -288,11 +304,6 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
             hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs)
 
 def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
-    import numpy as np
-    from sklearn.model_selection import StratifiedKFold
-    # Used to create a consistent processing pipeline prior to training/testing.
-    from sklearn.metrics import confusion_matrix
-    from sklearn.preprocessing import normalize
 
     # Repeat the procedure below many times, but you need to have
     # a copy of x and y without the class - go through the procedure
@@ -361,298 +372,6 @@ def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
     # cbar_kws=dict(set_over=1.0)
     plt.title(fit + ', LOO: ' + str(daObj))
     plt.show()
-
-def CV_feature_selection(pandasdf, classifyDict, dirDict):
-    """
-    A function which iteratives removes features from a model, and performs cross validated scoring of the model
-    Args:
-        pandasdf: Pandas dataframe of the data to be classified.
-        classifyDict: Dictionary containing information for classification.
-            'model_featureSel': String specifying the model to use for feature selection.
-            'model_classify': String specifying the model to use for classification.
-            'shuffle': Boolean specifying if samples should be shuffled.
-            'remove_high_corr': Boolean specifying if high correlation features should be removed.
-            'corrThreshold': Float specifying the correlation threshold to remove features at.
-        dirDict: a dictionary containing directories for storing any output files
-            'classifyDir': the root file for all all downstream files or nested directories
-    """
-    from sklearn import preprocessing, linear_model
-    from sklearn.pipeline import make_pipeline
-    from sklearn.model_selection import StratifiedKFold
-    from sklearn.feature_selection import SelectKBest, SelectFromModel, f_classif, mutual_info_classif
-    from sklearn.metrics import confusion_matrix
-    from plotFunctions import create_heatmaps_allC, create_heatmaps_perDrug
-    from statsmodels.stats.outliers_influence import variance_inflation_factor as vif
-
-    # Add in new folder
-    folderTag = 'CV_feature_selection//'
-    if folderTag not in dirDict['classifyDir']:
-        dirDict['classifyDir'] = dirDict['classifyDir'] + folderTag
-
-    if not os.path.exists(dirDict['classifyDir']):
-        os.mkdir(dirDict['classifyDir'])
-
-    # Temp hardcoding of some variables
-    max_iter = 500
-    # Used to scan over the sparse coefficient space for L1 based feature selection.
-    C_vec = [100, 10, 5, 1, 0.5, 0.1]  # , 0.05, 0.01
-    multi_class_str = 'ovr'    # Can be ovr or multinomial
-
-    # Reformat the data
-    X, y, featureNames, numYDict = hf.reformatData(pandasdf, 'Region_Name', classifyDict) # 'Region_Name', 'abbreviation'
-    
-    drugNames = list(numYDict.values())
-
-    # If you want to remove high correlation features, do so here
-    # if classifyDict['remove_high_corr']:
-    #     keep_ind = iterativeCorrShrinkage(X, featureNames, threshold=classifyDict['corrThreshold'])
-    #     X = X[:, keep_ind]
-    #     featureNames = featureNames[keep_ind]
-        
-    # Create the feature selection component of the model
-    # Maybe Random forest later
-
-    if classifyDict['model_featureSel'] == 'L1':
-        featureSelMod = linear_model.LogisticRegression(multi_class=multi_class_str, penalty='l1', solver='liblinear', max_iter=max_iter)
-    elif classifyDict['model_featureSel'] == 'Univar':
-        featureSelMod = SelectKBest(score_func=f_classif, k='all')
-    elif classifyDict['model_featureSel'] == 'mutInfo':
-        featureSelMod = SelectKBest(score_func=mutual_info_classif, k='all')
-    else:
-        KeyError()
-
-    sfm = SelectFromModel(featureSelMod, threshold=1e-6, prefit=False)
-
-    # Create the classification model
-    if classifyDict['model_classify'] == 'L2':
-        classMod = linear_model.LogisticRegression(penalty='l2', solver='liblinear', max_iter=max_iter, dual=True)
-
-    # Fold these together into a pipeline with proper preprocessing
-    pipelineObj = make_pipeline(preprocessing.RobustScaler(), sfm, classMod)
-
-    # Initialize arrays for storing outputs
-    n_classes = len(np.unique(y))
-    C_feature_sel = [[] for _ in range(len(C_vec))]
-    C_feature_coef = [[] for _ in range(len(C_vec))]
-    C_conf_mat = [[] for _ in range(len(C_vec))]
-    C_scores = [[] for _ in range(len(C_vec))]
-
-    # Identify the estimator's C
-    C_param = hf.check_phrase_in_keys('selectfrommodel*C', pipelineObj.get_params())
-    C_coef_mat = []
-
-    skf = StratifiedKFold(n_splits=8)  # 8 examples of each label
-
-    # Set the outer loop for selecting C
-    for C_idx, C_val in enumerate(C_vec):
-
-        # Set up storage for variables related to this parameter
-        feature_coef = [[] for _ in range(n_classes)]
-        C_feature_coef[C_idx] = feature_coef
-        conf_matrix_list_of_arrays = []
-        scores = []
-
-        # set feature in the feature selection element of the pipeline
-        pipelineObj.set_params(**{C_param[0]: C_val})
-
-        # run CV pipeline
-        for train_index, test_index in skf.split(X, y):
-
-            # Grab training data and test data
-            X_train, X_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
-
-            # Fit the model on the training data
-            pipelineObj.fit(X_train, y_train)
-
-            # Store the list of selected features in a matrix which preserves the original size (1, 0s)
-            C_feature_sel[C_idx].append(pipelineObj['selectfrommodel'].get_support())
-
-            # Extract the coefficients the model generated, create a similar matrix, but (coef, 0s)
-            # Since a model is fit for each drug, must iterate across drugs
-            for drug_idx in range(n_classes):
-                C_feature_coef[C_idx][drug_idx].append(pipelineObj['logisticregression'].coef_[drug_idx])
-
-            # For ease of plotting later, just save the coefficients, as its already formated in feature * class
-            C_coef_mat.append(pipelineObj['logisticregression'].coef_)
-
-            # Run the model on the test data
-            x_test_predict = pipelineObj.predict(X_test)
-
-            # Extract the confusion matrix for the split
-            conf_matrix = confusion_matrix(y_test, x_test_predict)
-
-            # Append the confusion matrix to the larger stack
-            conf_matrix_list_of_arrays.append(conf_matrix)
-
-            # Extract the score, along the diagonal.
-            scores.append(np.mean(np.diag(conf_matrix)))
-
-        conf_matrix_list_of_arrays_mod = np.array(conf_matrix_list_of_arrays)
-
-        C_scores[C_idx] = scores
-
-        # Plot Confusion Matrix - # CHECK TITLES
-        titleStr = str(pipelineObj['logisticregression']) + ' Feature Sel via L1, C = ' + str(C_val)
-        # pf.plotConfusionMatrix(scores, drugNames,conf_matrix_list_of_arrays, '', titleStr, dirDict)
-
-        # Prepare the confusion matrix plot
-        mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays_mod, axis=0)
-        C_conf_mat[C_idx] = mean_of_conf_matrix_arrays
-
-    # Process score data for creating a line plot
-    if 0:
-        C_mean_score = [np.mean(x) for x in C_scores]
-        C_mean_std = [np.std(x) for x in C_scores]
-
-        C_vec_transformed = np.log10(C_vec)
-
-        plt.errorbar(C_vec_transformed, C_mean_score, yerr=C_mean_std, fmt='o-', capsize=5)
-        plt.gca().set_xticks(C_vec_transformed)
-        plt.gca().set_xticklabels([f"{v:.1f}" for v in C_vec_transformed])
-        # plt.gca().set_xscale('log')
-
-        plt.xlabel('C Regularization (log scale)')
-        plt.ylabel('Accuracy (SD)')
-        plt.title('Accuracy vs Inverse Regularization Strength')
-        plt.show()
-
-    # Reformat the stored coefficient data into a sns heatmap - make as large as needed
-    FeatureCount = []
-    for C_score_set in C_feature_sel:
-        FeatureCount.append([sum(x) for x in C_score_set])
-
-    # Create the matrix of coefficients and 0s
-    drug_median_coef = [[] for _ in range(len(drugNames))]
-    
-    for drug_idx in range(len(drugNames)):
-        # For each drug, we want to make a n_features by C_vec table, where 0 is present if the coefficient is never used, and 0 - 1 is present for features which were used in at least one split.
-
-        coef_zero_mat = []
-        coef_zero_split_mat = []
-        coef_zero_median = []
-
-        for C_idx in range(len(C_vec)):
-            # Create this temporary variable to create a mean coefficient across splits
-            coef_per_split = []
-
-            # Extract data
-            for split_idx in range(len(C_feature_sel[C_idx])):
-                booleanArray = C_feature_sel[C_idx][split_idx]
-                coefData = C_feature_coef[C_idx][drug_idx][split_idx]
-                coef_zero_vec = hf.replace_ones_with_integers(booleanArray, coefData)
-                coef_per_split.append(coef_zero_vec)
-
-            # For retrieve the drug data across all the
-            coef_per_split = np.array(coef_per_split)
-            coef_per_split = coef_per_split.transpose()
-            coef_mean = np.mean(coef_per_split, axis=1)
-            coef_mean = coef_mean.reshape(-1, 1)
-
-            # Append the coef_mean, which is the mean of 0s and 1s present across all the splits, to this larger matrix
-            coef_zero_mat.append(coef_mean)
-            coef_zero_split_mat.append(coef_per_split)  # Store the coefficients
-            # Take the median value across all CVs and append here
-            coef_zero_median.append(np.median(coef_per_split, axis=1))
-
-        # Reformat matrix to allow for plotting of heatmap.
-        coef_zero_mat = np.array(coef_zero_mat)
-        coef_zero_mat = np.squeeze(coef_zero_mat)
-        coef_zero_mat = coef_zero_mat.transpose()
-        coef_zero_split_mat = np.array(coef_zero_split_mat)
-        
-        # format other collected stuff for other plot
-        # Process the median values for each coeficient in each C value
-        coef_zero_median = np.array(coef_zero_median)
-        coef_zero_median = coef_zero_median.transpose()
-        drug_median_coef[drug_idx] = coef_zero_median
-
-        # Create heatmap
-        # create_heatmaps_allC(coef_zero_split_mat, 0, f'{drugNames[drug_idx]} Coefficients Per Split, C = ', C_vec, dirDict)
-        print(f'Done {drugNames[drug_idx]}')
-
-    # plottingData[drug_idx][features][C_idx]
-    plottingData = np.array(drug_median_coef)
-    # create_heatmaps_perDrug(plottingData, 'Per Drug Median Coefficients across Splits', drugNames, 'C', C_vec, dirDict)
-    plottingData = np.swapaxes(plottingData, 0, 2)
-    # create_heatmaps_perDrug(plottingData, 'Per C Median Coefficients across Splits', [f"C = {x}" for x in C_vec], 'Drug', drugNames, dirDict)
-    
-    # Pull all the features for each value
-    C_features = [[] for _ in range(len(C_vec))]
-
-    for C_idx in range(len(C_vec)):
-
-        drug_features = [[] for _ in range(len(drugNames))]
-
-        for drug_idx in range(len(drugNames)):
-            drug_C_coeffs = plottingData[C_idx, :, drug_idx]
-
-            # Scatter Plot
-            keepInd = np.round(drug_C_coeffs,2) != 0
-            featureNamesPlot = featureNames[keepInd]
-            drug_C_coeffs = drug_C_coeffs[keepInd]
-
-            # create a sorting index
-            sorted_indices = sorted(range(len(drug_C_coeffs)), key=lambda i: abs(drug_C_coeffs[i]), reverse=True)
-
-            # Store the sorted features, largest coefficients to smallest
-            drug_coeff_sorted = drug_C_coeffs[sorted_indices]
-            feature_names_sorted = featureNamesPlot[sorted_indices]
-            # Combine arrays into a single list
-            drug_features[drug_idx] = [(np.round(num,2), string) for num, string in zip(drug_coeff_sorted, feature_names_sorted)]
-
-            # Plotting things
-            if 0:
-                sns.scatterplot(drug_C_coeffs)
-                plt.axhline(0, color='black')
-                threshold = np.percentile(np.abs(drug_C_coeffs), 90)
-                plt.axhline(threshold, color='red', linestyle='--')
-                plt.axhline(-threshold, color='red', linestyle='--')
-
-                # Put the name of the features with the largest values up
-                for i in range(len(drug_C_coeffs)):
-                    if np.abs(drug_C_coeffs[i]) > threshold:
-                        plt.text(i, drug_C_coeffs[i], f'{featureNamesPlot[i]}', color='red')
-
-                plt.xlabel('Feature Index')
-                plt.ylabel('Coefficient')
-                plt.title(f'Coefficient weights for {drugNames[drug_idx]} at C = {C_vec[C_idx]} (90th percentile = {threshold:.2f})')
-                plt.show()
-
-        C_features[C_idx] = drug_features
-
-
-    drug_C_mat = np.array(C_features)
-    for drug_idx in np.arange(0, len(drugNames)):
-        for C_idx in np.arange(0, len(C_vec)):
-            combined_list = drug_C_mat[C_idx, drug_idx]
-
-            # Extract absolute values and signs
-            abs_values = [abs(num) for num, _ in combined_list]
-            signs = ['blue' if num >= 0 else 'red' for num, _ in combined_list]
-
-            # Get strings for left labels
-            strings = [string for _, string in combined_list]
-
-            # Create a horizontal bar plot
-            plt.figure(figsize=(10, len(strings)/8))
-            plt.barh(strings, abs_values, color=signs)
-
-            # Add labels and title
-            plt.yticks(fontsize=8)
-            plt.margins(y=0)
-            plt.xlabel('Coefficient Magnitude')
-            plt.ylabel('Features')
-            plt.title(f"{drugNames[drug_idx]} at C = {C_vec[C_idx]}:")
-
-            plt.savefig(f'{dirDict["classifyDir"]}/{drugNames[drug_idx]}_C_{C_vec[C_idx]}.png', bbox_inches='tight')
-
-            # Color code y-axis labels
-            # for i, string in enumerate(strings):
-            #     plt.gca().get_yticklabels()[i].set_color(signs[i])
-
-            # Show the plot
-            plt.show()
 
 def emptyFxn(X):
     return X
