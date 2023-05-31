@@ -484,10 +484,11 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     if '\n' in titleStr:
         titleStr = titleStr.replace('\n                  ', '')
 
-    plt.figure(figsize=(8, 8))
+    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)+1
+    plt.figure(figsize=figSizeMat)
     ax = sns.heatmap(mean_of_conf_matrix_arrays, linewidth=0.25,cmap='coolwarm', annot=True, fmt=".2f")
     ax.set(xticklabels=YtickLabs, yticklabels=YtickLabs, xlabel='Predicted Label', ylabel='True Label')
-    plt.title(fullTitleStr)
+    plt.title(fullTitleStr, fontsize=sum(figSizeMat))
 
     # Save the plot
     plt.savefig(dirDict['classifyDir'] + titleStr + '.png',format='png', bbox_inches='tight')     
@@ -497,8 +498,7 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
 def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr):
     # n_classes = int, number of classes
     # y_real, y_prob = test set labels and probabilities assigned to test set samples.
-    # a list of length n_classes, where each entry is a list of n_cross_val_folds in length. List gets concatonated.
-    # labelDict: a dictionary which converts from numbered y labels to strings to be plotted.
+    # y_real, y_prob are in a [n_splits, n_samples, n_classes] format
 
     from sklearn.metrics import precision_recall_curve, auc
 
@@ -512,9 +512,13 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr):
     f = plt.figure(figsize=(8, 8))
     axes = plt.axes()
 
+    # Depending on feature list y passed, determine if the classes are numbers or strings
+    if all(isinstance(key, str) for key in labelDict.keys()):
+        labelDict = {value: key for key, value in labelDict.items()}
+
     for i in np.arange(n_classes):
-        label_per_split = y_real[:, i, :]
-        prob_per_split = y_prob[:, i, :]
+        label_per_split = y_real[:, :, i]
+        prob_per_split = y_prob[:, :, i]
 
         label_per_split_reshape = label_per_split.reshape(prob_per_split.shape[0]*prob_per_split.shape[1], 1)
         prob_per_split_reshape = prob_per_split.reshape(prob_per_split.shape[0]*prob_per_split.shape[1], 1)
@@ -524,8 +528,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr):
 
         # Create PR curve
         precision, recall, _ = precision_recall_curve(label_per_split_reshape, prob_per_split_reshape)
-
-        lab = f'{labelDict[i+1]} AUC=%.2f' % (auc(recall, precision))
+        lab = f'{labelDict[i]} AUC=%.2f' % (auc(recall, precision))
         axes.step(recall, precision, label=lab, lw=2)
 
     # Create PR curve

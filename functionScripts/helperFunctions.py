@@ -189,6 +189,46 @@ def create_region_to_area_dict(lightsheet_data, classifyDict):
 
     return regionArea
 
+def create_drugClass_dict(classifyDict):
+    # Create a dictionary to convert drug names to drug classes
+    conv_dict = dict()
+
+    match classifyDict['label']:
+        case 'class_5HT2A':
+            # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
+            conv_dict['PSI'] = 'Ag_5HT2A'
+            conv_dict['DMT'] = 'Ag_5HT2A'
+            conv_dict['MDMA'] = 'Entact'
+        case 'class_5HTR':
+            # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
+            conv_dict['PSI'] = 'H_Tryptamine'
+            conv_dict['DMT'] = 'H_Tryptamine'
+            conv_dict['6FDET'] = 'NH_Tryptamine'
+        case 'class_Trypt':
+            # 5-HT2A favored (Psilo) vs 5-HT1A favored (5-MeO-DMT)
+            conv_dict['PSI'] = 'Ag_5HT2A'
+            conv_dict['DMT'] = 'Ag_5HT1A'
+        case 'class_Speed':
+            # Fast vs Slow (Psi, 5-MeO-DMT, Ketamine vs Acute SSRI)
+            conv_dict['PSI'] = 'Fast Acting'
+            conv_dict['DMT'] = 'Fast Acting'
+            conv_dict['KET'] = 'Fast Acting'
+            conv_dict['A-SSRI'] = 'Slow Acting'
+        case 'class_Psy_NMDA':
+            # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5-MeO-DMT vs Ketamine)
+            conv_dict['PSI'] = 'Ag_5HT2A'
+            conv_dict['DMT'] = 'Ag_5HT2A'
+            conv_dict['KET'] = 'Ag_NMDA-R'   
+        case 'class_crash':
+            # Drugs with 'low' afterwards vs those that dont (Ketamine, MDMA vs Psi, 5-MeO-DMT)
+            print('d')
+        case 'class_SSRI':
+            # Acute vs Chronic SSRIs
+            conv_dict['A-SSRI'] = 'Acute_SSRI'
+            conv_dict['C-SSRI'] = 'Chronic_SSRI'
+
+    return conv_dict
+
 def reformatData(pandasdf, classifyDict):
     # Format the data for classification tasks
     # Performs filtering (Removing features based on percentile, clustering remaining features).
@@ -198,12 +238,6 @@ def reformatData(pandasdf, classifyDict):
 
     # Each sample is a dataset, columns are abbreviations or full names, and the values can be counts or densities.
     pandasdf_Tilted = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
-
-    if not classifyDict['includeSAL']:
-        pandasdf_Tilted = pandasdf_Tilted[~pandasdf_Tilted.index.str.contains('SAL')]
-
-    if not classifyDict['include6FDET']:
-        pandasdf_Tilted = pandasdf_Tilted[~pandasdf_Tilted.index.str.contains('6FDET')]
 
     # Convert y into different labels based on interest. 
     conv_dict = dict()
@@ -233,8 +267,7 @@ def reformatData(pandasdf, classifyDict):
             # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5-MeO-DMT vs Ketamine)
             conv_dict['PSI'] = 'Ag_5HT2A'
             conv_dict['DMT'] = 'Ag_5HT2A'
-            conv_dict['KET'] = 'Ag_NMDA-R'
-            
+            conv_dict['KET'] = 'Ag_NMDA-R'   
         case 'class_crash':
             # Drugs with 'low' afterwards vs those that dont (Ketamine, MDMA vs Psi, 5-MeO-DMT)
             print('d')
@@ -280,7 +313,7 @@ def reformatData(pandasdf, classifyDict):
 
     return X, y, featureNames, numYDict
 
-def  filter_features(pandasdf, classifyDict):
+def filter_features(pandasdf, classifyDict):
     # Takes in a pandas dataframe, returns a version where features are filtered and the remainder are aggregated.
     import re
     plotHist = 0

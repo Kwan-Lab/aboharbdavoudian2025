@@ -55,127 +55,11 @@ def extract_sorted_correlations(correlation_matrix, variable_names):
 
 def classifySamples(pandasdf, classifyDict, dirDict):
 
-    # ================== Perform Filtration and agglomeration as desired ==================
-    filtAggFileName = f"{dirDict['tempDir']}lightsheet_data_filtAgg.pkl"
+    # Reformat the data into a format which can be used by the classifiers.
+    X, y, featureNames, numYDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
 
-    if (classifyDict['featurefilt'] or classifyDict['featureAgg']):
-
-        if not exists(filtAggFileName):
-
-            print('Generating filtered and aggregated data file...')
-            # Set to filter features based on outliers (contains 99.9th percentile values)
-            if classifyDict['featurefilt']:
-                pandasdf = hf.filter_features(pandasdf, classifyDict)
-
-            if classifyDict['featureAgg']:
-                ls_data_agg = hf.agg_cluster(pandasdf, classifyDict, dirDict)
-            else:
-                ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
-
-            # Save for later
-            ls_data_agg.to_pickle(filtAggFileName)
-
-        else:
-
-            # Load from file
-            print('Loading filtered and aggregated data from file...')
-            ls_data_agg = pd.read_pickle(filtAggFileName)
-    else:
-
-        # Reformat data for classification
-        ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
-
-    # Plot correlations after aggregation
-    if 0:
-        corr_matrix = np.corrcoef(ls_data_agg.values.T)
-        yticklabels = ls_data_agg.columns.tolist()
-        plotDim = len(yticklabels) * 12 * 0.015
-        plt.figure(figsize=(plotDim*1.1, plotDim))
-        sns.heatmap(corr_matrix, cmap='rocket', fmt='.2f', yticklabels=yticklabels, xticklabels=yticklabels, square=True)
-        plt.show()
-        
-    # ================== Shape data for classification ==================
-
-    # X, y, featureNames, numYDict = hf.reformatData(pandasdf, classifyDict)
-    X = np.array(ls_data_agg.values)
-    # y = np.array([x[0:-1] for x in np.array(ls_data_agg.index)])
-    yStr = np.array([x[0:-1] for x in np.array(ls_data_agg.index)])
-    yDict = dict(zip(np.unique(yStr), range(1, len(np.unique(yStr))+1)))
-    y = np.array([yDict[x] for x in yStr])
-    
-    featureNames = np.array(ls_data_agg.columns)
-    # numYDict = {y: i for i, y in enumerate(np.unique(y))}
-    numYDict = {value: key for key, value in yDict.items()}
-
-    # ================== Pipeline Construction ==================
-    max_iter = classifyDict['max_iter']
-    paramGrid = dict()
-    pipelineList = []
-
-    # Create a model with each of the desired feature counts.
-    if 'LogReg' in classifyDict['model'] or 'SVM' in classifyDict['model']:
-        paramGrid['classif__C'] = classifyDict['pGrid']['classif__C']
-
-    # Select Feature scaling model
-    if classifyDict['model_featureScale']:
-        scaleMod = RobustScaler()
-    else:
-        scaleMod = FunctionTransformer(emptyFxn)
-
-    if 'scaleMod' in locals():
-        pipelineList.append(('featureScale', scaleMod))
-
-    # Select Feature selection model
-    match classifyDict['model_featureSel']:
-        case 'MRMR':
-            # featureSelMod = FunctionTransformer(MRMRFeatureSelector, kw_args={'n_features_to_select': 10, 'pass_y': True, 'featureSel__feature_names_out': True}, )
-            featureSelMod = MRMRFeatureSelector(n_features_to_select=10)
-            modVar = 'n_features_to_select'
-        case 'Univar':
-            featureSelMod = SelectKBest(score_func=f_classif, k='all')
-            modVar = 'k'
-        case 'mutInfo':
-            featureSelMod = SelectKBest(score_func=mutual_info_classif, k='all')
-            modVar = 'k'
-        case 'RFE':
-            featureSelMod = SequentialFeatureSelector(classif, n_features_to_select=10, direction="forward")
-            modVar = 'n_features_to_select'
-        case 'None':
-            featureSelMod = FunctionTransformer(emptyFxn)
-        case _:
-            ValueError('Invalid model_featureSel')
-
-    if 'featureSelMod' in locals():
-        pipelineList.append(('featureSel', featureSelMod))
-
-    # Select Classifying model
-    match classifyDict['model']:
-        # Logistic Regression Models
-        case 'LogRegL2':
-            classif = linear_model.LogisticRegression(penalty='l2', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter, dual=False)
-        case 'LogRegL1':
-            classif = linear_model.LogisticRegression(penalty='l1', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter)
-        case 'LogRegElastic':
-            classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
-            paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
-        case _:
-            ValueError('Invalid modelStr')
-
-    pipelineList.append(('classif', classif))
-
-    # Create a base model
-    
-    clf = Pipeline(pipelineList)
-    modelList = []
-
-    # Iterate over the desired feature counts
-    if classifyDict['model_featureSel'] != 'None':
-        for k in classifyDict['model_featureSel_k']:
-            clf_copy = deepcopy(clf)
-            modelList.append(clf_copy.set_params(**{f"featureSel__{modVar}": k}))
-
-    else:
-        modelList.append(clf)   
+    # Use the classify dict to specify all the models to be tested.
+    modelList, paramGrid = build_pipeline(classifyDict)
 
     # ================== Classification ==================
 
@@ -183,137 +67,110 @@ def classifySamples(pandasdf, classifyDict, dirDict):
     if classifyDict['shuffle']:
         fits = fits + ['Shuffle']
 
+    KfoldNum = classifyDict['CV_count']
+    innerKFoldNum = KfoldNum - 1
+    n_classes = len(np.unique(y))
+
+    nestedCVSwitch=classifyDict['gridCV']
+    labelDict = numYDict
+    YtickLabs = list(labelDict.keys())
+
     for fit in fits:
         if fit == 'Shuffle':
             y = shuffle(y)
 
-        # Generate a confusion matrix to represent classification accuracy. Also creates the PR Curve
-        findConfusionMatrix(modelList, X, y, numYDict, featureNames, classifyDict['CV_count'], fit=fit, nestedCVSwitch=classifyDict['gridCV'], paramGrid=paramGrid, dirDict=dirDict)
+        # Initialize arrays for conf_matrix
+        skf = StratifiedKFold(n_splits=KfoldNum)  # 8 examples of each label
+        skf.get_n_splits(X, y)
 
-        # if fit != 'Shuffle' and len(numYDict) != 2:
-        #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, numYDict, 8, fit=fit)
+        # Create a label binarizer
+        y_bin = preprocessing.LabelBinarizer().fit_transform(y)
+        
+        # If the vector is already binary, expand it for formatting consistency.
+        if y_bin.shape[1] == 1:
+            y_bin = np.hstack([np.abs(y_bin-1), y_bin])
 
-def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit, nestedCVSwitch=False, paramGrid=None, dirDict=[]):
-    # Find the confusion matrix for the model.
-    # clf = model, X = Data formated n_samples, n_features, y = n_samples * 1 labels
-    # KfoldNum = number of folds to use for cross-validation
-    # leaveOut = train the model n_classes number of time, leaving out a class each time, average across the confusion matricies.
-    # labelDict = converts from numbered classes to labels.
+        for clf in modelList:
 
-    # Initialize matricies for the storing features which go into the confusion matrix and the later PR Curve.
-    # For each class, store an array of real labels, predicted labels,
-    n_classes = len(np.unique(y))
+            # Create a strings to represent the model
+            modelStr, saveStr = hf.modelStrGen(clf)
+            penaltyStr = clf['classif'].penalty
+            print(f"evaluating model: {modelStr}")
 
-    # For storing the features used to make the classification for each fold.
-    YtickLabs = [labelDict[x] for x in np.unique(y)]
+            # Initialize vectors for storing the features used to make the classification for each fold.
+            y_real, y_prob, conf_matrix_list_of_arrays, scores = [], [], [], []
+            selected_features_list, selected_features_params = [[] for _ in range(n_classes)], [[] for _ in range(n_classes)]
 
-    # Initialize arrays for conf_matrix
-    skf = StratifiedKFold(n_splits=KfoldNum)  # 8 examples of each label
-    skf.get_n_splits(X, y)
+            for idx, (train_index, test_index) in enumerate(skf.split(X, y)):
+                print(f"...Performing CV split {idx}")
+                # Grab training data and test data
+                X_train, X_test = X[train_index], X[test_index]
+                y_train, y_test = y[train_index], y[test_index]
+                y_bin_test = y_bin[test_index, :]
 
-    # Based on kFoldNum, pick a number
-    # in LOOCV, inner loop is outer loop - 1.
-    if KfoldNum == 8:
-        innerLoopKFoldNum = 7
-    # in 
-    elif KfoldNum == 4:
-        innerLoopKFoldNum = 3
+                if nestedCVSwitch and paramGrid:
+                    # Do a grid search for the relevant parameters
+                    grid_search = GridSearchCV(clf, paramGrid, cv=innerKFoldNum, scoring='accuracy')
+                    grid_search.fit(X_train, y_train)
+                    best_params = grid_search.best_params_
+                    clf.set_params(**best_params)
 
-    # Create a label binarizer
-    lb = preprocessing.LabelBinarizer()
-    lb.fit(y)
-    y_bin = lb.transform(y)
-    
-    # If the vector is already binary, expand it for formatting consistency.
-    if max(y) == 1:
-        y_bin = np.hstack([np.abs(y_bin-1), y_bin])
+                    # Report out on those models
+                    print({k: v for k, v in grid_search.best_params_.items()})
 
-    for clf in modelList:
+                # Fit the model
+                clf.fit(X_train, y_train)
 
-        # Create a string to represent the model
-        modelStr, saveStr = hf.modelStrGen(clf)
+                # if best K, get ride of the non-label names
+                if 'featureSel' in clf.named_steps.keys():
+                    featureNamesSub = featureNames[clf['featureSel'].get_support(indices=True)]
+                else:
+                    featureNamesSub = featureNames
 
-        penaltyStr = clf['classif'].penalty
-        print(f"evaluating model: {modelStr}")
+                # Predict answers for the X_test set
+                x_test_predict = clf.predict(X_test)
 
-        # Initialize things
-        y_real, y_prob = [], []
-        selected_features_list = [[] for _ in range(n_classes)]
-        selected_features_params = [[] for _ in range(n_classes)]
-        conf_matrix_list_of_arrays = []
-        scores = []
+                # Extract the confusion matrix for the split
+                conf_matrix = confusion_matrix(y_test, x_test_predict)
 
-        for train_index, test_index in skf.split(X, y):
-            # Grab training data and test data
-            X_train, X_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
-            y_bin_test = y_bin[test_index]
+                # In cases where test set has more than 1 instance of a class, normalize reach row.
+                if np.max(np.sum(conf_matrix, axis=1)) != 1:
+                    sums = np.sum(conf_matrix, axis=1)
+                    conf_matrix = conf_matrix / sums[:, np.newaxis]
 
-            if nestedCVSwitch and paramGrid:
-                # Do a grid search for the relevant parameters
-                grid_search = GridSearchCV(clf, paramGrid, cv=innerLoopKFoldNum, scoring='accuracy')
-                grid_search.fit(X_train, y_train)
-                best_params = grid_search.best_params_
-                clf.set_params(**best_params)
+                # Append the confusion matrix to the larger stack
+                conf_matrix_list_of_arrays.append(conf_matrix)
+                
+                # Extract the score, along the diagonal.
+                scores.append(np.mean(np.diag(conf_matrix)))
 
-                # Report out on those models
-                print({k: v for k, v in grid_search.best_params_.items()})
+                # Calculate probabilities for PR Curve
+                y_scores = clf.predict_proba(X_test)
 
-            # Fit the model
-            clf.fit(X_train, y_train)
+                y_real.append(y_bin_test)
+                y_prob.append(y_scores)
 
-            # if best K, get ride of the non-label names
-            if 'featureSel' in clf.named_steps.keys():
-                featureNamesSub = featureNames[clf['featureSel'].get_support(indices=True)]
-            else:
-                featureNamesSub = featureNames
+                # Append features List in case of LASSO or ElasticNet Regression
+                if penaltyStr != 'l2' and penaltyStr != 'None':
 
-            # Predict answers for the X_test set
-            # if isinstance(clf['classif'], OneVsRestClassifier):
-            #     # Reformat the output indicator, since the confusion_matrix fxn doesn't accept it.
-            #     x_test_predict = np.argmax(clf.predict(X_test), axis=1)
-            # else:
-            # create the predictions for the test set based on the model
-            x_test_predict = clf.predict(X_test)
+                    for idx, coefSet in enumerate(clf._final_estimator.coef_):
+                        selected_features = featureNamesSub[coefSet != 0]
+                        selected_features_list[idx].append(selected_features)
+                        if nestedCVSwitch:
+                            selected_features_params[idx].append(best_params)
 
-            # Extract the confusion matrix for the split
-            conf_matrix = confusion_matrix(y_test, x_test_predict)
+            # Following the CV, concatonate results across all splits and use to Plot PR Curve
+            if fit != 'Shuffle':
+                pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr)
 
-            # In cases where test set has more than 1 instance of a class, normalize reach row.
-            if np.max(np.sum(conf_matrix, axis=1)) != 1:
-                sums = np.sum(conf_matrix, axis=1)
-                conf_matrix = conf_matrix / sums[:, np.newaxis]
+            # Plot Confusion Matrix
+            pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
 
-            # Append the confusion matrix to the larger stack
-            conf_matrix_list_of_arrays.append(conf_matrix)
-            
-            # Extract the score, along the diagonal.
-            scores.append(np.mean(np.diag(conf_matrix)))
+            if fit != 'Shuffle' and penaltyStr != 'l2' and penaltyStr != 'None':
+                hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs)
 
-            # Calculate PR Curve by predicting test
-            y_scores = clf.predict_proba(X_test)
-
-            y_real.append(y_bin_test)
-            y_prob.append(y_scores)
-
-            # Append features List in case of LASSO or ElasticNet Regression
-            if penaltyStr != 'l2' and penaltyStr != 'None':
-
-                for idx, coefSet in enumerate(clf._final_estimator.coef_):
-                    selected_features = featureNamesSub[coefSet != 0]
-                    selected_features_list[idx].append(selected_features)
-                    if nestedCVSwitch:
-                        selected_features_params[idx].append(best_params)
-
-        # Following the CV, concatonate results across all splits and use to Plot PR Curve
-        if fit != 'Shuffle':
-            pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr)
-
-        # Plot Confusion Matrix
-        pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
-
-        if fit != 'Shuffle' and penaltyStr != 'l2' and penaltyStr != 'None':
-            hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs)
+            # if fit != 'Shuffle' and len(numYDict) != 2:
+            #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, numYDict, 8, fit=fit)
 
 def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
 
@@ -387,6 +244,159 @@ def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
 
 def emptyFxn(X):
     return X
+
+def build_pipeline(classifyDict):
+    # a function which accepts 'classifyDict' with fields described below, and returns a list of pipeline object(s) and a paramGrid for use in gridSearchCV
+
+    max_iter = classifyDict['max_iter']
+    paramGrid = dict()
+    pipelineList = []
+
+    # Create a model with each of the desired feature counts.
+    if 'LogReg' in classifyDict['model'] or 'SVM' in classifyDict['model']:
+        paramGrid['classif__C'] = classifyDict['pGrid']['classif__C']
+
+    # Select Feature scaling model
+    if classifyDict['model_featureScale']:
+        scaleMod = RobustScaler()
+    else:
+        scaleMod = FunctionTransformer(emptyFxn)
+
+    if 'scaleMod' in locals():
+        pipelineList.append(('featureScale', scaleMod))
+
+    # Select Feature selection model
+    match classifyDict['model_featureSel']:
+        case 'MRMR':
+            # featureSelMod = FunctionTransformer(MRMRFeatureSelector, kw_args={'n_features_to_select': 10, 'pass_y': True, 'featureSel__feature_names_out': True}, )
+            featureSelMod = MRMRFeatureSelector(n_features_to_select=10)
+            modVar = 'n_features_to_select'
+        case 'Univar':
+            featureSelMod = SelectKBest(score_func=f_classif, k='all')
+            modVar = 'k'
+        case 'mutInfo':
+            featureSelMod = SelectKBest(score_func=mutual_info_classif, k='all')
+            modVar = 'k'
+        case 'RFE':
+            featureSelMod = SequentialFeatureSelector(classif, n_features_to_select=10, direction="forward")
+            modVar = 'n_features_to_select'
+        case 'None':
+            featureSelMod = FunctionTransformer(emptyFxn)
+        case _:
+            ValueError('Invalid model_featureSel')
+
+    if 'featureSelMod' in locals():
+        pipelineList.append(('featureSel', featureSelMod))
+
+    # Select Classifying model
+    match classifyDict['model']:
+        # Logistic Regression Models
+        case 'LogRegL2':
+            classif = linear_model.LogisticRegression(penalty='l2', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter, dual=False)
+        case 'LogRegL1':
+            classif = linear_model.LogisticRegression(penalty='l1', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter)
+        case 'LogRegElastic':
+            classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
+            paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
+        case _:
+            ValueError('Invalid modelStr')
+
+    pipelineList.append(('classif', classif))
+
+    # Create a base model
+    
+    clf = Pipeline(pipelineList)
+    modelList = []
+
+    # Iterate over the desired feature counts
+    if classifyDict['model_featureSel'] != 'None':
+        for k in classifyDict['model_featureSel_k']:
+            clf_copy = deepcopy(clf)
+            modelList.append(clf_copy.set_params(**{f"featureSel__{modVar}": k}))
+
+    else:
+        modelList.append(clf)  
+
+
+    return modelList, paramGrid
+
+def reformat_pandasdf(pandasdf, classifyDict, dirDict):
+    # Function which performs steps related to feature filtering, feature aggregation, and data formatting
+    # to be passed forward for classification.
+
+    # create a string for saving data
+    keys_to_keep = ['data', 'featurefilt', "featureAgg"]
+
+    if classifyDict['featureAgg']:
+        keys_to_keep += ['featureSel_linkage', 'featureSel_distance', 'cluster_thres']
+
+    smallDict = {key: value for key, value in classifyDict.items() if key in keys_to_keep}
+    param_string = "-".join([f"{key}={value}" for key, value in smallDict.items()])
+
+    # ================== Perform Filtration and agglomeration as desired ==================
+    filtAggFileName = f"{dirDict['tempDir']}lightsheet_data_{param_string}.pkl"
+
+    if (classifyDict['featurefilt'] or classifyDict['featureAgg']):
+
+        if not exists(filtAggFileName):
+
+            print('Generating filtered and aggregated data file...')
+            # Set to filter features based on outliers (contains 99.9th percentile values)
+            if classifyDict['featurefilt']:
+                pandasdf = hf.filter_features(pandasdf, classifyDict)
+
+            if classifyDict['featureAgg']:
+                ls_data_agg = hf.agg_cluster(pandasdf, classifyDict, dirDict)
+            else:
+                ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
+
+            # Save for later
+            ls_data_agg.to_pickle(filtAggFileName)
+
+        else:
+            # Load from file
+            print('Loading filtered and aggregated data from file...')
+            ls_data_agg = pd.read_pickle(filtAggFileName)
+
+    else:
+
+        # Reformat data for classification
+        ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
+
+    # Plot correlations after aggregation
+    if 0:
+        corr_matrix = np.corrcoef(ls_data_agg.values.T)
+        yticklabels = ls_data_agg.columns.tolist()
+        plotDim = len(yticklabels) * 12 * 0.015
+        plt.figure(figsize=(plotDim*1.1, plotDim))
+        sns.heatmap(corr_matrix, cmap='rocket', fmt='.2f', yticklabels=yticklabels, xticklabels=yticklabels, square=True)
+        plt.show()
+        
+    # ================== Shape data for classification ==================
+
+    # If the data labels are not for 'drug', filter
+    if classifyDict['label'] != 'drug':
+        conv_dict = hf.create_drugClass_dict(classifyDict)
+
+        # filter based on the conv_dict
+        y_label = np.array([x[0:-1] for x in np.array(ls_data_agg.index)])
+        keepInd = [key in conv_dict.keys() for key in y_label]
+
+        ls_data_agg = ls_data_agg.loc[keepInd, :]
+
+    X = np.array(ls_data_agg.values)
+    y = np.array([x[0:-1] for x in np.array(ls_data_agg.index)])
+
+    # If the data labels are not for 'drug', convert to appropriate labels
+    if classifyDict['label'] != 'drug':
+        y = np.array([conv_dict[x] for x in y])
+        
+    y_Int_dict = dict(zip(np.unique(y), range(0, len(np.unique(y)))))
+    y_int = np.array([y_Int_dict[x] for x in y])
+    
+    featureNames = np.array(ls_data_agg.columns.tolist())
+
+    return X, y, featureNames, y_Int_dict
 
 class MRMRFeatureSelector(BaseEstimator, TransformerMixin):
     def __init__(self, n_features_to_select=10):
