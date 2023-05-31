@@ -23,7 +23,9 @@ from sklearn.utils import shuffle
 from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import FunctionTransformer, RobustScaler, normalize
+from sklearn.base import BaseEstimator, TransformerMixin
 
+from mrmr import mrmr_classif
 
 def correlationMatrixPlot(X_data, col_names):
 
@@ -83,8 +85,15 @@ def classifySamples(pandasdf, classifyDict, dirDict):
         # Reformat data for classification
         ls_data_agg = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
 
-
-
+    # Plot correlations after aggregation
+    if 0:
+        corr_matrix = np.corrcoef(ls_data_agg.values.T)
+        yticklabels = ls_data_agg.columns.tolist()
+        plotDim = len(yticklabels) * 12 * 0.015
+        plt.figure(figsize=(plotDim*1.1, plotDim))
+        sns.heatmap(corr_matrix, cmap='rocket', fmt='.2f', yticklabels=yticklabels, xticklabels=yticklabels, square=True)
+        plt.show()
+        
     # ================== Shape data for classification ==================
 
     # X, y, featureNames, numYDict = hf.reformatData(pandasdf, classifyDict)
@@ -97,8 +106,6 @@ def classifySamples(pandasdf, classifyDict, dirDict):
     featureNames = np.array(ls_data_agg.columns)
     # numYDict = {y: i for i, y in enumerate(np.unique(y))}
     numYDict = {value: key for key, value in yDict.items()}
-
-    # correlation_pairs = extract_sorted_correlations(corrMat, featureNames)
 
     # ================== Pipeline Construction ==================
     max_iter = classifyDict['max_iter']
@@ -120,6 +127,10 @@ def classifySamples(pandasdf, classifyDict, dirDict):
 
     # Select Feature selection model
     match classifyDict['model_featureSel']:
+        case 'MRMR':
+            # featureSelMod = FunctionTransformer(MRMRFeatureSelector, kw_args={'n_features_to_select': 10, 'pass_y': True, 'featureSel__feature_names_out': True}, )
+            featureSelMod = MRMRFeatureSelector(n_features_to_select=10)
+            modVar = 'n_features_to_select'
         case 'Univar':
             featureSelMod = SelectKBest(score_func=f_classif, k='all')
             modVar = 'k'
@@ -162,6 +173,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
         for k in classifyDict['model_featureSel_k']:
             clf_copy = deepcopy(clf)
             modelList.append(clf_copy.set_params(**{f"featureSel__{modVar}": k}))
+
     else:
         modelList.append(clf)   
 
@@ -256,7 +268,7 @@ def findConfusionMatrix(modelList, X, y, labelDict, featureNames, KfoldNum, fit,
             else:
                 featureNamesSub = featureNames
 
-            # PRedict answers for the X_test set
+            # Predict answers for the X_test set
             # if isinstance(clf['classif'], OneVsRestClassifier):
             #     # Reformat the output indicator, since the confusion_matrix fxn doesn't accept it.
             #     x_test_predict = np.argmax(clf.predict(X_test), axis=1)
@@ -375,3 +387,39 @@ def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
 
 def emptyFxn(X):
     return X
+
+class MRMRFeatureSelector(BaseEstimator, TransformerMixin):
+    def __init__(self, n_features_to_select=10):
+        self.n_features_to_select = n_features_to_select
+    
+    def fit(self, X, y=None):
+
+        # Transform X and Y into dataframes
+        X_df = pd.DataFrame(X)
+        y_df = pd.DataFrame(y, columns=['y'])
+
+        yDict = {x: i for i, x in enumerate(np.unique(y))}
+        y_df_int = y_df.replace(yDict)
+
+        selected_features = mrmr_classif(X=X_df, y=y_df_int, K=self.n_features_to_select, show_progress=False)
+        selected_features = np.array(selected_features)
+        # print(f"features selected: {selected_features}")
+
+        X_df = X_df.values
+        y_df_int = y_df_int.values.ravel()
+
+        # store features selected in self for later transformation
+        self.selected_features_ = selected_features
+
+        return self
+    
+    def get_support(self, indices=True):
+        return self.selected_features_
+    
+    def transform(self, X, y=None):
+        # Pick out previously selected variables
+        # feature_to_use = self.selected_features_[0:self.n_features_to_select]
+        X_fit = X[:, self.selected_features_]
+        # print(f"transformed X: {X_fit.shape}")
+
+        return X_fit
