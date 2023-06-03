@@ -494,7 +494,6 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     plt.savefig(dirDict['classifyDir'] + titleStr + '.png',format='png', bbox_inches='tight')     
     plt.show()
 
-
 def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr):
     # n_classes = int, number of classes
     # y_real, y_prob = test set labels and probabilities assigned to test set samples.

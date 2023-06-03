@@ -20,7 +20,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.metrics import precision_recall_curve, confusion_matrix, PrecisionRecallDisplay
 from sklearn.utils import shuffle
-from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
+from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector, SelectFdr, SelectFpr, SelectFwe
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import FunctionTransformer, RobustScaler, normalize
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -94,15 +94,26 @@ def classifySamples(pandasdf, classifyDict, dirDict):
 
             # Create a strings to represent the model
             modelStr, saveStr = hf.modelStrGen(clf)
-            penaltyStr = clf['classif'].penalty
+            
+            if hasattr(clf['classif'], 'penalty'):
+                penaltyStr = clf['classif'].penalty
+            else:
+                penaltyStr = None
+                
+            # Create a switch to determine if some type of featureSelection is taking place.
+            featureSelSwitch = False
+            if fit != 'Shuffle' and ('featureSel' in clf.named_steps.keys() or penaltyStr not in ('l2', None)):
+                featureSelSwitch = True
+
             print(f"evaluating model: {modelStr}")
 
             # Initialize vectors for storing the features used to make the classification for each fold.
             y_real, y_prob, conf_matrix_list_of_arrays, scores = [], [], [], []
             selected_features_list, selected_features_params = [[] for _ in range(n_classes)], [[] for _ in range(n_classes)]
 
+            print(f"Performing CV split ", end='')
             for idx, (train_index, test_index) in enumerate(skf.split(X, y)):
-                print(f"...Performing CV split {idx}")
+                print(f"{idx} ", end='')
                 # Grab training data and test data
                 X_train, X_test = X[train_index], X[test_index]
                 y_train, y_test = y[train_index], y[test_index]
@@ -122,7 +133,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                 clf.fit(X_train, y_train)
 
                 # if best K, get ride of the non-label names
-                if 'featureSel' in clf.named_steps.keys():
+                if featureSelSwitch:
                     featureNamesSub = featureNames[clf['featureSel'].get_support(indices=True)]
                 else:
                     featureNamesSub = featureNames
@@ -150,14 +161,26 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                 y_real.append(y_bin_test)
                 y_prob.append(y_scores)
 
-                # Append features List in case of LASSO or ElasticNet Regression
-                if penaltyStr != 'l2' and penaltyStr != 'None':
+                if featureSelSwitch:
 
-                    for idx, coefSet in enumerate(clf._final_estimator.coef_):
-                        selected_features = featureNamesSub[coefSet != 0]
-                        selected_features_list[idx].append(selected_features)
+                    # if featureSel done as module, final_estimator will only have info on selected features.
+                    if 'featureSel' in clf.named_steps.keys():
+                        featureNamesSub = featureNames[clf['featureSel'].get_support(indices=True)]
+                    else:
+                        featureNamesSub = featureNames
+
+                    # If featureSel done as part of estimator, this can be determined based on coefs.
+                    if penaltyStr not in ('l2', None):
+                        bool_array = clf['classif'].coef_ != 0
+                        featureNamesSub = featureNamesSub[bool_array.flatten()]
+
+                    # Append the selected features across splits.
+                    for idx, coefSet in enumerate(clf['classif'].coef_):
+                        selected_features_list[idx].append(featureNamesSub)
                         if nestedCVSwitch:
                             selected_features_params[idx].append(best_params)
+                        else:
+                            selected_features_params[idx].append(dict())
 
             # Following the CV, concatonate results across all splits and use to Plot PR Curve
             if fit != 'Shuffle':
@@ -166,7 +189,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             # Plot Confusion Matrix
             pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
 
-            if fit != 'Shuffle' and penaltyStr != 'l2' and penaltyStr != 'None':
+            if featureSelSwitch:
                 hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs)
 
             # if fit != 'Shuffle' and len(numYDict) != 2:
@@ -274,6 +297,10 @@ def build_pipeline(classifyDict):
         case 'Univar':
             featureSelMod = SelectKBest(score_func=f_classif, k='all')
             modVar = 'k'
+        case 'Fdr':
+            featureSelMod = SelectFdr(alpha=classifyDict['model_featureSel_alpha'])
+        case 'Fwe':
+            featureSelMod = SelectFwe(alpha=classifyDict['model_featureSel_alpha'])
         case 'mutInfo':
             featureSelMod = SelectKBest(score_func=mutual_info_classif, k='all')
             modVar = 'k'
@@ -306,17 +333,18 @@ def build_pipeline(classifyDict):
     # Create a base model
     
     clf = Pipeline(pipelineList)
-    modelList = []
+    
+    if classifyDict.get('model_featureSel') not in ('None', 'Fdr', 'Fwer') and classifyDict['model_featureSel_mode'] == 'gridCV':
+        paramGrid['featureSel__k'] = classifyDict['model_featureSel_k']
 
+    modelList = []
     # Iterate over the desired feature counts
-    if classifyDict['model_featureSel'] != 'None':
+    if classifyDict.get('model_featureSel') not in ('None', 'Fdr', 'Fwe') and classifyDict['model_featureSel_mode'] == 'modelPer':
         for k in classifyDict['model_featureSel_k']:
             clf_copy = deepcopy(clf)
             modelList.append(clf_copy.set_params(**{f"featureSel__{modVar}": k}))
-
     else:
         modelList.append(clf)  
-
 
     return modelList, paramGrid
 

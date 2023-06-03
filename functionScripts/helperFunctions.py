@@ -201,9 +201,9 @@ def create_drugClass_dict(classifyDict):
             conv_dict['MDMA'] = 'Entact'
         case 'class_5HTR':
             # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
-            conv_dict['PSI'] = 'H_Tryptamine'
-            conv_dict['DMT'] = 'H_Tryptamine'
-            conv_dict['6FDET'] = 'NH_Tryptamine'
+            conv_dict['PSI'] = 'H_Trypt'
+            conv_dict['DMT'] = 'H_Trypt'
+            conv_dict['6FDET'] = 'NH_Trypt'
         case 'class_Trypt':
             # 5-HT2A favored (Psilo) vs 5-HT1A favored (5-MeO-DMT)
             conv_dict['PSI'] = 'Ag_5HT2A'
@@ -214,6 +214,7 @@ def create_drugClass_dict(classifyDict):
             conv_dict['DMT'] = 'Fast Acting'
             conv_dict['KET'] = 'Fast Acting'
             conv_dict['A-SSRI'] = 'Slow Acting'
+            conv_dict['C-SSRI'] = 'Slow Acting'
         case 'class_Psy_NMDA':
             # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5-MeO-DMT vs Ketamine)
             conv_dict['PSI'] = 'Ag_5HT2A'
@@ -458,8 +459,11 @@ def modelStrGen(clf):
 def stringReportOut(selected_features_list, selected_features_params, YtickLabs):
     from collections import Counter
 
+    if len(YtickLabs) == 2:
+        YtickLabs = [f"{YtickLabs[0]} vs {YtickLabs[1]}"]
+
     # Report on which features make the cut.
-    for idx, drug in enumerate(YtickLabs):
+    for idx, drugClass in enumerate(YtickLabs):
         regionList = np.concatenate(selected_features_list[idx])
 
         # Process the feature per model list into a string
@@ -479,6 +483,6 @@ def stringReportOut(selected_features_list, selected_features_params, YtickLabs)
 
         finalStr = conciseStringReport(labels, counts)
 
-        print(f'==== {drug} ==== \n Features per Model: {featurePerModelStr}')
+        print(f'==== {drugClass} ==== \n Features per Model: {featurePerModelStr}')
         print(f'Parameters: \n {paramStr}')
         print(f'Total Regions = {str(len(labels))} \n {finalStr}')
