@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-from os.path import exists
+from os.path import exists, join
 from math import isnan
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -400,10 +400,10 @@ def createDirs(rootDir, switchDict, dirDict):
     else:
         dirString = '0._'
 
-    tempDir = rootDir + dirString + 'Temp//'
-    outDir = rootDir + dirString + 'Output//'
-    classifyDir = rootDir + dirString + 'Output//classify//'
-    debugDir = rootDir + dirString + 'Debug//'  # Debugging paths and setup
+    tempDir = rootDir + dirString + 'Temp\\'
+    outDir = rootDir + dirString + 'Output\\'
+    classifyDir = join(outDir, 'classif\\')
+    debugDir = rootDir + dirString + 'Debug\\'  # Debugging paths and setup
     debug_outPath = debugDir + 'lightSheet_all_ROI.xlsx'
 
     # Make directories if they don't exist
@@ -426,7 +426,6 @@ def createDirs(rootDir, switchDict, dirDict):
     dirDict['debug_outPath'] = debug_outPath
 
     return dirDict
-
 
 def debugReport(pdDataFrame, sheetName, debug_outPath, roiColName, debug_ROI):
     if len(debug_ROI) == 0:

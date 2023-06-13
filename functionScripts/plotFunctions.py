@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from os.path import exists
+from os.path import exists, join
 from math import isnan
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -8,6 +8,8 @@ import seaborn as sns
 import matplotlib.patches as patches
 import helperFunctions as hf
 import scipy.stats as stats
+import shap
+
 
 def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     # first calculate total cells for drug/sex/etc # Needs fixing, this group is gone. Use a sum or something.
@@ -467,6 +469,62 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     plt.savefig(dirDict['classifyDir'] + fullTitleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
+def dim_red_plot(df, classifyDict, dirDict):
+    from sklearn.decomposition import PCA
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.preprocessing import LabelEncoder
+    from itertools import product
+    from sklearn.preprocessing import FunctionTransformer, RobustScaler, normalize
+    from sklearn.pipeline import make_pipeline, Pipeline
+
+    df_Tilted = df.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
+
+    plt.figure(figsize=(30, 15))  # Adjust the figure size as needed
+    sns.heatmap(df_Tilted, cmap='rocket')
+    plt.show()
+
+    match classifyDict['dimRed']:
+        case 'PCA':
+            pca = make_pipeline(RobustScaler(), PCA(n_components=3))
+            principal_components = pca.fit_transform(df_Tilted)
+            df_trans = pd.DataFrame(data=principal_components, columns=['PC{}'.format(i) for i in range(1, principal_components.shape[1] + 1)])
+        case 'LDA':
+            lda = make_pipeline(RobustScaler(), LinearDiscriminantAnalysis())
+            le = LabelEncoder()
+            X = df_Tilted.values
+            y = [x[:-1] for x in df_Tilted.index]
+            y_encoded = le.fit_transform(y)
+
+            lda_components = lda.fit_transform(X, y_encoded)
+            df_trans = pd.DataFrame(data=lda_components, columns=['LD{}'.format(i) for i in range(1, lda_components.shape[1] + 1)])
+
+    plt.figure(figsize=(30, 15))  # Adjust the figure size as needed
+    sns.heatmap(df_trans, cmap='rocket')
+    plt.show()
+
+    df_trans['drug'] = [x[:-1] for x in df_Tilted.index]
+    pcList = list(df_trans.columns[0:3])
+    combinations = list(product(pcList, pcList))
+    sorted_combinations = [tuple(sorted(pair)) for pair in combinations]
+    filtered_list = [pair for pair in set(sorted_combinations) if pair[0] != pair[1]]
+
+    n_row = int(np.ceil(len(filtered_list)/2))
+    fig, axes = plt.subplots(n_row, 2, figsize=(12, 3*len(filtered_list)))
+
+    # Iterate through the axes and plot the scatterplots
+    for i, (ax, elements) in enumerate(zip(axes.reshape(-1), filtered_list)):
+        # curr_ax = ax[np.mod(i,2)]
+        curr_ax = ax
+        sns.scatterplot(data=df_trans, x=elements[0], y=elements[1], hue='drug', ax=curr_ax, palette='Set1')
+        curr_ax.set_xlabel(elements[0])
+        curr_ax.set_ylabel(elements[1])
+        # plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+    print('done')
+
 ### Classification based plots
 def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titleStr, dirDict):
 
@@ -491,10 +549,10 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     plt.title(fullTitleStr, fontsize=sum(figSizeMat))
 
     # Save the plot
-    plt.savefig(dirDict['classifyDir'] + titleStr + '.png',format='png', bbox_inches='tight')     
+    plt.savefig(join(dirDict['outDir_model'], titleStr + '.png'), bbox_inches='tight')     
     plt.show()
 
-def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr):
+def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, dirDict):
     # n_classes = int, number of classes
     # y_real, y_prob = test set labels and probabilities assigned to test set samples.
     # y_real, y_prob are in a [n_splits, n_samples, n_classes] format
@@ -541,5 +599,68 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr):
     axes.set_ylabel('Precision')
     axes.legend(loc='lower left', fontsize='small')
     axes.set_title(daObjstr + ', PR Curves')
+    plt.savefig(join(dirDict['outDir_model'], 'PRcurve.png'), bbox_inches='tight')
 
+    plt.show()
+
+def plotSHAPSummary(X_train_trans_list, shap_values_list, n_classes, n_splits, dirDict):
+
+    X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
+    shap_values_nonmean = []
+    if n_classes == 2:
+        shap_values_nonmean.append(pd.concat(shap_values_list, axis=0))
+        test_count = shap_values_list[0].shape[0]
+    else:
+        test_count = shap_values_list[0][0].shape[0]
+        for shap_x_df in shap_values_list:
+            shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
+    
+
+    # Plot the SHAP values for each class
+    for shap_vals in shap_values_nonmean:
+        # determine how many models across all the splits each feature was included in
+        shapValueCount = shap_vals.agg(np.isnan).sum()
+        feature_model_count = n_splits - shapValueCount/test_count
+        shapValFeature_sorted = feature_model_count.sort_values(ascending=False)
+
+        sortingIdx = shapValFeature_sorted.index[1:]
+        testCaseCount = [int(x) for x in shapValFeature_sorted.values[1:]]
+    
+        X_train_trans_sorted = X_train_trans_nonmean.loc[:,sortingIdx]
+        shap_values_sorted = shap_vals.loc[:,sortingIdx]
+
+        # Adjust the feature names to include their counts.
+        featureNames = [f"{feat} ({testCaseCount[idx]})" for idx, feat in enumerate(sortingIdx)]
+        shap.summary_plot(shap_values_sorted.values, X_train_trans_sorted.values, feature_names=featureNames, sort=False, show=False)
+        plt.title('SHAP Values, Test data', fontdict={'fontsize': 20})
+        plt.savefig(join(dirDict['outDir_model'], 'SHAP_summary.png'), bbox_inches='tight')
+        plt.show()
+
+def plot_feature_scores(clf, featureNames):
+    support_ = clf['featureSel'].get_support()
+    scores_ = clf['featureSel'].scores_[support_]
+    pvalues_ = clf['featureSel'].pvalues_[support_]
+    
+    # Sort arrays based on pvalues_
+    sort_indices = np.argsort(pvalues_)
+    sorted_score = scores_[sort_indices]
+    sorted_pvalues = pvalues_[sort_indices]
+    sorted_featureNames = [featureNames[i] for i in sort_indices]
+
+    # Create the horizontal bar plot
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    # Plot horizontal bars
+    bars = ax.barh(range(len(sorted_score)), sorted_score)
+
+    # Add pvalues as text on top of each bar
+    for i, bar in enumerate(bars):
+        ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height() / 2,
+                f"{sorted_pvalues[i]:.2e}", ha='center', va='center')
+
+    # Set y-axis ticks and labels
+    ax.set_yticks(range(len(sorted_score)))
+    ax.set_yticklabels(sorted_featureNames)
+
+    plt.tight_layout()
     plt.show()

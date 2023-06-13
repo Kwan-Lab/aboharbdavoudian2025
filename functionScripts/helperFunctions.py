@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import scipy.cluster.hierarchy as sch
+import os
 
 # Functions deployed elsewhere
 
@@ -76,16 +78,6 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
         plt.title(titleStr, fontsize=15)
         plt.show()
 
-    # Scale the data
-    # if classifyDict['featureSel_scale']:
-    #     RobScal = preprocessing.RobustScaler()
-    #     X_scaled = RobScal.fit_transform(X)
-    #     titleStr += ", Robust Scaled"
-
-    #     sns.heatmap(X_scaled, square=True)
-    #     plt.title(titleStr, fontsize=15)
-    #     plt.show()
-
     else:
         X_scaled = X
 
@@ -116,9 +108,8 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     plt.axhline(y=classifyDict['cluster_thres'], color='r', linestyle='--', linewidth=3)
     plt.yticks(fontsize=30)
 
-    # Save the figure in the dirDict['tempDir']
-    plt.savefig(f"{dirDict['outDir']}{classifyDict['data']}_origDendrogram.png", bbox_inches='tight')
-
+    figSavePath = os.path.join(dirDict['outDir_data'], 'origDendrogram.png')
+    plt.savefig(figSavePath, bbox_inches='tight')
     plt.show()
 
     # Show the cluster map
@@ -126,9 +117,8 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     plt.title(f"{titleStr}, Clustered", fontsize=15)
     plt.title(titleStr, fontsize=15)
 
-    # Save the figure in the dirDict['tempDir']
-    plt.savefig(f"{dirDict['outDir']}{classifyDict['data']}_origClustered.png", bbox_inches='tight')
-
+    figSavePath = os.path.join(dirDict['outDir_data'], 'origClustered.png')
+    plt.savefig(figSavePath, bbox_inches='tight')
     plt.show()
 
     # Generate new features based on clustering - average of each cluster
@@ -140,7 +130,7 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
 
     # Process the features which are preserved first
     single_Idx = counts == 1
-    unique_values[single_Idx]
+    
     singleFeatureIdx = np.in1d(new_labels, unique_values[single_Idx])
     df_agged = df_agged.join(df_Tilted.loc[:, singleFeatureIdx])
 
@@ -148,8 +138,22 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     counts = counts[~single_Idx]
     
     print(f'Clustering done: {len(counts)} clusters generated from {np.sum(counts)} features.')
+    
+    # Assign new names to features which are clustered, save long abbreviated names to a text file.
+    file = open(os.path.join(dirDict['outDir_data'], 'Cluster_members.txt'), 'w')
+    ClusterCount = 1
     for idx, val in enumerate(unique_values):
-        df_agged[f'Clus{idx+1}'] = round(df_Tilted[list(df_Tilted.columns[new_labels == val])].apply(lambda x: x.mean(), axis=1), 2)
+        featureList = list(df_Tilted.columns[new_labels == val])
+        if len(featureList) < 5:
+            new_feature_name = '-'.join(featureList)
+        else:
+            new_feature_name = f"Clus{ClusterCount}_n{len(featureList)}"
+            ClusterCount += 1
+            file.write(f'{new_feature_name}: {featureList} \n\n')
+
+        df_agged[f'{new_feature_name}'] = round(df_Tilted[featureList].apply(lambda x: x.mean(), axis=1), 2)
+
+    file.close()
 
     plt.figure(figsize=(30,10))
     sns.heatmap(df_agged.values, square=True)
@@ -157,8 +161,8 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     plt.xlabel('Feature', fontsize=15)
 
     # Save the figure in the dirDict['tempDir']
-    plt.savefig(f"{dirDict['outDir']}{classifyDict['data']}_clustered.png", bbox_inches='tight')
-
+    figSavePath = os.path.join(dirDict['outDir_data'], 'clustered.png')
+    plt.savefig(figSavePath, bbox_inches='tight')
     plt.show()
 
     # Following the aggregation, check for multicollinearity
@@ -321,11 +325,14 @@ def filter_features(pandasdf, classifyDict):
     # ======= Filter Phase ========
     # Filter based on percentile (get rid of very high or very low features)
     
-    # Pivot data to represent samples, features, and data correctly for a heatmap.
-    df_Tilted = pandasdf.pivot(index=classifyDict['feature'], columns='dataset', values=classifyDict['data'])
+
+    vmax = np.percentile(pandasdf[classifyDict['data']], 99.9)
+    pandasdf_over = pandasdf[pandasdf[classifyDict['data']] > vmax]
+    features_over = pandasdf_over[classifyDict['feature']].unique()
 
     # Visualize the flatten data
     if plotHist:
+        df_Tilted = pandasdf.pivot(index=classifyDict['feature'], columns='dataset', values=classifyDict['data'])
         plt.hist(df_Tilted.values.flatten(), bins=100, edgecolor='black')
         x_lim = plt.xlim()
         y_lim = plt.ylim()
@@ -336,15 +343,13 @@ def filter_features(pandasdf, classifyDict):
         plt.ylabel('Frequency')
         plt.title('Histogram Before')
 
-    vmax = np.percentile(df_Tilted.values.flatten(), 99.9)
-    remaining_features = np.array(df_Tilted.index[df_Tilted.max(axis=1) < vmax])
-    pandasdf_filt = pandasdf[pandasdf[classifyDict['feature']].isin(remaining_features)]
+    pandasdf_filt = pandasdf[~pandasdf[classifyDict['feature']].isin(features_over)]
 
     if plotHist:
         plt.hist(np.array(pandasdf_filt[classifyDict['data']]), bins=50, edgecolor='black')
         plt.show()
     
-    print(f"feature count shifted from {len(df_Tilted.index)} to {len(remaining_features)}, removing all features with instance of '{classifyDict['data']}' over {round(vmax, 2)}")
+    print(f"feature count shifted from {len(pandasdf[classifyDict['feature']].unique())} to {len(pandasdf_filt[classifyDict['feature']].unique())}, removing all features with instance of '{classifyDict['data']}' over {round(vmax, 2)}")
 
     return pandasdf_filt
 
@@ -432,13 +437,12 @@ def conciseStringReport(strings, counts):
 
     return result_string
 
-def modelStrGen(clf):
+def modelStrPathGen(clf, dirDict, n_splits, fit):
     # Create a string to represent the model
     # Returns string for plotting and saving model to file.
 
-    from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector
-    from sklearn.pipeline import Pipeline
     from sklearn.base import BaseEstimator
+
     # Create a string to represent the model in figure titles
     elements = []
     for name, step in clf.steps:
@@ -452,15 +456,105 @@ def modelStrGen(clf):
             elements.append(type(step).__name__)
         else:
             elements.append(str(step))
-    saveStr = '_'.join(elements)
+    figSaveStr = '_'.join(elements)
 
-    return modelStr, saveStr
+    # Create a string to represent the model save file
+    elements = []
+    for name, step in clf.steps:
+        stepStr = f"{name}_{step}"
+        elements.append(stepStr)
 
-def stringReportOut(selected_features_list, selected_features_params, YtickLabs):
+    modelParamStr = '_'.join(elements)
+    ssDict = save_string_dict()
+    for key, value in ssDict.items():
+        modelParamStr = modelParamStr.replace(key, value)
+
+    modelParamStr = modelParamStr + f"_CV{n_splits}"
+
+    tempModelStr = os.path.join(dirDict['tempDir_data'], modelParamStr)
+    outModelStr = os.path.join(dirDict['outDir_data'], modelParamStr)
+
+    if not os.path.exists(tempModelStr):
+        os.mkdir(tempModelStr)
+
+    if not os.path.exists(outModelStr):
+        os.mkdir(outModelStr)
+
+    dirDict['tempDir_model'] = tempModelStr
+    dirDict['outDir_model'] = outModelStr
+    dirDict['tempDir_data'] = os.path.join(tempModelStr, f"{fit}_outdata.pkl")
+
+    return modelStr, figSaveStr, dirDict
+
+def dataStrPathGen(classifyDict, dirDict):
+    # Create a string to represent the model
+    # Returns string for plotting and saving model to file.
+
+    ssDict = save_string_dict()
+    conv_dict = create_drugClass_dict(classifyDict)
+
+    # create a string for saving data
+    keys_to_keep = ['data', 'label', 'featurefilt', "featureAgg"]
+
+    if classifyDict['featureAgg']:
+        keys_to_keep += ['featureSel_linkage', 'featureSel_distance', 'cluster_thres']
+
+    smallDict = {key: value for key, value in classifyDict.items() if key in keys_to_keep}
+    data_param_string = "-".join([f"{key}={value}" for key, value in smallDict.items()])
+
+    # Abbreviate some of the features of the data string using a dictionary.
+    for key, value in ssDict.items():
+        data_param_string = data_param_string.replace(key, value)
+
+    # Paths and directories - make directories for both figure outputs and temporary file locations
+    tempDataStr = f"{dirDict['tempDir']}{data_param_string}"
+    outDataStr = f"{dirDict['classifyDir']}{data_param_string}"
+
+    if not os.path.exists(tempDataStr):
+        os.mkdir(tempDataStr)
+
+    if not os.path.exists(outDataStr):
+        os.mkdir(outDataStr)
+
+    # Store new paths and strings in the dirDict
+    dirDict['tempDir_data'] = tempDataStr
+    dirDict['outDir_data'] = outDataStr
+    dirDict['data_param_string'] = data_param_string
+
+    return dirDict
+
+def save_string_dict():
+    # Create a dictionary to allow for compressing of model and data names
+
+    saveStringDict = dict()
+    saveStringDict['data=cell_density'] = 'density'
+    saveStringDict['label=class_'] = ''
+    saveStringDict['featurefilt=True'] = 'featFilt'
+    saveStringDict['featurefilt=False'] = 'nofeatFilt'
+    saveStringDict['featureAgg=True'] = 'featAgg'
+    saveStringDict['featureAgg=False'] = 'nofeatAgg'
+    saveStringDict['featureSel_linkage=average-featureSel_distance=correlation'] = 'avgCorrClus'
+    saveStringDict['cluster_thres='] = 'clusThres'
+    
+    saveStringDict['featureSel'] = 'fSel'
+    saveStringDict['featureScale_RobustScaler()'] = 'RobScal'
+    saveStringDict['classif'] = 'clf'
+    saveStringDict['BorutaFeatureSelector()'] = 'BorFS'
+    saveStringDict['RobustScaler()'] = 'SelFroMod'
+    saveStringDict['LogisticRegression('] = 'LogReg('
+    saveStringDict["multi_class='multinomial'"] = 'multinom'
+
+    return saveStringDict
+
+def stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict):
     from collections import Counter
 
     if len(YtickLabs) == 2:
         YtickLabs = [f"{YtickLabs[0]} vs {YtickLabs[1]}"]
+    else:
+        YtickLabs = [' vs '.join(YtickLabs)]
+
+    f"Feature count per model {[len(x) for x in selected_features_list[0]]}"
 
     # Report on which features make the cut.
     for idx, drugClass in enumerate(YtickLabs):
@@ -486,3 +580,46 @@ def stringReportOut(selected_features_list, selected_features_params, YtickLabs)
         print(f'==== {drugClass} ==== \n Features per Model: {featurePerModelStr}')
         print(f'Parameters: \n {paramStr}')
         print(f'Total Regions = {str(len(labels))} \n {finalStr}')
+
+        file = open(os.path.join(dirDict['outDir_model'], 'featureSelReadout.txt'), 'w')
+        file.write(f'==== {drugClass} ==== \n Features per Model: {featurePerModelStr} \n')
+        file.write(f'Parameters: \n {paramStr}')
+        file.write(f'Total Regions = {str(len(labels))} \n {finalStr}')
+        file.close()
+
+def feature_barplot(selected_features_list, selected_features_params, YtickLabs):
+    from collections import Counter
+
+    if len(YtickLabs) == 2:
+        YtickLabs = [f"{YtickLabs[0]} vs {YtickLabs[1]}"]
+    else:
+        YtickLabs = [' vs '.join(YtickLabs)]
+
+
+    # Report on which features make the cut.
+    regionList = np.concatenate(selected_features_list[0])
+    regionDict = dict(Counter(regionList))
+    labels, counts = list(regionDict.keys()), list(regionDict.values())
+    counts = np.array(counts)/len(selected_features_list[0])
+    pd_df = pd.DataFrame({'Region': labels, 'Count': counts})
+    pd_df = pd_df.sort_values(by='Count')
+    
+    pd_df.plot.barh(x='Region', y='Count', rot=0, figsize=(10, 20))
+    plt.title(f'CV Split Feature Presence, Fraction: {YtickLabs}')
+    plt.show()
+
+def create_new_feature_names(dendrogram, original_feature_names):
+    original_names = dendrogram['ivl']
+    new_feature_names = []
+
+    for i, name in enumerate(original_names):
+        if name.isdigit():  # Check if the name is a cluster index
+            cluster_index = int(name)
+            children = dendrogram['dcoord'][cluster_index]
+            child_names = [original_names[child] for child in children]
+            combined_name = ', '.join(child_names)
+            new_feature_names.append(combined_name)
+        else:
+            new_feature_names.append(original_feature_names[i])
+
+    return new_feature_names
