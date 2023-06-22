@@ -87,7 +87,7 @@ def bootstrap_fstat(pandasdf, classifyDict, dirDict):
     column_means = feature_scores_df.mean()
     sorted_columns = column_means.sort_values(ascending=False)
     sorted_df = feature_scores_df[sorted_columns.index]
-    testVar = SelectFwe_BH()
+    testVar = SelectFwe_Holms()
 
     if classifyDict['label'] == 'drug':
         topVar = 10
@@ -424,7 +424,7 @@ def build_pipeline(classifyDict):
         case 'Fwe':
             featureSelMod = SelectFwe(alpha=classifyDict['model_featureSel_alpha'])
         case 'Fwe_BH':
-            featureSelMod = SelectFwe_BH(alpha=classifyDict['model_featureSel_alpha'])
+            featureSelMod = SelectFwe_Holms(alpha=classifyDict['model_featureSel_alpha'])
         case 'mutInfo':
             featureSelMod = SelectKBest(score_func=mutual_info_classif, k='all')
             modVar = 'k'
@@ -623,7 +623,7 @@ class BorutaFeatureSelector(BaseEstimator, TransformerMixin):
 
         return X_fit
 
-class SelectFwe_BH(_BaseFilter):
+class SelectFwe_Holms(_BaseFilter):
     # Modified version of SelectFwe found in sklearn which performs the Bonferroni-Hocberg correction
 
     _parameter_constraints: dict = {

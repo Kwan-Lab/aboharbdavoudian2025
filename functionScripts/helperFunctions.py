@@ -203,6 +203,10 @@ def create_drugClass_dict(classifyDict):
             conv_dict['PSI'] = 'Ag_5HT2A'
             conv_dict['DMT'] = 'Ag_5HT2A'
             conv_dict['MDMA'] = 'Entact'
+        case 'class_KetPsi':
+            # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
+            conv_dict['PSI'] = 'Psilocybin'
+            conv_dict['KET'] = 'Ketamine'
         case 'class_5HTR':
             # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
             conv_dict['PSI'] = 'H_Trypt'

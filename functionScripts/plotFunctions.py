@@ -13,8 +13,7 @@ import shap
 
 def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     # first calculate total cells for drug/sex/etc # Needs fixing, this group is gone. Use a sum or something.
-    totalCellCountData = pandasdf.groupby(['dataset', 'drug', 'sex'])[
-        column2Plot].mean().reset_index()
+    totalCellCountData = pandasdf.groupby(['dataset', 'drug', 'sex'])[column2Plot].mean().reset_index()
 
     drugList = list(pandasdf.drug.unique())
 
@@ -24,7 +23,7 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     sns.despine()
 
     markers = {'f': 'v', 'm': '^'}
-    plt.figure(figsize=(15, 15))
+    plt.figure(figsize=(15, 5))
     order = drugList
 
     # if logSwitch == True:
@@ -63,8 +62,86 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     ax.set(ylim=(5e5, 1e7))
     sns.despine()
 
-    plt.savefig(dirDict['outDir'] + 'totalCells.' +
-                outputFormat,  format=outputFormat, bbox_inches='tight')
+    plt.savefig(dirDict['outDir'] + 'totalCells.' + outputFormat,  format=outputFormat, bbox_inches='tight')
+
+    sns.set_theme()
+
+def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, filtSwitch):
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+    from sklearn.decomposition import PCA
+    from sklearn.preprocessing import RobustScaler
+    from itertools import combinations
+
+    # If some filtering is desired, do so here
+    if filtSwitch:
+        vmax = np.percentile(pandasdf[column2Plot], 99.9)
+        pandasdf_over = pandasdf[pandasdf[column2Plot] > vmax]
+        features_over = pandasdf_over['abbreviation'].unique()
+        pandasdf = pandasdf[~pandasdf['abbreviation'].isin(features_over)]
+    
+    # Pivot the lightsheet data table
+    df_Tilted = pandasdf.pivot(index='dataset', columns='abbreviation', values=column2Plot)
+    n_comp = 4
+
+    # Perform dimensionality reduction
+    # Scale features beforehand
+    featScale = RobustScaler()
+    X_scaled = featScale.fit_transform(df_Tilted)
+
+    y = np.array([x[:-1] for x in df_Tilted.index])
+
+    if dimRedMeth == 'PCA':
+        pca = PCA(n_components=n_comp)
+        X_scaled_dimRed = pca.fit_transform(X_scaled)
+    elif dimRedMeth == 'LDA':
+        lda = LDA(n_components=n_comp)
+        X_scaled_dimRed = lda.fit_transform(X_scaled, y)
+    else:
+        KeyError('dimRedMethod not recognized, pick LDA or PCA')
+
+    # Create average cases for each drug.
+    compName = dimRedMeth[0:2]
+    colNames = [f"{compName}{x}" for x in range(1, n_comp+1)]
+
+    dimRedData = pd.DataFrame(data=X_scaled_dimRed, index=df_Tilted.index, columns=colNames)
+    dimRedData.loc[:, 'drug'] = y
+    dimRedDrugMean = dimRedData.groupby(by='drug').mean()
+
+    # Plot
+    sns.set(font_scale=2)
+    sns.set_style('ticks')
+    sns.despine()
+
+    pairs = list(combinations(range(n_comp), 2))
+
+    for comp_pair in pairs:
+        col1 = colNames[comp_pair[0]]
+        col2 = colNames[comp_pair[1]]
+
+        plt.figure(figsize=(6, 6))  # Adjust the figure size as needed
+        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData, s=50, alpha=0.5)
+        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean, s=100, legend=False)
+        plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
+
+        # Customize the plot
+        plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
+        plt.xlabel(col1, fontsize=20)
+        plt.xticks(fontsize=15)
+        plt.ylabel(col2, fontsize=20)
+        plt.yticks(fontsize=15)
+
+        # Save
+        plt.savefig(dirDict['outDir'] + f"dimRed_{col1} x {col2}.png", bbox_inches='tight')
+
+
+        plt.show()
+    
+    
+
+    # Reset changes made
+    sns.set_theme()
+
+
 
 def distance_matrix(lightsheet_data, classifyDict, dirDict):
     import matplotlib.patheffects as PathEffects

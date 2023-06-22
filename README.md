@@ -17,6 +17,8 @@ A set of scripts used to analyze data from whole brain lightsheet experiments.
 - 5/30 - Feature selection pipeline needs to be redone, will be introducing MRMR Algo into customer sklearn transformer + pyMRMR package.
 - 5/31 - MRMR algo introduced, Binary classifiers and drug classifiers added. Next focus is on creating feature lists key for specific drug class comparisons.
 - 6/13 - Completed adding Boruta Algo (more in line with goal than MRMR), Figure saving updates. Running 100 CV on each label, need to add force plots for individual classification examples.
+- 6/22 - Working on figures, Low D embedding plot done.
+
 
 ## Things to keep in mind when running into problems
 - Temporary files are created along the way. If encountering any issues, delete 'temp' file generated and rerun.
