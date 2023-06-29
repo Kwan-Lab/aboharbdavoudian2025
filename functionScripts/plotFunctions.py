@@ -639,7 +639,7 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     plt.savefig(dirDict['classifyDir'] + fullTitleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
-def dim_red_plot(df, classifyDict, dirDict):
+def dim_red_plot(df, dataFeature, dataValue, dimRed, dirDict):
     from sklearn.decomposition import PCA
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
     from sklearn.preprocessing import LabelEncoder
@@ -647,13 +647,13 @@ def dim_red_plot(df, classifyDict, dirDict):
     from sklearn.preprocessing import FunctionTransformer, RobustScaler, normalize
     from sklearn.pipeline import make_pipeline, Pipeline
 
-    df_Tilted = df.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
+    df_Tilted = df.pivot(index='dataset', columns=dataFeature, values=dataValue)
 
     plt.figure(figsize=(30, 15))  # Adjust the figure size as needed
     sns.heatmap(df_Tilted, cmap='rocket')
     plt.show()
 
-    match classifyDict['dimRed']:
+    match dimRed:
         case 'PCA':
             pca = make_pipeline(RobustScaler(), PCA(n_components=3))
             principal_components = pca.fit_transform(df_Tilted)
@@ -692,8 +692,6 @@ def dim_red_plot(df, classifyDict, dirDict):
 
     plt.tight_layout()
     plt.show()
-
-    print('done')
 
 ### Classification based plots
 def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titleStr, dirDict):
