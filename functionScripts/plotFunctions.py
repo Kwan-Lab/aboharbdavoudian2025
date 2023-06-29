@@ -9,7 +9,7 @@ import matplotlib.patches as patches
 import helperFunctions as hf
 import scipy.stats as stats
 import shap
-
+import os
 
 def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     # first calculate total cells for drug/sex/etc # Needs fixing, this group is gone. Use a sum or something.
@@ -85,10 +85,15 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, filtSwitch):
 
     # Perform dimensionality reduction
     # Scale features beforehand
-    featScale = RobustScaler()
-    X_scaled = featScale.fit_transform(df_Tilted)
+    X_scaled = RobustScaler().fit_transform(df_Tilted)
+    X_scaled_pd = pd.DataFrame(X_scaled, index=df_Tilted.index, columns=df_Tilted.columns)
+    sns.pairplot(X_scaled_pd)
+    plt.show()
 
     y = np.array([x[:-1] for x in df_Tilted.index])
+
+    # Visualize the scaled features
+
 
     if dimRedMeth == 'PCA':
         pca = PCA(n_components=n_comp)
@@ -136,12 +141,100 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, filtSwitch):
 
         plt.show()
     
-    
-
     # Reset changes made
     sns.set_theme()
 
+def histPrePostScale(pandasdf, dataPerPlot, dirDict):
+    # Create a grid of histograms of columns in a pandas dataframe.
+    from sklearn.preprocessing import RobustScaler, PowerTransformer
 
+    outDirPath = os.path.join(dirDict['outDir'], 'featureScale')
+    if not os.path.exists(outDirPath):
+        os.mkdir(outDirPath)
+
+    pivotTables = []
+    for dataV in dataPerPlot:
+        pivotTables.append(pandasdf.pivot(index='dataset', columns='abbreviation', values=dataV))
+
+    scaledData = PowerTransformer(method='yeo-johnson', standardize=False).fit_transform(pivotTables[1])
+    scaledData_df = pd.DataFrame(scaledData, index=pivotTables[1].index, columns=pivotTables[1].columns)
+    pivotTables.append(scaledData_df)
+    
+    scaledData = RobustScaler().fit_transform(pivotTables[2])
+    scaledData_df = pd.DataFrame(scaledData, index=pivotTables[2].index, columns=pivotTables[2].columns)
+    pivotTables.append(scaledData_df)
+
+    featList = list(pivotTables[0].columns)
+    # featList = featList[0:10]
+
+    for feat in featList:
+        imgPath = os.path.join(outDirPath, f"scaleChain_{feat}.png")
+
+        if os.path.exists(imgPath):
+            continue
+
+        fig, axes = plt.subplots(1, 4, figsize=(3*4, 3))
+
+        axes[0].hist(pivotTables[0].loc[:, feat], bins=20, alpha=0.5)  # Adjust the number of bins as needed
+        axes[0].title.set_text(f"{dataPerPlot[0]}: {feat}")
+
+        axes[1].hist(pivotTables[1].loc[:, feat], bins=20, alpha=0.5)  # Adjust the number of bins as needed
+        axes[1].title.set_text(f"{dataPerPlot[1]}: {feat}")
+
+        axes[2].hist(pivotTables[2].loc[:, feat], bins=20, alpha=0.5)  # Adjust the number of bins as needed
+        axes[2].title.set_text(f"yj norm: {feat}")
+
+        axes[3].hist(pivotTables[3].loc[:, feat], bins=20, alpha=0.5)  # Adjust the number of bins as needed
+        axes[3].title.set_text(f"Robust Scaled yj norm: {feat}")
+
+        plt.savefig(os.path.join(outDirPath, f"scaleChain_{feat}.png"), format='png', bbox_inches='tight')
+
+        # for pTable, dataP in zip(pivotTables, dataPerPlot):
+        #     plt.figure(figsize=(3,3))
+        #     plt.hist(pTable[feat], bins=20, alpha=0.5)  # Adjust the number of bins as needed
+        #     plt.title(f"{dataP}: {feat}")
+        #     plt.show()
+
+    # gridSquare = int(np.ceil(np.sqrt(len(featList))))
+    # gridSquare = 2
+
+    # # Create a figure and axes for the grid
+    # fig, axes = plt.subplots(gridSquare, gridSquare, figsize=(gridSquare*2, gridSquare*2))
+
+    # # Iterate over each plot position in the grid
+    # for i in range(gridSquare):
+    #     for j in range(gridSquare):
+    #         # Get the corresponding dataframe index
+    #         feat_index = i * gridSquare + j
+            
+    #         # Get the column name for the current plot
+    #         column_name = featList[feat_index]
+
+    #         dataPerPlot
+            
+    #         # Get the data for the current plot
+    #         for pTable, dataT in zip(pivotTables, dataPerPlot):
+    #             data = np.array(pTable[column_name])
+                
+    #             axes[i, j].hist(tmpVar, bins=20, alpha=0.5, label=dataPerPlot)  # Adjust the number of bins as needed
+            
+    #         # Set the title for the current plot
+    #         axes[i, j].set_title(column_name)
+            
+    #         # Optional: Adjust the plot settings as desired
+    #         # axes[i, j].set_xlabel('X label')
+    #         # axes[i, j].set_ylabel('Y label')
+    #         # axes[i, j].grid(True)
+    #         # ... (other customization options)
+            
+    # # Optional: Adjust the layout and spacing
+    # plt.tight_layout()
+
+    # # Show the plot
+    # plt.show()
+
+
+    print('d')
 
 def distance_matrix(lightsheet_data, classifyDict, dirDict):
     import matplotlib.patheffects as PathEffects
@@ -309,14 +402,14 @@ def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
     # plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
-def data_heatmap(lightsheet_data, classifyDict, dirDict):
+def data_heatmap(lightsheet_data, dataFeature, dataValues, dirDict):
 
     # Create a list of unique 'Region_Name' and 'Brain_Area' values
     unique_brain_areas = lightsheet_data['Brain_Area'].unique()
 
     for brain_area in unique_brain_areas:
         df = lightsheet_data.loc[lightsheet_data['Brain_Area'] == brain_area]
-        df_Tilted = df.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
+        df_Tilted = df.pivot(index='dataset', columns=dataFeature, values=dataValues)
 
         # Test
         matrix = df_Tilted.values.T
@@ -347,7 +440,7 @@ def data_heatmap(lightsheet_data, classifyDict, dirDict):
         for idx in line_break_ind:
             plt.axvline(x=idx, color='white', linewidth=2)
         
-        titleStr = f"{classifyDict['data']} in {brain_area}"
+        titleStr = f"{dataValues} in {brain_area}"
 
         plt.ylabel("Feature Names (Region Names)")
         plt.xlabel("Samples Per Group", fontsize=12)
@@ -357,16 +450,16 @@ def data_heatmap(lightsheet_data, classifyDict, dirDict):
         # plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
         plt.show()
 
-def data_heatmap_single(lightsheet_data, classifyDict, dirDict):
+def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
 
     # Pivot data to represent samples, features, and data correctly for a heatmap.
-    df_Tilted = lightsheet_data.pivot(index=classifyDict['feature'], columns='dataset', values=classifyDict['data'])
+    df_Tilted = lightsheet_data.pivot(index=dataFeature, columns='dataset', values=dataValues)
 
     # Create a dictionary of region to area
-    regionArea = hf.create_region_to_area_dict(lightsheet_data, classifyDict)
+    regionArea = hf.create_region_to_area_dict(lightsheet_data, dataFeature)
 
     # Sort accordingly
-    df_Tilted = df_Tilted.loc[regionArea[classifyDict['feature']]]
+    df_Tilted = df_Tilted.loc[regionArea[dataFeature]]
     region_idx = regionArea.Brain_Area_Idx  # Extract for horizontal lines in plot later.
 
     # Extract data
@@ -397,14 +490,14 @@ def data_heatmap_single(lightsheet_data, classifyDict, dirDict):
     for idx in line_break_ind:
         plt.axvline(x=idx, color='white', linewidth=2)
     
-    titleStr = f"{classifyDict['data']}"
+    titleStr = f"{dataValues}"
 
     # Add in horizontal lines breaking up brain regions types.
     _, line_break_ind = np.unique(region_idx, return_index=True)
     for idx in line_break_ind:
         plt.axhline(y=idx, color='white', linewidth=2)
     
-    titleStr = f"{classifyDict['data']}"
+    titleStr = f"{dataValues}"
     plt.ylabel("Feature Names (Region Names)")
     plt.xlabel("Samples Per Group", fontsize=12)
     plt.tick_params(axis='x', which='both', length=0)

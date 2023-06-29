@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.cluster.hierarchy as sch
 import os
+import pickle as pkl
 
 # Functions deployed elsewhere
 
@@ -151,7 +152,7 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
             ClusterCount += 1
             file.write(f'{new_feature_name}: {featureList} \n\n')
 
-        df_agged[f'{new_feature_name}'] = round(df_Tilted[featureList].apply(lambda x: x.mean(), axis=1), 2)
+        df_agged[f'{new_feature_name}'] = df_Tilted[featureList].apply(lambda x: x.mean(), axis=1)
 
     file.close()
 
@@ -174,7 +175,7 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
 
     return df_agged
 
-def create_region_to_area_dict(lightsheet_data, classifyDict):
+def create_region_to_area_dict(lightsheet_data, dataFeature):
     
     # For explicit sequence, set to false and modify.
     if 1:
@@ -185,7 +186,7 @@ def create_region_to_area_dict(lightsheet_data, classifyDict):
     # Determines index and eventual sorting of brain areas. 
     AreaIdx = dict(zip(brainAreas, np.arange(len(brainAreas))))
 
-    colList = [classifyDict['feature'], 'Brain_Area']
+    colList = [dataFeature, 'Brain_Area']
     regionArea = lightsheet_data.loc[:, colList]
     regionArea.drop_duplicates(inplace=True)
     regionArea['Brain_Area_Idx'] = [AreaIdx[x] for x in regionArea.loc[:, 'Brain_Area']]
@@ -207,6 +208,10 @@ def create_drugClass_dict(classifyDict):
             # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
             conv_dict['PSI'] = 'Psilocybin'
             conv_dict['KET'] = 'Ketamine'
+        case 'class_PsiSSRI':
+            # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
+            conv_dict['PSI'] = 'Psilocybin'
+            conv_dict['A-SSRI'] = 'Acute SSRI'
         case 'class_5HTR':
             # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
             conv_dict['PSI'] = 'H_Trypt'
@@ -549,6 +554,26 @@ def save_string_dict():
     saveStringDict["multi_class='multinomial'"] = 'multinom'
 
     return saveStringDict
+
+def featureCountReformat(selected_features_list, YtickLabs, dirDict):
+    from collections import Counter
+
+    if len(YtickLabs) == 2:
+        contrastTitle = [f"{YtickLabs[0]} vs {YtickLabs[1]}"]
+    else:
+        contrastTitle = [' vs '.join(YtickLabs)]
+
+    # Report on which features make the cut.
+    regionList = np.concatenate(selected_features_list[0])
+    regionDict = dict(Counter(regionList))
+
+    saveObj = [contrastTitle, regionDict]
+
+    # Save the output regionDict and name for plotting in a different kernal, required by brainrender
+    dictPath = os.path.join(dirDict['outDir_model'], 'featureDict.pkl')
+    with open(dictPath, 'wb') as f:
+        pkl.dump(saveObj, f)
+
 
 def stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict):
     from collections import Counter

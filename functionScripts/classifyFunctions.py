@@ -24,7 +24,7 @@ from sklearn.metrics import precision_recall_curve, confusion_matrix, PrecisionR
 from sklearn.utils import shuffle
 from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector, SelectFdr, SelectFpr, SelectFwe
 from sklearn.model_selection import StratifiedKFold, GridSearchCV, StratifiedShuffleSplit
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import RobustScaler, PowerTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 
 # For the custom feature selection module below
@@ -317,6 +317,8 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             if featureSelSwitch:
                 # hf.feature_barplot(selected_features_list, selected_features_params, YtickLabs)
                 hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict)
+
+            hf.featureCountReformat(selected_features_list, YtickLabs, dirDict)
                 
             # if fit != 'Shuffle' and len(numYDict) != 2:
             #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, numYDict, 8, fit=fit)
@@ -404,6 +406,10 @@ def build_pipeline(classifyDict):
     if 'LogReg' in classifyDict['model'] or 'SVC' in classifyDict['model']:
         paramGrid['classif__C'] = classifyDict['pGrid']['classif__C']
 
+    # module for feature transformation:
+    if classifyDict['model_featureTransform']:
+        transMod = PowerTransformer(method='yeo-johnson', standardize=False)
+
     # Select Feature scaling model
     if classifyDict['model_featureScale']:
         scaleMod = RobustScaler()
@@ -445,12 +451,15 @@ def build_pipeline(classifyDict):
         case _:
             ValueError('Invalid modelStr')
 
-    # Create the pipeline, first to last
-    if 'featureSelMod' in locals():
-        pipelineList.append(('featureSel', featureSelMod))
+    if 'transMod' in locals():
+        pipelineList.append(('featureTrans', transMod))
 
     if 'scaleMod' in locals():
         pipelineList.append(('featureScale', scaleMod))
+
+    # Create the pipeline, first to last
+    if 'featureSelMod' in locals():
+        pipelineList.append(('featureSel', featureSelMod))
 
     pipelineList.append(('classif', classif))
 
@@ -541,16 +550,6 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
     y_Int_dict = dict(zip(np.unique(y), range(0, len(np.unique(y)))))
     
     featureNames = np.array(ls_data_agg.columns.tolist())
-
-    if classifyDict['model_featureLogScale']:
-        # plt.hist(np.array(ls_data_agg.values), label='Original')
-        # plt.xlim(0, 100e3)
-        # plt.show()
-
-        X = np.log10(np.array(ls_data_agg.values))
-        X[np.isneginf(X)] = 0
-        # plt.hist(X, label='Transformed')
-        # plt.show()
 
     return X, y, featureNames, y_Int_dict
 
