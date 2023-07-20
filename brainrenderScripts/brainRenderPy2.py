@@ -5,7 +5,7 @@ from vedo import embedWindow, Plotter, show  # <- this will be used to render an
 from itkwidgets import view
 import numpy as np
 
-f_string_template = "C:\OneDrive\KwanLab\Lightsheet_cFos_Pipeline\\1.scaled_Output\classif\data=count_norm-{drug}-nofeatFilt-nofeatAgg\\featureTrans_PowerTransformer(standardize=False)_RobScal_fSel_{fSelMod}_clf_LogReg(multinom, solver='saga')_CV100\\featureDict.pkl"
+f_string_template = "C:\OneDrive\KwanLab\Lightsheet_cFos_Pipeline\\1.scaled_Output\classif\data=count_norm-{drug}\\PowerTrans_RobScal_fSel_{fSelMod}_clf_LogReg(multinom)_CV100\\featureDict.pkl"
 
 # Camera settings for each comparison
 cameraSet = []
@@ -47,7 +47,6 @@ plotTitles = [
 # Each one's list is thresholded at its respective value.
 featSelMod = ['SelectKBest(k=30)', 'BorFS']
 featSelThres = [95, 50]
-
 
 filtList = True
 

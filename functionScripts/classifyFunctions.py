@@ -69,14 +69,20 @@ def extract_sorted_correlations(correlation_matrix, variable_names):
 def bootstrap_fstat(pandasdf, classifyDict, dirDict):
         
     # Reformat the data into a format for sampling
-    # X, y, featureNames, numYDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
-    X, y, featureNames, _ = reformat_pandasdf(pandasdf, classifyDict, dirDict)
+    dirDict = hf.dataStrPathGen(classifyDict, dirDict)
+
+    X, y, featureNames, numYDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
+
+    # Make a folder for images
+    outDirPath = os.path.join(dirDict['outDir'], 'Fstat')
+    if not os.path.exists(outDirPath):
+        os.mkdir(outDirPath)
 
     pandasdf_labeled = pd.DataFrame(np.hstack([y.reshape(-1, 1), X]), columns=np.append('label', featureNames))
     
     feature_scores = []
-    for idx in np.arange(10e3):
-        pdf_sample = pandasdf_labeled.sample(frac=.8, replace=True)
+    for idx in np.arange(1e3):
+        pdf_sample = pandasdf_labeled.sample(frac=.75, replace=True)
         f_stat, p_val = f_classif(pdf_sample.drop(['label'], axis=1), pdf_sample['label'])
         feature_scores.append(f_stat)
 
@@ -84,35 +90,52 @@ def bootstrap_fstat(pandasdf, classifyDict, dirDict):
 
     feature_scores_df = pd.DataFrame(feature_scores, columns=featureNames)
 
-    column_means = feature_scores_df.mean()
+    column_means = np.round(feature_scores_df.median(), 2)
     sorted_columns = column_means.sort_values(ascending=False)
     sorted_df = feature_scores_df[sorted_columns.index]
-    testVar = SelectFwe_Holms()
+    new_col_names = [f"{x} ({num})" for x, num in zip(sorted_df.columns, sorted_columns.values)]
+    new_col_dict = dict(zip(sorted_df.columns, new_col_names))
 
-    if classifyDict['label'] == 'drug':
-        topVar = 10
-        num_pieces = 1
-    else:
-        topVar = 40
-        num_pieces = 4
+    # Create the same plots for some regions of interest.
+    regionSets = ['Top', 'Control']
 
-    # fig, axes = plt.subplots(nrows=1, ncols=num_pieces,figsize=(num_pieces * 3, 5))
+    for regionL in regionSets:
 
-    sorted_df_top = sorted_df.iloc[:, 0:topVar-1]
-    piece_size = int(np.ceil(len(sorted_df_top.columns) / num_pieces))
-    fig = plt.figure(figsize=(num_pieces * 4, 5))
+        if regionL == 'Top':
+            if classifyDict['label'] == 'drug':
+                topVar = 10
+                num_pieces = 1
+            else:
+                topVar = 40
+                num_pieces = 4
 
-    for idx in np.arange(num_pieces):
-        start_col = idx * piece_size
-        end_col = start_col + piece_size
+            sorted_df_top = sorted_df.iloc[:, 0:topVar-1]
+            piece_size = int(np.ceil(len(sorted_df_top.columns) / num_pieces))
+            fontSizePlot = 14
 
-        data_slice = sorted_df_top.iloc[:, start_col:end_col]
-        plt.subplot(1, num_pieces, idx+1)
-        sns.violinplot(data=data_slice, orient='h')
-        plt.xlim([np.nanpercentile(data_slice.values, q=5), np.nanpercentile(data_slice.values, q=95)])
+        else:
+            regionList = ['ACAd', 'ACAv', 'ILA', 'PL', 'MOs']
+            sorted_df_top = sorted_df.loc[:,sorted_df.columns.isin(regionList)]
+            num_pieces = 1
+            fontSizePlot = 8
 
-    plt.tight_layout()
-    plt.show()
+        sorted_df_top = sorted_df_top.rename(columns=new_col_dict)
+
+        fig = plt.figure(figsize=(num_pieces * 4, 5))
+
+        for idx in np.arange(num_pieces):
+            start_col = idx * piece_size
+            end_col = start_col + piece_size
+
+            data_slice = sorted_df_top.iloc[:, start_col:end_col]
+            plt.subplot(1, num_pieces, idx+1)
+            sns.violinplot(data=data_slice, orient='h')
+            plt.xlim([np.nanpercentile(data_slice.values, q=5), np.nanpercentile(data_slice.values, q=95)])
+
+        fig.suptitle(f" {regionL} Regions {classifyDict['data']} ranked by F stat on {classifyDict['label']}", fontsize=fontSizePlot, fontweight='bold')
+        plt.tight_layout()
+        plt.savefig(os.path.join(outDirPath, f"{classifyDict['data']}_{classifyDict['label']}_{regionL}.png"), format='png', bbox_inches='tight')
+        plt.show()
 
 def classifySamples(pandasdf, classifyDict, dirDict):
 
@@ -304,7 +327,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             ## Plotting code for the fit model and compiled data
 
             # SHAP - Join all the shap_values collected across splits
-            pf.plotSHAPSummary(X_train_trans_list, shap_values_list, n_classes, cvFxn.n_splits, dirDict)
+            # pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, cvFxn.n_splits, dirDict)
 
             # PR Curve
             if fit != 'Shuffle':
@@ -542,6 +565,8 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
 
     X = np.array(ls_data_agg.values)
     y = np.array([x[0:-1] for x in np.array(ls_data_agg.index)])
+    y = ['5-MeO-DMT' if item == 'DMT' else item for item in y]
+    y = np.array(y)
 
     # If the data labels are not for 'drug', convert to appropriate labels
     if classifyDict['label'] != 'drug':

@@ -21,12 +21,11 @@ def loadLightSheetData(dirDict, switchDict):
 
     intFile = dirDict['tempDir'] + 'lightSheet_all.pkl'
 
-    if not os.path.exists(intFile):
+    if 1: #not os.path.exists(intFile):
 
         ############## Batch 1 ##############
         # Merging first Batch of Light sheet data
-        csv_list = ['sal_f1', 'sal_f2', 'sal_m1', 'sal_m2', 'ket_f1',
-                    'ket_f2', 'ket_m1', 'ket_m2', 'psi_f1', 'psi_f2', 'psi_m1', 'psi_m2']
+        csv_list = ['sal_f1', 'sal_f2', 'sal_m1', 'sal_m2', 'ket_f1', 'ket_f2', 'ket_m1', 'ket_m2', 'psi_f1', 'psi_f2', 'psi_m1', 'psi_m2']
         csv_drug_list = [x.split('_')[0].upper() for x in csv_list]
         sex_list = [x.split('_')[1][0].upper() for x in csv_list]
 
@@ -106,10 +105,8 @@ def loadLightSheetData(dirDict, switchDict):
             # dataset - [drug][#]
             tmpDb['dataset'] = drug + tmpString.split('_')[2][0]
             # total_cells - total cells across all regions in animal.
-            tmpDb = tmpDb.rename(
-                columns={drug_col: 'count', densityCol: 'density (cells/mm^3)'})
-            tmpDb['total_cells'] = int(tmpDb.loc[tmpDb['Region'] == 'left root', 'count']) + int(
-                tmpDb.loc[tmpDb['Region'] == 'right root', 'count'])
+            tmpDb = tmpDb.rename(columns={drug_col: 'count', densityCol: 'density (cells/mm^3)'})
+            tmpDb['total_cells'] = int(tmpDb.loc[tmpDb['Region'] == 'left root', 'count']) + int(tmpDb.loc[tmpDb['Region'] == 'right root', 'count'])
 
             if drug_col_i == 0:
                 lightSheet_B2 = tmpDb
@@ -264,18 +261,15 @@ def loadLightSheetData(dirDict, switchDict):
         ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'structure_tree_2017.csv')
 
         # map new atlas_id onto graph_id
-        lightSheet_all['Region ID'] = lightSheet_all.graph_order.map(
-            ABA_tree.set_index('graph_order')['id'].to_dict())
+        lightSheet_all['Region ID'] = lightSheet_all.graph_order.map(ABA_tree.set_index('graph_order')['id'].to_dict())
         # map new names onto graph_id
-        lightSheet_all['Region Name'] = lightSheet_all.graph_order.map(
-            ABA_tree.set_index('graph_order')['name'].to_dict())
+        lightSheet_all['Region Name'] = lightSheet_all.graph_order.map(ABA_tree.set_index('graph_order')['name'].to_dict())
 
         # remove unneccesary ID columns to avoid confusion
         lightSheet_all = lightSheet_all.drop(['graph_order'], axis=1)
 
         # reorder columns
-        lightSheet_all = lightSheet_all[['Region ID', 'Region Name', 'count',
-                                         'volume (mm^3)', 'density (cells/mm^3)', 'sex', 'drug', 'dataset', 'total_cells']]
+        lightSheet_all = lightSheet_all[['Region ID', 'Region Name', 'count', 'volume (mm^3)', 'density (cells/mm^3)', 'sex', 'drug', 'dataset', 'total_cells']]
 
         ############## Scale the density/counts ##############
 
@@ -313,8 +307,7 @@ def loadLightSheetData(dirDict, switchDict):
 
         # get allen brain atlases
         ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'ABA_CCF.csv')
-        ABA_tree = ABA_tree.rename(columns={
-                                   'structure ID': 'id', '"Summary Structure" Level for Analyses': 'summary_struct'})
+        ABA_tree = ABA_tree.rename(columns={'structure ID': 'id', '"Summary Structure" Level for Analyses': 'summary_struct'})
         ABA_tree = ABA_tree.drop(columns=['order', 'parent_id', 'depth in tree', 'structure_id_path', 'total_voxel_counts (10 um)',
                                           'Structure independently delineated (not merged to form parents)'])
 
@@ -347,13 +340,12 @@ def loadLightSheetData(dirDict, switchDict):
         lightsheet_data = lightsheet_data.rename(columns={'Region ID': 'Region_ID', 'Region Name': 'Region_Name',
                                                  'volume (mm^3)': 'volume_(mm^3)', 'density (cells/mm^3)': 'density_(cells/mm^3)', 'Brain Area': 'Brain_Area'})
         
-
         # Drop 'density_(cells/mm^3)'
         lightsheet_data.drop(['density_(cells/mm^3)'], axis=1, inplace=True)
 
-        debug_ROI = 'Dorsal Raphe'
 
         if switchDict['debugOutputs']:
+            debug_ROI = 'Dorsal Raphe' # Replaced switchDict['debug_ROI']
             debugReport(lightsheet_data, 'lightsheet_data',dirDict['debug_outPath'], 'Region_Name', debug_ROI)
 
         ############## Saving ##############

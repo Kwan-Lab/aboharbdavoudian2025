@@ -194,138 +194,76 @@ def create_region_to_area_dict(lightsheet_data, dataFeature):
 
     return regionArea
 
+def create_brainArea_dict(dictType):
+    # Create a dictionary which can aid in plotting by converting names to
+
+    brainAreaList= ['Olfactory', 'Cortex', 'Hippo', 'StriatumPallidum', 'Thalamus', 'Hypothalamus', 'MidHindMedulla', 'Cerebellum']
+    if dictType == 'short':
+        brainAreaListPlot= ['Olfactory', 'Cortex', 'Hippo', 'Stri+Pall', 'Thalamus', 'Hypothalamus', 'Mid Hind Medulla', 'Cerebellum']
+    elif dictType == 'long':
+        brainAreaListPlot= ['Olfactory', 'Cortex', 'Hippocampus', 'Striatum and Pallidum', 'Thalamus', 'Hypothalamus', 'Midbrain, Hind Brain, and Medulla', 'Cerebellum']
+
+    brainAreaPlotDict = dict(zip(brainAreaList, brainAreaListPlot))
+
+    return brainAreaPlotDict
+
 def create_drugClass_dict(classifyDict):
     # Create a dictionary to convert drug names to drug classes
     conv_dict = dict()
 
-    match classifyDict['label']:
-        case 'class_5HT2A':
-            # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
-            conv_dict['PSI'] = 'Ag_5HT2A'
-            conv_dict['DMT'] = 'Ag_5HT2A'
-            conv_dict['MDMA'] = 'Entact'
-        case 'class_KetPsi':
-            # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
-            conv_dict['PSI'] = 'Psilocybin'
-            conv_dict['KET'] = 'Ketamine'
-        case 'class_PsiSSRI':
-            # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
-            conv_dict['PSI'] = 'Psilocybin'
-            conv_dict['A-SSRI'] = 'Acute SSRI'
-        case 'class_5HTR':
-            # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
-            conv_dict['PSI'] = 'H_Trypt'
-            conv_dict['DMT'] = 'H_Trypt'
-            conv_dict['6FDET'] = 'NH_Trypt'
-        case 'class_Trypt':
-            # 5-HT2A favored (Psilo) vs 5-HT1A favored (5-MeO-DMT)
-            conv_dict['PSI'] = 'Ag_5HT2A'
-            conv_dict['DMT'] = 'Ag_5HT1A'
-        case 'class_Speed':
-            # Fast vs Slow (Psi, 5-MeO-DMT, Ketamine vs Acute SSRI)
-            conv_dict['PSI'] = 'Fast Acting'
-            conv_dict['DMT'] = 'Fast Acting'
-            conv_dict['KET'] = 'Fast Acting'
-            conv_dict['A-SSRI'] = 'Slow Acting'
-            conv_dict['C-SSRI'] = 'Slow Acting'
-        case 'class_Psy_NMDA':
-            # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5-MeO-DMT vs Ketamine)
-            conv_dict['PSI'] = 'Ag_5HT2A'
-            conv_dict['DMT'] = 'Ag_5HT2A'
-            conv_dict['KET'] = 'Ag_NMDA-R'   
-        case 'class_crash':
-            # Drugs with 'low' afterwards vs those that dont (Ketamine, MDMA vs Psi, 5-MeO-DMT)
-            print('d')
-        case 'class_SSRI':
-            # Acute vs Chronic SSRIs
-            conv_dict['A-SSRI'] = 'Acute_SSRI'
-            conv_dict['C-SSRI'] = 'Chronic_SSRI'
+    if classifyDict['label'] == 'class_5HT2A':
+        # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
+        conv_dict['PSI'] = 'Ag_5HT2A'
+        conv_dict['DMT'] = 'Ag_5HT2A'
+        conv_dict['5-MeO-DMT'] = 'Ag_5HT2A'
+        conv_dict['MDMA'] = 'Entactogen'
+    if classifyDict['label'] == 'class_KetPsi':
+        # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['KET'] = 'Ketamine'
+    if classifyDict['label'] == 'class_PsiSSRI':
+        # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['A-SSRI'] = 'Acute SSRI'
+    if classifyDict['label'] == 'class_5HTR':
+        # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
+        conv_dict['PSI'] = 'H_Trypt'
+        conv_dict['DMT'] = 'H_Trypt'
+        conv_dict['5-MeO-DMT'] = 'H_Trypt'
+        conv_dict['6FDET'] = 'NH_Trypt'
+    if classifyDict['label'] == 'class_DT':
+        # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
+        conv_dict['DMT'] = '5-MeO-DMT'
+        conv_dict['5-MeO-DMT'] = '5-MeO-DMT'
+        conv_dict['6FDET'] = '6-Fluoro-DET'
+    if classifyDict['label'] == 'class_Trypt':
+        # 5-HT2A favored (Psilo) vs 5-HT1A favored (5-MeO-DMT)
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['DMT'] = '5-MeO-DMT'
+        conv_dict['5-MeO-DMT'] = '5-MeO-DMT'
+    if classifyDict['label'] == 'class_Speed':
+        # Fast vs Slow (Psi, 5-MeO-DMT, Ketamine vs Acute SSRI)
+        conv_dict['PSI'] = 'Fast Acting'
+        conv_dict['DMT'] = 'Fast Acting'
+        conv_dict['5-MeO-DMT'] = 'Fast Acting'
+        conv_dict['KET'] = 'Fast Acting'
+        conv_dict['A-SSRI'] = 'Slow Acting'
+        conv_dict['C-SSRI'] = 'Slow Acting'
+    if classifyDict['label'] == 'class_Psy_NMDA':
+        # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5-MeO-DMT vs Ketamine)
+        conv_dict['PSI'] = 'Ag_5HT2A'
+        conv_dict['DMT'] = 'Ag_5HT2A'
+        conv_dict['5-MeO-DMT'] = 'Ag_5HT2A'
+        conv_dict['KET'] = 'Ag_NMDA-R'   
+    if classifyDict['label'] == 'class_crash':
+        # Drugs with 'low' afterwards vs those that dont (Ketamine, MDMA vs Psi, 5-MeO-DMT)
+        print('d')
+    if classifyDict['label'] == 'class_SSRI':
+        # Acute vs Chronic SSRIs
+        conv_dict['A-SSRI'] = 'Acute SSRI'
+        conv_dict['C-SSRI'] = 'Chronic SSRI'
 
     return conv_dict
-
-def reformatData(pandasdf, classifyDict):
-    # Format the data for classification tasks
-    # Performs filtering (Removing features based on percentile, clustering remaining features).
-
-    # X of shape (n_samples, n_features), in our case (n_miceDrug, n_brain regions). y can be strings (they'll be drug names)
-    import re
-
-    # Each sample is a dataset, columns are abbreviations or full names, and the values can be counts or densities.
-    pandasdf_Tilted = pandasdf.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
-
-    # Convert y into different labels based on interest. 
-    conv_dict = dict()
-
-    match classifyDict['label']:
-        case 'class_5HT2A':
-            # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
-            conv_dict['PSI'] = 'Ag_5HT2A'
-            conv_dict['DMT'] = 'Ag_5HT2A'
-            conv_dict['MDMA'] = 'Entact'
-        case 'class_5HTR':
-            # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
-            conv_dict['PSI'] = 'H_Tryptamine'
-            conv_dict['DMT'] = 'H_Tryptamine'
-            conv_dict['6FDET'] = 'NH_Tryptamine'
-        case 'class_Trypt':
-            # 5-HT2A favored (Psilo) vs 5-HT1A favored (5-MeO-DMT)
-            conv_dict['PSI'] = 'Ag_5HT2A'
-            conv_dict['DMT'] = 'Ag_5HT1A'
-        case 'class_Speed':
-            # Fast vs Slow (Psi, 5-MeO-DMT, Ketamine vs Acute SSRI)
-            conv_dict['PSI'] = 'Fast Acting'
-            conv_dict['DMT'] = 'Fast Acting'
-            conv_dict['KET'] = 'Fast Acting'
-            conv_dict['A-SSRI'] = 'Slow Acting'
-        case 'class_Psy_NMDA':
-            # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5-MeO-DMT vs Ketamine)
-            conv_dict['PSI'] = 'Ag_5HT2A'
-            conv_dict['DMT'] = 'Ag_5HT2A'
-            conv_dict['KET'] = 'Ag_NMDA-R'   
-        case 'class_crash':
-            # Drugs with 'low' afterwards vs those that dont (Ketamine, MDMA vs Psi, 5-MeO-DMT)
-            print('d')
-        case 'class_SSRI':
-            # Acute vs Chronic SSRIs
-            conv_dict['A-SSRI'] = 'Acute_SSRI'
-            conv_dict['C-SSRI'] = 'Chronic_SSRI'
-
-    # In all cases, translate the dataset index into a vector of drugs
-    y = pd.Series([re.sub(r'\d+$', '', string) for string in pandasdf_Tilted.index])
-
-    # Convert y based on dictionary above
-    if classifyDict['label'] != 'drug':
-        # Filter the table based on which labels you don't want
-        boolean_array = np.array([string in conv_dict.keys() for string in y])
-        pandasdf_Tilted = pandasdf_Tilted[boolean_array]
-
-        # extract remaining entry labels and rename them.
-        labelVec = pd.Series([re.sub(r'\d+$', '', string) for string in pandasdf_Tilted.index])
-        pandasdf_Tilted.index = labelVec.map(conv_dict)
-
-        # Create the new label vector
-        y = pd.Series(pandasdf_Tilted.index)
-
-        yNumDict = dict(zip(np.unique(y), np.arange(len(np.unique(y)))))
-
-    else:
-        # Convert y into numbers for use later. Convert it to a specific set
-        orderedList = ['PSI', 'KET', 'DMT', '6FDET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
-        yNumDict = dict(zip(orderedList, np.arange(len(orderedList))))
-
-    # develop an array of feature names
-    featureNames = pandasdf_Tilted.columns
-
-    # Convert y into numbers for use later. Convert it to a specific set
-    numYDict = {value: key for key, value in yNumDict.items()}
-
-    # Extract final values
-    X = pandasdf_Tilted.reset_index(drop=True)
-    X = np.array(X.values)
-    
-    y = np.array(y.map(yNumDict))
-
-    return X, y, featureNames, numYDict
 
 def filter_features(pandasdf, classifyDict):
     # Takes in a pandas dataframe, returns a version where features are filtered and the remainder are aggregated.
@@ -334,10 +272,18 @@ def filter_features(pandasdf, classifyDict):
     # ======= Filter Phase ========
     # Filter based on percentile (get rid of very high or very low features)
     
-
-    vmax = np.percentile(pandasdf[classifyDict['data']], 99.9)
-    pandasdf_over = pandasdf[pandasdf[classifyDict['data']] > vmax]
-    features_over = pandasdf_over[classifyDict['feature']].unique()
+    # Find features to remove
+    if classifyDict['filtType'] == 'max':
+        thres = np.percentile(pandasdf[classifyDict['data']], 99.5)
+        pandasdf_over = pandasdf[pandasdf[classifyDict['data']] >= thres]
+        features_remove = pandasdf_over[classifyDict['feature']].unique()
+        strWord = 'over'
+    if classifyDict['filtType'] == 'min':
+        thres = np.percentile(pandasdf[classifyDict['data']], .5)
+        pandasdf_under = pandasdf[pandasdf[classifyDict['data']] <= thres]
+        features_remove = pandasdf_under[classifyDict['feature']].unique()
+        strWord = 'under'
+        
 
     # Visualize the flatten data
     if plotHist:
@@ -352,13 +298,16 @@ def filter_features(pandasdf, classifyDict):
         plt.ylabel('Frequency')
         plt.title('Histogram Before')
 
-    pandasdf_filt = pandasdf[~pandasdf[classifyDict['feature']].isin(features_over)]
+    pandasdf_filt = pandasdf[~pandasdf[classifyDict['feature']].isin(features_remove)]
 
     if plotHist:
         plt.hist(np.array(pandasdf_filt[classifyDict['data']]), bins=50, edgecolor='black')
         plt.show()
     
-    print(f"feature count shifted from {len(pandasdf[classifyDict['feature']].unique())} to {len(pandasdf_filt[classifyDict['feature']].unique())}, removing all features with instance of '{classifyDict['data']}' over {round(vmax, 2)}")
+    feature_n_old = len(pandasdf[classifyDict['feature']].unique())
+    feature_n_new = len(pandasdf_filt[classifyDict['feature']].unique())
+
+    print(f"feature count shifted from {feature_n_old} to {feature_n_new}, removing all features with instance of '{classifyDict['data']}' {strWord} {thres}")
 
     return pandasdf_filt
 
@@ -503,10 +452,13 @@ def dataStrPathGen(classifyDict, dirDict):
     conv_dict = create_drugClass_dict(classifyDict)
 
     # create a string for saving data
-    keys_to_keep = ['data', 'label', 'featurefilt', "featureAgg"]
+    keys_to_keep = ['data', 'label']
 
     if classifyDict['featureAgg']:
-        keys_to_keep += ['featureSel_linkage', 'featureSel_distance', 'cluster_thres']
+        keys_to_keep += ['featureAgg', 'featureSel_linkage', 'featureSel_distance', 'cluster_thres']
+
+    if classifyDict['featurefilt']:
+        keys_to_keep += ['featurefilt', 'filtType']
 
     smallDict = {key: value for key, value in classifyDict.items() if key in keys_to_keep}
     data_param_string = "-".join([f"{key}={value}" for key, value in smallDict.items()])
@@ -536,22 +488,23 @@ def save_string_dict():
     # Create a dictionary to allow for compressing of model and data names
 
     saveStringDict = dict()
-    saveStringDict['data=cell_density'] = 'density'
     saveStringDict['label=class_'] = ''
-    saveStringDict['featurefilt=True'] = 'featFilt'
-    saveStringDict['featurefilt=False'] = 'nofeatFilt'
+    saveStringDict['featurefilt=True-filtType=min'] = 'filtMin'
     saveStringDict['featureAgg=True'] = 'featAgg'
-    saveStringDict['featureAgg=False'] = 'nofeatAgg'
     saveStringDict['featureSel_linkage=average-featureSel_distance=correlation'] = 'avgCorrClus'
     saveStringDict['cluster_thres='] = 'clusThres'
     
+    saveStringDict['featureTrans_PowerTransformer(standardize=False)'] = 'PowerTrans'
     saveStringDict['featureSel'] = 'fSel'
     saveStringDict['featureScale_RobustScaler()'] = 'RobScal'
     saveStringDict['classif'] = 'clf'
     saveStringDict['BorutaFeatureSelector()'] = 'BorFS'
+    saveStringDict['MRMRFeatureSelector'] = 'MrmrFS'
+    saveStringDict['n_features_to_select='] = ''
     saveStringDict['RobustScaler()'] = 'SelFroMod'
     saveStringDict['LogisticRegression('] = 'LogReg('
     saveStringDict["multi_class='multinomial'"] = 'multinom'
+    saveStringDict[", solver='saga'"] = ''
 
     return saveStringDict
 

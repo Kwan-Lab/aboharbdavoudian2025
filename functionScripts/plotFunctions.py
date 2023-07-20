@@ -52,8 +52,12 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     ax.spines['bottom'].set_linewidth(0.5)
     ax.xaxis.set_tick_params(length=20, width=0.5)
     ax.yaxis.set_tick_params(length=20, width=0.5)
-    ax.set_xlabel('Drug')
-    ax.set_ylabel('Total Cells (Count)')
+    ax.set_xlabel('Drug', fontdict={'fontsize':25})
+    ax.set_ylabel('Total Cells (Count)', fontdict={'fontsize':25})
+    ax.set_xticklabels(ax.get_xticklabels(), fontsize=20)
+
+    # 
+
     # if logSwitch == True:
     #     ax.set_ylabel('log(total cells)')
     # else:
@@ -86,15 +90,14 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, filtSwitch):
     # Perform dimensionality reduction
     # Scale features beforehand
     X_scaled = RobustScaler().fit_transform(df_Tilted)
-    X_scaled_pd = pd.DataFrame(X_scaled, index=df_Tilted.index, columns=df_Tilted.columns)
-    sns.pairplot(X_scaled_pd)
-    plt.show()
+    # X_scaled_pd = pd.DataFrame(X_scaled, index=df_Tilted.index, columns=df_Tilted.columns)
+    # sns.pairplot(X_scaled_pd)
+    # plt.show()
 
     y = np.array([x[:-1] for x in df_Tilted.index])
+    y = ['5-MeO-DMT' if item == 'DMT' else item for item in y]
 
     # Visualize the scaled features
-
-
     if dimRedMeth == 'PCA':
         pca = PCA(n_components=n_comp)
         X_scaled_dimRed = pca.fit_transform(X_scaled)
@@ -111,6 +114,8 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, filtSwitch):
     dimRedData = pd.DataFrame(data=X_scaled_dimRed, index=df_Tilted.index, columns=colNames)
     dimRedData.loc[:, 'drug'] = y
     dimRedDrugMean = dimRedData.groupby(by='drug').mean()
+    resortIdx = [1, 2, 3, 0, 4, 5, 6, 7]
+    dimRedDrugMean = dimRedDrugMean.iloc[resortIdx]
 
     # Plot
     sns.set(font_scale=2)
@@ -129,20 +134,34 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, filtSwitch):
         plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
 
         # Customize the plot
-        plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
+        # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
+        plt.title(f"Linear Discrimants of Normalized counts", fontsize=20)
         plt.xlabel(col1, fontsize=20)
         plt.xticks(fontsize=15)
         plt.ylabel(col2, fontsize=20)
         plt.yticks(fontsize=15)
 
         # Save
-        plt.savefig(dirDict['outDir'] + f"dimRed_{col1} x {col2}.png", bbox_inches='tight')
-
+        # plt.savefig(dirDict['outDir'] + f"dimRed_{col1} x {col2}.png", bbox_inches='tight')
 
         plt.show()
     
     # Reset changes made
     sns.set_theme()
+
+def meanCountPerRegion(pandasdf):
+    # Pull the mean count per region to help highlight.
+    meanCountPerRegion = pandasdf.groupby(['Region_Name', 'Brain_Area'])['count', 'volume_(mm^3)'].mean().reset_index()
+    plt.figure(figsize=(20, 20))
+    sns.scatterplot(x='count', y='volume_(mm^3)', hue='Brain_Area', data=meanCountPerRegion)
+
+    # Change the plot to have x and y axes limits at 80th percentile
+    plt.xlim(0, np.percentile(meanCountPerRegion['count'], 95))
+    plt.ylim(0, np.percentile(meanCountPerRegion['volume_(mm^3)'], 95))
+
+    plt.show()
+
+    print('d')
 
 def histPrePostScale(pandasdf, dataPerPlot, dirDict):
     # Create a grid of histograms of columns in a pandas dataframe.
@@ -189,53 +208,6 @@ def histPrePostScale(pandasdf, dataPerPlot, dirDict):
 
         plt.savefig(os.path.join(outDirPath, f"scaleChain_{feat}.png"), format='png', bbox_inches='tight')
 
-        # for pTable, dataP in zip(pivotTables, dataPerPlot):
-        #     plt.figure(figsize=(3,3))
-        #     plt.hist(pTable[feat], bins=20, alpha=0.5)  # Adjust the number of bins as needed
-        #     plt.title(f"{dataP}: {feat}")
-        #     plt.show()
-
-    # gridSquare = int(np.ceil(np.sqrt(len(featList))))
-    # gridSquare = 2
-
-    # # Create a figure and axes for the grid
-    # fig, axes = plt.subplots(gridSquare, gridSquare, figsize=(gridSquare*2, gridSquare*2))
-
-    # # Iterate over each plot position in the grid
-    # for i in range(gridSquare):
-    #     for j in range(gridSquare):
-    #         # Get the corresponding dataframe index
-    #         feat_index = i * gridSquare + j
-            
-    #         # Get the column name for the current plot
-    #         column_name = featList[feat_index]
-
-    #         dataPerPlot
-            
-    #         # Get the data for the current plot
-    #         for pTable, dataT in zip(pivotTables, dataPerPlot):
-    #             data = np.array(pTable[column_name])
-                
-    #             axes[i, j].hist(tmpVar, bins=20, alpha=0.5, label=dataPerPlot)  # Adjust the number of bins as needed
-            
-    #         # Set the title for the current plot
-    #         axes[i, j].set_title(column_name)
-            
-    #         # Optional: Adjust the plot settings as desired
-    #         # axes[i, j].set_xlabel('X label')
-    #         # axes[i, j].set_ylabel('Y label')
-    #         # axes[i, j].grid(True)
-    #         # ... (other customization options)
-            
-    # # Optional: Adjust the layout and spacing
-    # plt.tight_layout()
-
-    # # Show the plot
-    # plt.show()
-
-
-    print('d')
-
 def distance_matrix(lightsheet_data, classifyDict, dirDict):
     import matplotlib.patheffects as PathEffects
     import numpy as np
@@ -276,9 +248,9 @@ def correlation_plot(lightsheet_data, classifyDict, dirDict):
     # Create an index for sorting the brain Areas. List below is for custom ordering.
     # brainAreaList = lightsheet_data['Brain_Area'].unique().tolist()
     brainAreaList= ['Olfactory', 'Cortex', 'Hippo', 'StriatumPallidum', 'Thalamus', 'Hypothalamus', 'MidHindMedulla', 'Cerebellum']
-    brainAreaListPlot= ['Olfactory', 'Cortex', 'Hippo', 'Stri+Pall', 'Thalamus', 'Hypothalamus', 'Mid Hind Medulla', 'Cerebellum']
     brainAreaColor =     ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628','#984ea3','#999999', '#e41a1c'] #, '#dede00'
-    brainAreaPlotDict = dict(zip(brainAreaList, brainAreaListPlot))
+    brainAreaPlotDict = hf.create_brainArea_dict('short')
+    
     brainAreaColorDict = dict(zip(brainAreaList, brainAreaColor))
 
     regionArea = hf.create_region_to_area_dict(lightsheet_data, classifyDict)
@@ -418,6 +390,10 @@ def data_heatmap(lightsheet_data, dataFeature, dataValues, dirDict):
         xticklabels = df_Tilted.index.values.tolist()
         xticklabels = [x[0:-1] for x in xticklabels]
 
+        # Correct DMT Label to 5-MeO DMT
+        xticklabels = ['5-MeO-DMT' if item == 'DMT' else item for item in xticklabels]
+        xticklabels = ['6-F-DET' if item == '6FDET' else item for item in xticklabels]
+
         # Convert to x axis labels
         x_labels = ['' for _ in range(matrix.shape[1])]
         result = hf.find_middle_occurrences(xticklabels)
@@ -466,8 +442,13 @@ def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
     matrix = df_Tilted.values
 
     xticklabels = df_Tilted.columns.values.tolist()
-    xticklabels = [x[0:-1] for x in xticklabels]
     yticklabels = df_Tilted.index.values.tolist()
+
+    xticklabels = [x[0:-1] for x in xticklabels]
+
+    # Correct DMT Label to 5-MeO DMT
+    xticklabels = ['5-MeO-DMT' if item == 'DMT' else item for item in xticklabels]
+    xticklabels = ['6-F-DET' if item == '6FDET' else item for item in xticklabels]
 
     # Convert to x axis labels
     x_labels = ['' for _ in range(matrix.shape[1])]
@@ -478,12 +459,13 @@ def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
     # Plotting variables
     scalefactor = 12
     cmap = 'rocket'
+    vmin, vmax = np.percentile(matrix.flatten(), [5, 99])
 
     # Plotting
     plt.figure(figsize=(scalefactor, len(yticklabels) * scalefactor * 0.0125))
     
     # cmap = sns.cubehelix_palette(start=2, rot=0, dark=0, light=.95, reverse=True, as_cmap=True)
-    sns.heatmap(matrix, cmap=cmap, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels)
+    sns.heatmap(matrix, cmap=cmap, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels, vmin=vmin, vmax=vmax)
 
     # Add in vertical lines breaking up sample types
     _, line_break_ind = np.unique(xticklabels, return_index=True)
@@ -639,60 +621,6 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     plt.savefig(dirDict['classifyDir'] + fullTitleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
-def dim_red_plot(df, dataFeature, dataValue, dimRed, dirDict):
-    from sklearn.decomposition import PCA
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-    from sklearn.preprocessing import LabelEncoder
-    from itertools import product
-    from sklearn.preprocessing import FunctionTransformer, RobustScaler, normalize
-    from sklearn.pipeline import make_pipeline, Pipeline
-
-    df_Tilted = df.pivot(index='dataset', columns=dataFeature, values=dataValue)
-
-    plt.figure(figsize=(30, 15))  # Adjust the figure size as needed
-    sns.heatmap(df_Tilted, cmap='rocket')
-    plt.show()
-
-    match dimRed:
-        case 'PCA':
-            pca = make_pipeline(RobustScaler(), PCA(n_components=3))
-            principal_components = pca.fit_transform(df_Tilted)
-            df_trans = pd.DataFrame(data=principal_components, columns=['PC{}'.format(i) for i in range(1, principal_components.shape[1] + 1)])
-        case 'LDA':
-            lda = make_pipeline(RobustScaler(), LinearDiscriminantAnalysis())
-            le = LabelEncoder()
-            X = df_Tilted.values
-            y = [x[:-1] for x in df_Tilted.index]
-            y_encoded = le.fit_transform(y)
-
-            lda_components = lda.fit_transform(X, y_encoded)
-            df_trans = pd.DataFrame(data=lda_components, columns=['LD{}'.format(i) for i in range(1, lda_components.shape[1] + 1)])
-
-    plt.figure(figsize=(30, 15))  # Adjust the figure size as needed
-    sns.heatmap(df_trans, cmap='rocket')
-    plt.show()
-
-    df_trans['drug'] = [x[:-1] for x in df_Tilted.index]
-    pcList = list(df_trans.columns[0:3])
-    combinations = list(product(pcList, pcList))
-    sorted_combinations = [tuple(sorted(pair)) for pair in combinations]
-    filtered_list = [pair for pair in set(sorted_combinations) if pair[0] != pair[1]]
-
-    n_row = int(np.ceil(len(filtered_list)/2))
-    fig, axes = plt.subplots(n_row, 2, figsize=(12, 3*len(filtered_list)))
-
-    # Iterate through the axes and plot the scatterplots
-    for i, (ax, elements) in enumerate(zip(axes.reshape(-1), filtered_list)):
-        # curr_ax = ax[np.mod(i,2)]
-        curr_ax = ax
-        sns.scatterplot(data=df_trans, x=elements[0], y=elements[1], hue='drug', ax=curr_ax, palette='Set1')
-        curr_ax.set_xlabel(elements[0])
-        curr_ax.set_ylabel(elements[1])
-        # plt.legend()
-
-    plt.tight_layout()
-    plt.show()
-
 ### Classification based plots
 def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titleStr, dirDict):
 
@@ -771,7 +699,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, dirDict):
 
     plt.show()
 
-def plotSHAPSummary(X_train_trans_list, shap_values_list, n_classes, n_splits, dirDict):
+def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, n_splits, dirDict):
 
     X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
     shap_values_nonmean = []
@@ -782,7 +710,23 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, n_classes, n_splits, d
         test_count = shap_values_list[0][0].shape[0]
         for shap_x_df in shap_values_list:
             shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
-    
+
+    # Do an example force plot
+    cvSplit = 5
+
+    # Generate an array of true labels
+    labelDict = {value: key for key, value in numYDict.items()}
+    y_idx = np.argmax(y_real[cvSplit], axis=1)
+    y_labels = [labelDict[x] for x in y_idx]
+
+    for testPoint in range(0,4):
+        featCount = shap_values_list[cvSplit].shape[1]
+        shapVals = np.round(shap_values_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
+        testVals = np.round(X_train_trans_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
+        featNames = list(shap_values_list[cvSplit].columns[1:featCount])
+        shap.plots.force(baseline_val[cvSplit], shap_values=shapVals, features=testVals, feature_names=featNames, out_names=None, link='identity', plot_cmap='RdBu', matplotlib=True, show = False)
+        plt.title(f'Test Sample of {y_labels[testPoint]}', y=1.5, fontdict={'fontsize': 20})
+        plt.show()
 
     # Plot the SHAP values for each class
     for shap_vals in shap_values_nonmean:
@@ -803,6 +747,8 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, n_classes, n_splits, d
         plt.title('SHAP Values, Test data', fontdict={'fontsize': 20})
         plt.savefig(join(dirDict['outDir_model'], 'SHAP_summary.png'), bbox_inches='tight')
         plt.show()
+
+
 
 def plot_feature_scores(clf, featureNames):
     support_ = clf['featureSel'].get_support()
