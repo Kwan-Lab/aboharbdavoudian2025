@@ -21,7 +21,7 @@ def loadLightSheetData(dirDict, switchDict):
 
     intFile = dirDict['tempDir'] + 'lightSheet_all.pkl'
 
-    if 1: #not os.path.exists(intFile):
+    if not os.path.exists(intFile):
 
         ############## Batch 1 ##############
         # Merging first Batch of Light sheet data
@@ -343,6 +343,12 @@ def loadLightSheetData(dirDict, switchDict):
         # Drop 'density_(cells/mm^3)'
         lightsheet_data.drop(['density_(cells/mm^3)'], axis=1, inplace=True)
 
+        # Add a normalized version of counts for later classification
+        lightsheet_data.loc[:, 'count_norm'] = lightsheet_data.loc[:, 'count']/lightsheet_data.loc[:, 'total_cells']
+        lightsheet_data.loc[:, 'count_norm'] = lightsheet_data.loc[:, 'count_norm'] * int(np.floor(lightsheet_data.loc[:, 'total_cells'].mean()))
+        lightsheet_data.loc[:, 'density_norm'] = lightsheet_data.loc[:, 'count_norm']/lightsheet_data.loc[:, 'volume_(mm^3)']
+
+        lightsheet_data = lightsheet_data.fillna(0)
 
         if switchDict['debugOutputs']:
             debug_ROI = 'Dorsal Raphe' # Replaced switchDict['debug_ROI']

@@ -218,19 +218,21 @@ def create_drugClass_dict(classifyDict):
         conv_dict['5-MeO-DMT'] = 'Ag_5HT2A'
         conv_dict['MDMA'] = 'Entactogen'
     if classifyDict['label'] == 'class_KetPsi':
-        # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
         conv_dict['PSI'] = 'Psilocybin'
         conv_dict['KET'] = 'Ketamine'
+    if classifyDict['label'] == 'class_PsiDMT':
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['DMT'] = '5-MeO-DMT'
+        conv_dict['5-MeO-DMT'] = '5-MeO-DMT'
     if classifyDict['label'] == 'class_PsiSSRI':
-        # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
         conv_dict['PSI'] = 'Psilocybin'
         conv_dict['A-SSRI'] = 'Acute SSRI'
     if classifyDict['label'] == 'class_5HTR':
         # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
-        conv_dict['PSI'] = 'H_Trypt'
+        conv_dict['PSI'] = 'Halluc Trypt'
         conv_dict['DMT'] = 'H_Trypt'
         conv_dict['5-MeO-DMT'] = 'H_Trypt'
-        conv_dict['6FDET'] = 'NH_Trypt'
+        conv_dict['6FDET'] = 'Non Halluc Trypt'
     if classifyDict['label'] == 'class_DT':
         # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
         conv_dict['DMT'] = '5-MeO-DMT'

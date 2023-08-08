@@ -6,6 +6,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.patches as patches
+import matplotlib.ticker as tkr
 import helperFunctions as hf
 import scipy.stats as stats
 import shap
@@ -23,7 +24,7 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     sns.despine()
 
     markers = {'f': 'v', 'm': '^'}
-    plt.figure(figsize=(15, 5))
+    plt.figure(figsize=(12, 3.5))
     order = drugList
 
     # if logSwitch == True:
@@ -52,11 +53,9 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     ax.spines['bottom'].set_linewidth(0.5)
     ax.xaxis.set_tick_params(length=20, width=0.5)
     ax.yaxis.set_tick_params(length=20, width=0.5)
-    ax.set_xlabel('Drug', fontdict={'fontsize':25})
-    ax.set_ylabel('Total Cells (Count)', fontdict={'fontsize':25})
-    ax.set_xticklabels(ax.get_xticklabels(), fontsize=20)
-
-    # 
+    ax.set_xlabel('Drug', fontdict={'fontsize':20})
+    ax.set_ylabel('Total Cells (Count)', fontdict={'fontsize':20})
+    ax.set_xticklabels(ax.get_xticklabels(), fontsize=15)
 
     # if logSwitch == True:
     #     ax.set_ylabel('log(total cells)')
@@ -428,6 +427,8 @@ def data_heatmap(lightsheet_data, dataFeature, dataValues, dirDict):
 
 def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
 
+    colorMapCap = False
+
     # Pivot data to represent samples, features, and data correctly for a heatmap.
     df_Tilted = lightsheet_data.pivot(index=dataFeature, columns='dataset', values=dataValues)
 
@@ -459,13 +460,19 @@ def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
     # Plotting variables
     scalefactor = 12
     cmap = 'rocket'
-    vmin, vmax = np.percentile(matrix.flatten(), [5, 99])
 
     # Plotting
     plt.figure(figsize=(scalefactor, len(yticklabels) * scalefactor * 0.0125))
-    
-    # cmap = sns.cubehelix_palette(start=2, rot=0, dark=0, light=.95, reverse=True, as_cmap=True)
-    sns.heatmap(matrix, cmap=cmap, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels, vmin=vmin, vmax=vmax)
+
+    formatter = tkr.ScalarFormatter(useMathText=True)
+    formatter.set_scientific(True)
+    formatter.set_powerlimits((-2, 2))
+
+    if colorMapCap:
+        vmin, vmax = np.percentile(matrix.flatten(), [5, 99])
+        sns.heatmap(matrix, cmap=cmap, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels, vmin=vmin, vmax=vmax, cbar_kws={"format": formatter})
+    else:
+        sns.heatmap(matrix, cmap=cmap, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels, cbar_kws={"format": formatter})
 
     # Add in vertical lines breaking up sample types
     _, line_break_ind = np.unique(xticklabels, return_index=True)

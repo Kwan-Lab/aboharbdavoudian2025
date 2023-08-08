@@ -201,7 +201,7 @@ def drug_stats_and_changes(databaseFrame, drugList):
     return drugPairDB, drugStatsAll, drugPairDataList, drugPairDataNames
 
 
-def brainRegionTrend(lightsheetDBAll, dataColumn, drugA, drugB, ylimMax):
+def brainRegionTrend(lightsheetDBAll, dataColumn, drugA, drugB, ylimMax=0):
     # A function which generates bar plots for each 'clusteColumn' where data comes from 'dataColumn'.
     # dataColumn = 'count' #'density_(cells/mm^3)', 'cell_density'
     # drugA = 'PSI'
@@ -224,10 +224,8 @@ def brainRegionTrend(lightsheetDBAll, dataColumn, drugA, drugB, ylimMax):
     lightsheetDB_Diff[drugB] = lightsheetDB_aPSI[dataColumn]
 
     # Calculate differences per region
-    lightsheetDB_Diff['drug_diff'] = (
-        lightsheetDB_Diff[drugA] - lightsheetDB_Diff[drugB]) / lightsheetDB_Diff[drugB] * 100
-    lightsheetDB_Diff = lightsheetDB_Diff.sort_values(
-        'drug_diff', ascending=False)
+    lightsheetDB_Diff['drug_diff'] = (lightsheetDB_Diff[drugA] - lightsheetDB_Diff[drugB]) / lightsheetDB_Diff[drugB] * 100
+    lightsheetDB_Diff = lightsheetDB_Diff.sort_values('drug_diff', ascending=False)
     brainAreaList = list(lightsheetDB_Diff.Brain_Area.unique())
 
     # Histogram time
@@ -239,6 +237,8 @@ def brainRegionTrend(lightsheetDBAll, dataColumn, drugA, drugB, ylimMax):
 
     plt.xlabel('Region Index')
     plt.ylabel('Percent Difference (X-Y/Y * 100))')
-    plt.ylim([-100, ylimMax])
+    if ylimMax != 0:
+        plt.ylim([-100, ylimMax])
+
     plt.title(drugA + ' vs ' + drugB + ' ' + dataColumn)
     plt.show()

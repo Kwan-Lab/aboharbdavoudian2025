@@ -6,3 +6,9 @@ Atlas/allGeneStructureInfo_allgenes_summary_struct.csv
 **/__pycache__/
 *.pkl
 *.pyc
+testScripts/br_5-HT2A Agonist vs Entactogen.csv
+testScripts/br_Acute SSRI vs Chronic SSRI.csv
+testScripts/br_Hallucinogenic vs Non-Hallucinogenic Tryptamine.csv
+testScripts/br_Psilocybin vs 5-MeO-DMT.csv
+testScripts/br_Psychedelic vs NMDA Ag.csv
+testScripts/br_Rapid Onset vs Delayed Onset Anti-Depressant.csv
