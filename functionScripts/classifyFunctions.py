@@ -327,11 +327,17 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             ## Plotting code for the fit model and compiled data
 
             # SHAP - Join all the shap_values collected across splits
-            # pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, cvFxn.n_splits, dirDict)
+            pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, cvFxn.n_splits, dirDict)
 
-            # PR Curve
+            # PR Curve - save the results in a dict for compiling.
             if fit != 'Shuffle':
-                pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, dirDict)
+                auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, dirDict)
+                dictPath = os.path.join(dirDict['outDir_model'], 'scoreDict.pkl')
+                score_dict = dict()
+                score_dict['auc'] = auc_dict
+                score_dict['scores'] = scores
+                with open(dictPath, 'wb') as f:
+                    pkl.dump(score_dict, f)
 
             # Confusion Matrix
             pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
@@ -565,13 +571,17 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
 
     X = np.array(ls_data_agg.values)
     y = np.array([x[0:-1] for x in np.array(ls_data_agg.index)])
-    y = ['5-MeO-DMT' if item == 'DMT' else item for item in y]
+
+    # Since these labels come from the dataset, not the drug, they need to be converted to the appropriate label.
+    y = ['6-F-DET' if item == '6FDET' else item for item in y]
+    y = ['5MEO' if item == 'DMT' else item for item in y]
     y = np.array(y)
 
     # If the data labels are not for 'drug', convert to appropriate labels
     if classifyDict['label'] != 'drug':
         y = np.array([conv_dict[x] for x in y])
-        
+
+    # Typical numbering scheme for labels    
     y_Int_dict = dict(zip(np.unique(y), range(0, len(np.unique(y)))))
     
     featureNames = np.array(ls_data_agg.columns.tolist())
@@ -620,7 +630,8 @@ class BorutaFeatureSelector(BaseEstimator, TransformerMixin):
     
     def fit(self, X, y=None):
 
-        boruta = BorutaPy(estimator = RandomForestClassifier(), n_estimators = 'auto', max_iter = 100)
+        boruta = BorutaPy(estimator = RandomForestClassifier(), n_estimators = 'auto', max_iter = 100, perc=95, verbose=0)
+        # Perc - percentile for real feature importance compared to distribution of shadow features. 100 believed to be too strict.
         
         ### fit Boruta (it accepts np.array, not pd.DataFrame)
         boruta.fit(np.array(X), np.array(y))

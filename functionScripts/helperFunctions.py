@@ -211,59 +211,60 @@ def create_drugClass_dict(classifyDict):
     # Create a dictionary to convert drug names to drug classes
     conv_dict = dict()
 
+    # Drug Class vs Drug Class
     if classifyDict['label'] == 'class_5HT2A':
-        # 5-HT2A agonist psychedelics (Psilo, 5-MeO-DMT) vs entactogen (MDMA)
+        # 5-HT2A agonist psychedelics (Psilo, 5MEO) vs entactogen (MDMA)
         conv_dict['PSI'] = 'Ag_5HT2A'
-        conv_dict['DMT'] = 'Ag_5HT2A'
-        conv_dict['5-MeO-DMT'] = 'Ag_5HT2A'
+        conv_dict['5MEO'] = 'Ag_5HT2A'
         conv_dict['MDMA'] = 'Entactogen'
-    if classifyDict['label'] == 'class_KetPsi':
-        conv_dict['PSI'] = 'Psilocybin'
-        conv_dict['KET'] = 'Ketamine'
-    if classifyDict['label'] == 'class_PsiDMT':
-        conv_dict['PSI'] = 'Psilocybin'
-        conv_dict['DMT'] = '5-MeO-DMT'
-        conv_dict['5-MeO-DMT'] = '5-MeO-DMT'
-    if classifyDict['label'] == 'class_PsiSSRI':
-        conv_dict['PSI'] = 'Psilocybin'
-        conv_dict['A-SSRI'] = 'Acute SSRI'
     if classifyDict['label'] == 'class_5HTR':
-        # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
-        conv_dict['PSI'] = 'Halluc Trypt'
-        conv_dict['DMT'] = 'H_Trypt'
-        conv_dict['5-MeO-DMT'] = 'H_Trypt'
-        conv_dict['6FDET'] = 'Non Halluc Trypt'
+        # Typtamines (Psilo, 5MEO) vs non-Hallucinogenic trypamines (6-F-DET)
+        conv_dict['PSI'] = 'H_Trypt'
+        conv_dict['5MEO'] = 'H_Trypt'
+        conv_dict['6-F-DET'] = 'Non Halluc Trypt'
     if classifyDict['label'] == 'class_DT':
-        # Typtamines (Psilo, 5-MeO-DMT) vs non-Hallucinogenic trypamines (6-F-DET)
-        conv_dict['DMT'] = '5-MeO-DMT'
-        conv_dict['5-MeO-DMT'] = '5-MeO-DMT'
-        conv_dict['6FDET'] = '6-Fluoro-DET'
-    if classifyDict['label'] == 'class_Trypt':
-        # 5-HT2A favored (Psilo) vs 5-HT1A favored (5-MeO-DMT)
-        conv_dict['PSI'] = 'Psilocybin'
-        conv_dict['DMT'] = '5-MeO-DMT'
-        conv_dict['5-MeO-DMT'] = '5-MeO-DMT'
+        # Typtamines (Psilo, 5MEO) vs non-Hallucinogenic trypamines (6-F-DET)
+        conv_dict['5MEO'] = '5MEO'
+        conv_dict['6-F-DET'] = '6-Fluoro-DET'
     if classifyDict['label'] == 'class_Speed':
-        # Fast vs Slow (Psi, 5-MeO-DMT, Ketamine vs Acute SSRI)
+        # Fast vs Slow (Psi, 5MEO, Ketamine vs Acute SSRI)
         conv_dict['PSI'] = 'Fast Acting'
-        conv_dict['DMT'] = 'Fast Acting'
-        conv_dict['5-MeO-DMT'] = 'Fast Acting'
+        conv_dict['5MEO'] = 'Fast Acting'
         conv_dict['KET'] = 'Fast Acting'
         conv_dict['A-SSRI'] = 'Slow Acting'
         conv_dict['C-SSRI'] = 'Slow Acting'
     if classifyDict['label'] == 'class_Psy_NMDA':
-        # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5-MeO-DMT vs Ketamine)
+        # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5MEO vs Ketamine)
         conv_dict['PSI'] = 'Ag_5HT2A'
-        conv_dict['DMT'] = 'Ag_5HT2A'
-        conv_dict['5-MeO-DMT'] = 'Ag_5HT2A'
-        conv_dict['KET'] = 'Ag_NMDA-R'   
-    if classifyDict['label'] == 'class_crash':
-        # Drugs with 'low' afterwards vs those that dont (Ketamine, MDMA vs Psi, 5-MeO-DMT)
-        print('d')
+        conv_dict['5MEO'] = 'Ag_5HT2A'
+        conv_dict['KET'] = 'Ag_NMDA-R'
+
+    # Drug vs Drug
+    if classifyDict['label'] == 'class_PsiKet':
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['KET'] = 'Ketamine'
+    if classifyDict['label'] == 'class_PsiDMT':
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['5MEO'] = '5MEO'
+    if classifyDict['label'] == 'class_PsiMDMA':
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['MDMA'] = 'MDMA'
+    if classifyDict['label'] == 'class_Trypt':
+        # 5-HT2A favored (Psilo) vs 5-HT1A favored (5MEO)
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['5MEO'] = '5MEO'
+    if classifyDict['label'] == 'class_PsiSSRI':
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['A-SSRI'] = 'Acute SSRI'
     if classifyDict['label'] == 'class_SSRI':
-        # Acute vs Chronic SSRIs
         conv_dict['A-SSRI'] = 'Acute SSRI'
         conv_dict['C-SSRI'] = 'Chronic SSRI'
+    if classifyDict['label'] == 'class_PsiDF':
+        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['6-F-DET'] = '6-Fluoro-DET'
+
+    if not bool(conv_dict) and classifyDict['label'] != 'drug':
+        KeyError('No dictionary found for this classification type. Check the label in classify dict is in hf.create_drugClass_dict')
 
     return conv_dict
 

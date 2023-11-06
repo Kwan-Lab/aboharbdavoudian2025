@@ -1,17 +1,12 @@
 # Retrieve featureDicts
 import glob
-import pandas as pd
 import pickle as pkl
 import numpy as np
-import sys
 import os
-import matplotlib.pyplot as plt
-import seaborn as sns
-from itertools import compress
 from brainrender import Scene
 from vedo import embedWindow, Plotter, show  # <- this will be used to render an embedded scene 
 from itkwidgets import view
-import numpy as np
+import pandas as pd
 import re
 from brainrender.video import VideoMaker
 from brainrender.camera import set_camera
@@ -69,6 +64,7 @@ for csv_path in matching_files:
     if outMode == 'still':
     # Set camera. Adjust the camera as you'd like, hit 'C' and the window terminal is populated with new coordinates
         popup_scene.render(interactive=False, camera=cameraKet, zoom=1.5)
+        print('done')
 
     elif outMode == 'vid':
         

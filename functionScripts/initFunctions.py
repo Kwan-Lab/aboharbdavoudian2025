@@ -303,9 +303,13 @@ def loadLightSheetData(dirDict, switchDict):
         # Fill Nans
         lightsheet_data = lightsheet_data.fillna(0)
 
+        # Convert some drug names to desired names in the dataset
+        lightsheet_data['drug'] = lightsheet_data['drug'].replace('DMT', '5MEO')
+        lightsheet_data['drug'] = lightsheet_data['drug'].replace('6FDET', '6-F-DET')
+
         ############## Merging Additional Atlas Data ##############
 
-        # get allen brain atlases
+        # get Allen brain atlases
         ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'ABA_CCF.csv')
         ABA_tree = ABA_tree.rename(columns={'structure ID': 'id', '"Summary Structure" Level for Analyses': 'summary_struct'})
         ABA_tree = ABA_tree.drop(columns=['order', 'parent_id', 'depth in tree', 'structure_id_path', 'total_voxel_counts (10 um)',
@@ -345,7 +349,6 @@ def loadLightSheetData(dirDict, switchDict):
 
         # Add a normalized version of counts for later classification
         lightsheet_data.loc[:, 'count_norm'] = lightsheet_data.loc[:, 'count']/lightsheet_data.loc[:, 'total_cells']
-        lightsheet_data.loc[:, 'count_norm'] = lightsheet_data.loc[:, 'count_norm'] * int(np.floor(lightsheet_data.loc[:, 'total_cells'].mean()))
         lightsheet_data.loc[:, 'density_norm'] = lightsheet_data.loc[:, 'count_norm']/lightsheet_data.loc[:, 'volume_(mm^3)']
 
         lightsheet_data = lightsheet_data.fillna(0)
