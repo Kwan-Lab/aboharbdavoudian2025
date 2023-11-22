@@ -9,9 +9,11 @@ import matplotlib.patches as patches
 import matplotlib.ticker as tkr
 import helperFunctions as hf
 import scipy.stats as stats
-import shap
-import os
-import matplotlib.gridspec as gridspec
+import os, sys
+from collections import namedtuple
+
+sys.path.append('dependencies')
+
 
 def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     # first calculate total cells for drug/sex/etc # Needs fixing, this group is gone. Use a sum or something.
@@ -21,12 +23,24 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     drugList = list(pandasdf.drug.unique())
 
     # plotting
-    sns.set(font_scale=2)
+    # sns.set(font_scale=3)
     sns.set_style('ticks')
     sns.despine()
 
+    # Shift the color codes to RGB and add alpha
+    colorHex = ['#228833', '#AA3377','#4477AA', '#66CCEE', '#CCBB44', '#CC3311', '#EE6677', '#BBBBBB']
+    alphaVal = 0.1
+    colorRGB = []
+    for color in colorHex:
+        original_color_rgba = sns.color_palette([color])[0]
+        colorRGB.append((*original_color_rgba[:3], alphaVal)) # Adjust the alpha value (0.5 for 50% opacity)
+
+    # cset = namedtuple('Bcset',
+    #         'green purple blue cyan yellow darkRed red grey')
+    # colorPal = cset(colorRGB)
+
     markers = {'f': 'v', 'm': '^'}
-    plt.figure(figsize=(10, 3.5))
+    plt.figure(figsize=(9.5, 3.5))
     order = drugList
 
     # if logSwitch == True:
@@ -34,19 +48,11 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     #     yVar = 'log_total_cells'
     # else:
     yVar = 'total_cells'
-    colorPal = sns.color_palette(n_colors=len(drugList))
+    # colorPal = sns.color_palette(n_colors=len(drugList))
 
-    ax = sns.boxplot(x="drug", y=yVar, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=1, saturation=1, hue='drug', palette=colorPal)
-    sns.scatterplot(x="drug", y=yVar, data=totalCellCountData, hue='drug', linewidth=1, style='sex', markers=True, s=100, palette=colorPal, ax=ax, edgecolor='black')
+    ax = sns.boxplot(x="drug", y=yVar, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.5, hue='drug', palette=tuple(colorRGB))
 
-    # sns.stripplot(x="drug", y="total_cells", data=lightsheet_whole_brain)
-    # ax = sns.swarmplot(x="drug", y="total_cells", data=lightsheet_whole_brain, hue='drug', linewidth=0, palette=sns.color_palette(n_colors=len(drugList)), zorder=.5)
-
-    # lower opacity
-    # for patch in ax.artists:
-    #     r, g, b, a = patch.get_facecolor()
-    #     patch.set_alpha(1)
-    #     # patch.set_facecolor((r, g, b, 1))
+    scatter = sns.scatterplot(x="drug", y=yVar, data=totalCellCountData, hue='drug', linewidth=0, style='sex', markers=True, s=50, palette=colorHex, ax=ax, edgecolor='black')
 
     # remove legend
     plt.legend([], [], frameon=False)
@@ -54,9 +60,9 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     # cleanup
     ax.spines['left'].set_linewidth(0.5)
     ax.spines['bottom'].set_linewidth(0.5)
-    ax.xaxis.set_tick_params(length=20, width=0.5)
-    ax.yaxis.set_tick_params(length=20, width=0.5)
-    ax.set_xlabel('Drug', fontdict={'fontsize':20})
+    ax.xaxis.set_tick_params(length=2, width=1)
+    ax.yaxis.set_tick_params(length=2, width=1)
+    ax.set_xlabel('Drug', fontdict={'fontsize':15})
     ax.set_ylabel('Total Cells (Count)', fontdict={'fontsize':20})
     ax.set_xticklabels(ax.get_xticklabels(), fontsize=15)
 
@@ -65,7 +71,7 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     # else:
     ax.set_yscale('log')
 
-    ax.set(ylim=(5e5, 1e7))
+    ax.set(ylim=(8e5, 1e7))
     sns.despine()
 
     plt.savefig(dirDict['outDir'] + 'totalCells.' + outputFormat,  format=outputFormat, bbox_inches='tight')
@@ -77,6 +83,9 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import RobustScaler
     from itertools import combinations
+
+    colorHex = ['#228833', '#AA3377','#4477AA', '#66CCEE', '#CCBB44', '#CC3311', '#EE6677', '#BBBBBB']
+
 
     # If some filtering is desired, do so here
     if classifyDict['featurefilt']:
@@ -105,6 +114,8 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     y = ['5MEO' if item == 'DMT' else item for item in y]
     y = ['6-F-DET' if item == '6FDET' else item for item in y]
 
+    customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
+    
     # Visualize the scaled features
     if dimRedMeth == 'PCA':
         pca = PCA(n_components=n_comp)
@@ -120,9 +131,10 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     colNames = [f"{compName}{x}" for x in range(1, n_comp+1)]
 
     dimRedData = pd.DataFrame(data=X_scaled_dimRed, index=df_Tilted.index, columns=colNames)
-    dimRedData.loc[:, 'drug'] = y
+    dimRedData.loc[:, 'drug'] = pd.Categorical(y, categories=customOrder, ordered=True)
     dimRedDrugMean = dimRedData.groupby(by='drug').mean()
 
+    # Means aren't sorted like the centers. Problems here are clear when the mean dot isn't the same color.
     resortIdx = [1, 2, 3, 0, 4, 5, 6, 7]
     dimRedDrugMean = dimRedDrugMean.iloc[resortIdx]
 
@@ -138,8 +150,8 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
         col2 = colNames[comp_pair[1]]
 
         plt.figure(figsize=(6, 6))  # Adjust the figure size as needed
-        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData, s=50, alpha=0.75)
-        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean, s=100, legend=False, edgecolor='black')
+        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData, s=50, alpha=0.75, palette=colorHex)
+        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean, s=100, legend=False, edgecolor='black', palette=colorHex)
         plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
 
         # Customize the plot
@@ -610,7 +622,6 @@ def data_heatmap_block(lightsheet_data, dataFeature, dataValues, dirDict):
         plt.savefig(dirDict['classifyDir'] + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
         plt.show()
 
-
 def create_heatmaps_allC(matrix, dim_to_loop=0, titleStatic='Heatmap', titleLoop=[], dirDict=[]):
     import seaborn as sns
     from mpl_toolkits.axes_grid1 import ImageGrid
@@ -765,10 +776,10 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     plt.title(fullTitleStr, fontsize=figSizeMat[0]*1.5)
 
     # Save the plot
-    plt.savefig(join(dirDict['outDir_model'], f"{titleStr}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
+    plt.savefig(join(dirDict['outDir_model'], f"ConfusionMatrix_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
     plt.show()
 
-def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, dirDict):
+def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     # n_classes = int, number of classes
     # y_real, y_prob = test set labels and probabilities assigned to test set samples.
     # y_real, y_prob are in a [n_splits, n_samples, n_classes] format
@@ -791,6 +802,9 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, dirDict):
 
     auc_dict = dict()
 
+    colorHex = ['#228833', '#AA3377','#4477AA', '#66CCEE', '#CCBB44', '#CC3311', '#EE6677', '#BBBBBB']
+
+
     for i in np.arange(n_classes):
         label_per_split = y_real[:, :, i]
         prob_per_split = y_prob[:, :, i]
@@ -806,7 +820,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, dirDict):
         auc_val = auc(recall, precision)
         lab = f'{labelDict[i]}=%.2f' % (auc_val)
         auc_dict[labelDict[i]] = np.round(auc_val, 2)
-        axes.step(recall, precision, label=lab, lw=2)
+        axes.step(recall, precision, label=lab, color=colorHex[i], lw=2)
 
     # Create PR curve
     precision, recall, _ = precision_recall_curve(np.concatenate(y_real_all), np.concatenate(y_prob_all))
@@ -821,7 +835,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, dirDict):
     axes.set_ylabel('Precision')
     axes.legend(loc='lower left', fontsize='small')
     axes.set_title(daObjstr + ', PR Curves')
-    plt.savefig(join(dirDict['outDir_model'], f"PRcurve.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
+    plt.savefig(join(dirDict['outDir_model'], f"PRcurve_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
 
     plt.show()
 

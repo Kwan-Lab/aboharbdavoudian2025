@@ -355,7 +355,7 @@ def loadLightSheetData(dirDict, switchDict):
 
         if switchDict['debugOutputs']:
             debug_ROI = 'Dorsal Raphe' # Replaced switchDict['debug_ROI']
-            debugReport(lightsheet_data, 'lightsheet_data',dirDict['debug_outPath'], 'Region_Name', debug_ROI)
+            debugReport(lightsheet_data, 'lightsheet_data', dirDict['debug_outPath'], 'Region_Name', debug_ROI)
 
         ############## Saving ##############
 

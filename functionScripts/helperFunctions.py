@@ -443,7 +443,7 @@ def modelStrPathGen(clf, dirDict, n_splits, fit):
 
     dirDict['tempDir_model'] = tempModelStr
     dirDict['outDir_model'] = outModelStr
-    dirDict['tempDir_data'] = os.path.join(tempModelStr, f"{fit}_outdata.pkl")
+    dirDict['tempDir_outdata'] = os.path.join(tempModelStr, f"{fit}_outdata.pkl")
 
     return modelStr, figSaveStr, dirDict
 
@@ -492,6 +492,7 @@ def save_string_dict():
 
     saveStringDict = dict()
     saveStringDict['label=class_'] = ''
+    saveStringDict['label=drug'] = 'Drug'
     saveStringDict['featurefilt=True-filtType=min'] = 'filtMin'
     saveStringDict['featureAgg=True'] = 'featAgg'
     saveStringDict['featureSel_linkage=average-featureSel_distance=correlation'] = 'avgCorrClus'
@@ -508,6 +509,7 @@ def save_string_dict():
     saveStringDict['LogisticRegression('] = 'LogReg('
     saveStringDict["multi_class='multinomial'"] = 'multinom'
     saveStringDict[", solver='saga'"] = ''
+    saveStringDict["\n                   "] = ''
 
     return saveStringDict
 
@@ -520,8 +522,11 @@ def featureCountReformat(selected_features_list, YtickLabs, dirDict):
         contrastTitle = [' vs '.join(YtickLabs)]
 
     # Report on which features make the cut.
-    regionList = np.concatenate(selected_features_list[0])
-    regionDict = dict(Counter(regionList))
+    if not selected_features_list[0]:
+        regionDict = []
+    else:
+        regionList = np.concatenate(selected_features_list[0])
+        regionDict = dict(Counter(regionList))
 
     saveObj = [contrastTitle, regionDict]
 

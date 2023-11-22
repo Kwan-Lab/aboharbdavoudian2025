@@ -63,7 +63,7 @@ for shuffle_switch, fName in zip(shuffleSet, shuffleSet_name):
             fig, ax = plt.subplots()
 
             # Plot the gradient matrix as a colored table
-            ax.imshow(gradient_matrix, aspect='auto')
+            ax.imshow(np.swapaxes(gradient_matrix, 0, 1), aspect='auto')
 
             # Remove x and y ticks
             ax.set_xticks([])

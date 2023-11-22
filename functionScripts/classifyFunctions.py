@@ -71,7 +71,7 @@ def bootstrap_fstat(pandasdf, classifyDict, dirDict):
     # Reformat the data into a format for sampling
     dirDict = hf.dataStrPathGen(classifyDict, dirDict)
 
-    X, y, featureNames, numYDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
+    X, y, featureNames, labelDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
 
     # Make a folder for images
     outDirPath = os.path.join(dirDict['outDir'], 'Fstat')
@@ -145,7 +145,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
     dirDict = hf.dataStrPathGen(classifyDict, dirDict)
 
     # Reformat the data into a format which can be used by the classifiers.
-    X, y, featureNames, numYDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
+    X, y, featureNames, labelDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
 
     # Use the classify dict to specify all the models to be tested.
     modelList, cvFxn, paramGrid = build_pipeline(classifyDict)
@@ -156,20 +156,19 @@ def classifySamples(pandasdf, classifyDict, dirDict):
     if classifyDict['shuffle']:
         fits = fits + ['Shuffle']
 
-    n_classes = len(np.unique(y))
-
     nestedCVSwitch=classifyDict['gridCV']
-    labelDict = numYDict
+
     YtickLabs = list(labelDict.keys())
+    n_classes = len(YtickLabs)
 
     for fit in fits:
         if fit == 'Shuffle':
             y = shuffle(y)
 
-        cvFxn.get_n_splits(X, y)
+        cvFxn.get_n_splits(X, y) 
 
         # Create a label binarizer
-        y_bin = preprocessing.LabelBinarizer().fit_transform(y)
+        y_bin = preprocessing.label_binarize(y, classes=YtickLabs)            
         
         # If the vector is already binary, expand it for formatting consistency.
         if y_bin.shape[1] == 1:
@@ -179,7 +178,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
 
             # Create a strings to represent the model
             modelStr, saveStr, dirDict = hf.modelStrPathGen(clf, dirDict, cvFxn.n_splits, fit)
-            saveFilePath = dirDict['tempDir_data']
+            saveFilePath = dirDict['tempDir_outdata']
 
             # Check if data is already there
             if classifyDict['saveLoadswitch'] & exists(saveFilePath):
@@ -275,7 +274,10 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                     x_test_predict = clf.predict(X_test)
 
                     # Extract the confusion matrix for the split
-                    conf_matrix = confusion_matrix(y_test, x_test_predict)
+                    if classifyDict['label'] == 'drug':
+                        conf_matrix = confusion_matrix(y_test, x_test_predict, labels=YtickLabs) #, labels=YtickLabs
+                    else:
+                        conf_matrix = confusion_matrix(y_test, x_test_predict)
 
                     # In cases where test set has more than 1 instance of a class, normalize reach row.
                     if np.max(np.sum(conf_matrix, axis=1)) != 1:
@@ -288,11 +290,19 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                     # Extract the score, along the diagonal.
                     scores.append(np.mean(np.diag(conf_matrix)))
 
-                    # Calculate probabilities for PR Curve
+                    # Calculate probabilities for PR Curve - Prior to storing, resort (clf class order can't be changed)
                     y_scores = clf.predict_proba(X_test)
 
+                    if not np.all(clf.classes_ == YtickLabs):
+                        original_list = YtickLabs
+                        target_list = clf.classes_
+                        mapping = {element: i for i, element in enumerate(target_list)}
+                        index = [mapping[element] for element in original_list]
+                        y_prob.append(y_scores[:, index])
+                    else:
+                        y_prob.append(y_scores)
+                        
                     y_real.append(y_bin_test)
-                    y_prob.append(y_scores)
 
                     if featureSelSwitch:
 
@@ -327,17 +337,17 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             ## Plotting code for the fit model and compiled data
 
             # SHAP - Join all the shap_values collected across splits
-            pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, cvFxn.n_splits, dirDict)
+            # pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, n_classes, cvFxn.n_splits, dirDict)
 
-            # PR Curve - save the results in a dict for compiling.
-            if fit != 'Shuffle':
-                auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, dirDict)
-                dictPath = os.path.join(dirDict['outDir_model'], 'scoreDict.pkl')
-                score_dict = dict()
-                score_dict['auc'] = auc_dict
-                score_dict['scores'] = scores
-                with open(dictPath, 'wb') as f:
-                    pkl.dump(score_dict, f)
+            # PR Curve - save the results in a dict for compiling into a bar plot.
+            # if fit != 'Shuffle':
+            auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, fit, dirDict)
+            dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
+            score_dict = dict()
+            score_dict['auc'] = auc_dict
+            score_dict['scores'] = scores
+            with open(dictPath, 'wb') as f:
+                pkl.dump(score_dict, f)
 
             # Confusion Matrix
             pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
@@ -349,8 +359,8 @@ def classifySamples(pandasdf, classifyDict, dirDict):
 
             hf.featureCountReformat(selected_features_list, YtickLabs, dirDict)
                 
-            # if fit != 'Shuffle' and len(numYDict) != 2:
-            #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, numYDict, 8, fit=fit)
+            # if fit != 'Shuffle' and len(labelDict) != 2:
+            #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, 8, fit=fit)
 
         # End of clf fitting and running.
 
@@ -567,6 +577,12 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
         sns.heatmap(corr_matrix, cmap='rocket', fmt='.2f', yticklabels=yticklabels, xticklabels=yticklabels, square=True)
         plt.show()
         
+    # ================== Sort the data for classification ==================
+    if classifyDict['label'] == 'drug':
+        datasetNames = ['PSI', 'KET', 'DMT', '6FDET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
+        new_list = [f'{item}{i}' for item in datasetNames for i in range(1, 9)]
+        ls_data_agg = ls_data_agg.reindex(new_list)
+
     # ================== Shape data for classification ==================
 
     X = np.array(ls_data_agg.values)
@@ -579,11 +595,18 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
 
     # If the data labels are not for 'drug', convert to appropriate labels
     if classifyDict['label'] != 'drug':
-        y = np.array([conv_dict[x] for x in y])
+        # Use the conv_dict to convert the labels, filter the data
+        y = np.array([conv_dict.get(item, np.nan) for item in y])
+        labels = np.unique(y)
+    else:
+        customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
+        y = pd.Categorical(y, categories=customOrder, ordered=True)
+        labels = y.unique()
 
-    # Typical numbering scheme for labels    
-    y_Int_dict = dict(zip(np.unique(y), range(0, len(np.unique(y)))))
-    
+    y_Int_dict = dict(zip(labels, range(0, len(labels))))
+    y = np.array(y)
+
+    # Create a list of the features
     featureNames = np.array(ls_data_agg.columns.tolist())
 
     return X, y, featureNames, y_Int_dict
