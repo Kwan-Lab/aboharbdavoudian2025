@@ -11,7 +11,6 @@ import re
 from brainrender.video import VideoMaker
 from brainrender.camera import set_camera
 
-
 # sys.path.append('../functionScripts/')
 # import helperFunctions as hf
 
@@ -23,6 +22,14 @@ cameraKet = {
     'clippingRange': (22937, 59660),
     'focalPoint': (5091, 3618, -6525),
     'distance': 39614,
+}
+
+cameraKet2 = {
+    'pos': (4984, -3620, 33782),
+    'viewup': (0, -1, 0),
+    'clippingRange': (26768, 57715),
+    'focalPoint': (5089, 3183, -6581),
+    'distance': 40932,
 }
 
 cameraKetVid = {
@@ -63,7 +70,7 @@ for csv_path in matching_files:
 
     if outMode == 'still':
     # Set camera. Adjust the camera as you'd like, hit 'C' and the window terminal is populated with new coordinates
-        popup_scene.render(interactive=False, camera=cameraKet, zoom=1.5)
+        popup_scene.render(interactive=False, camera=cameraKet2, zoom=1.5)
         print('done')
 
     elif outMode == 'vid':
@@ -75,4 +82,4 @@ for csv_path in matching_files:
         # this just rotates the scene
         vm.make_video(azimuth=1.5, duration=15, fps=15)
 
-    print('hold')
+    print('hold') # Drop a breakpoint here to inspect the scene

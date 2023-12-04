@@ -9,7 +9,7 @@ import matplotlib.patches as patches
 import matplotlib.ticker as tkr
 import helperFunctions as hf
 import scipy.stats as stats
-import os, sys
+import os, sys, shap
 from collections import namedtuple
 
 sys.path.append('dependencies')
@@ -854,21 +854,29 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, 
             shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
 
     # Do an example force plot
-    cvSplit = 2
 
     # Generate an array of true labels
     labelDict = {value: key for key, value in numYDict.items()}
-    y_idx = np.argmax(y_real[cvSplit], axis=1)
-    y_labels = [labelDict[x] for x in y_idx]
+
 
     if n_classes == 2:
-        for testPoint in range(0,4):
+        for testItr in range(0,20):
+            # Pick random cv split and test point
+            cvSplit = np.random.randint(0, n_splits-1)
+            y_idx = np.argmax(y_real[cvSplit], axis=1)
+            y_labels = [labelDict[x] for x in y_idx]
+            testPoint = np.random.randint(0, test_count-1)
+            idStr = f"CV{cvSplit}_Sample{testPoint}"
+            titleStr = f'Test Sample of {y_labels[testPoint]}, {idStr}'
+
+            # Extract and plot
             featCount = shap_values_list[cvSplit].shape[1]
             shapVals = np.round(shap_values_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
             testVals = np.round(X_train_trans_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
             featNames = list(shap_values_list[cvSplit].columns[1:featCount])
             shap.plots.force(baseline_val[cvSplit], shap_values=shapVals, features=testVals, feature_names=featNames, out_names=None, link='identity', plot_cmap='RdBu', matplotlib=True, show = False)
-            plt.title(f'Test Sample of {y_labels[testPoint]}', y=1.5, fontdict={'fontsize': 20})
+            plt.title(titleStr, y=1.5, fontdict={'fontsize': 20})
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_example_{idStr}.svg"), format='svg', bbox_inches='tight')
             plt.show()
 
     # Plot the SHAP values for each class
@@ -886,9 +894,9 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, 
 
         # Adjust the feature names to include their counts.
         featureNames = [f"{feat} ({testCaseCount[idx]})" for idx, feat in enumerate(sortingIdx)]
-        shap.summary_plot(shap_values_sorted.values, X_train_trans_sorted.values, feature_names=featureNames, sort=False, show=False)
+        shap.summary_plot(shap_values_sorted.values, X_train_trans_sorted.values, feature_names=featureNames, sort=False, show=False, max_display=10)
         # plt.title('SHAP Values, Test data', fontdict={'fontsize': 20})
-        plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary.svg"), format='svg', bbox_inches='tight')
+        plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_10.svg"), format='svg', bbox_inches='tight')
         plt.show()
 
 def plot_feature_scores(clf, featureNames):

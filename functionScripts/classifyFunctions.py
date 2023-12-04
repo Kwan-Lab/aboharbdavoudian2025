@@ -337,7 +337,8 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             ## Plotting code for the fit model and compiled data
 
             # SHAP - Join all the shap_values collected across splits
-            # pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, n_classes, cvFxn.n_splits, dirDict)
+            if fit != 'Shuffle':
+                pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, n_classes, cvFxn.n_splits, dirDict)
 
             # PR Curve - save the results in a dict for compiling into a bar plot.
             # if fit != 'Shuffle':
@@ -346,6 +347,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             score_dict = dict()
             score_dict['auc'] = auc_dict
             score_dict['scores'] = scores
+            score_dict['compLabel'] = ' vs '.join(labelDict.keys())
             with open(dictPath, 'wb') as f:
                 pkl.dump(score_dict, f)
 
