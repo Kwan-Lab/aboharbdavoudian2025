@@ -5,17 +5,14 @@ import seaborn as sns
 import scipy.cluster.hierarchy as sch
 import os
 import pickle as pkl
+from collections import defaultdict
 
 # Functions deployed elsewhere
 
 def find_middle_occurrences(lst):
-    from collections import defaultdict
 
     positions = defaultdict(list)
-    first_occurrences = []
-    middle_occurrences = []
-    last_occurrences = []
-    items = []
+    first_occurrences, middle_occurrences, last_occurrences, items = [], [], [], []
 
     # Store the positions of each unique element
     for idx, elem in enumerate(lst):
@@ -33,13 +30,43 @@ def find_middle_occurrences(lst):
         first_occurrences.append(positions[item][0])
         last_occurrences.append(positions[item][-1])
 
-    positionDict = dict()
-    for i in range(len(items)):
-        positionDict[items[i]] = [first_occurrences[i], middle_occurrences[i], last_occurrences[i]]
+    position_dict = dict()
+    position_dict = {item: [first_occurrences[i], middle_occurrences[i], last_occurrences[i]] for i, item in enumerate(items)}
 
-    return positionDict
+    return position_dict
 
 def agg_cluster(lightsheet_data, classifyDict, dirDict):
+    """
+    Aggregates clustered data based on the provided parameters.
+
+    Parameters:
+    - lightsheet_data: The input data containing the lightsheet information.
+    - classifyDict: A dictionary containing the classification parameters.
+    - dirDict: A dictionary containing the directory information.
+
+    Returns:
+    - df_agged: A DataFrame containing the aggregated data.
+
+    This function aggregates the clustered data based on the provided parameters. It takes in the lightsheet_data, which is the input data containing the lightsheet information. The classifyDict parameter is a dictionary that contains the classification parameters. The dirDict parameter is a dictionary that contains the directory information.
+
+    The function performs the following steps:
+    - Imports the required libraries.
+    - Sets up variables for color coding output plots.
+    - Extracts data from the pandas DataFrame.
+    - Plots the original data.
+    - Clusters the data using scipy methods for distance calculations and linkage.
+    - Color codes the dendrogram labels based on brain region.
+    - Adds a string below the middle leaf.
+    - Saves the dendrogram plot.
+    - Shows the cluster map.
+    - Generates new features based on clustering.
+    - Assigns new names to features which are clustered.
+    - Saves the new names to a text file.
+    - Plots the aggregated data.
+    - Saves the aggregated data plot.
+    - Checks for multicollinearity.
+    - Returns the aggregated data.
+    """
     from sklearn import datasets, cluster, preprocessing, linear_model
     from scipy.spatial import distance
     from scipy.cluster import hierarchy
@@ -214,47 +241,76 @@ def create_drugClass_dict(classifyDict):
     # Drug Class vs Drug Class
     if classifyDict['label'] == 'class_5HT2A':
         # 5-HT2A agonist psychedelics (Psilo, 5MEO) vs entactogen (MDMA)
-        conv_dict['PSI'] = 'Ag_5HT2A'
-        conv_dict['5MEO'] = 'Ag_5HT2A'
-        conv_dict['MDMA'] = 'Entactogen'
+        conv_dict['PSI'] = 'PSI/5MEO'
+        conv_dict['5MEO'] = 'PSI/5MEO'
+        conv_dict['MDMA'] = 'MDMA'
     if classifyDict['label'] == 'class_5HTR':
         # Typtamines (Psilo, 5MEO) vs non-Hallucinogenic trypamines (6-F-DET)
-        conv_dict['PSI'] = 'H_Trypt'
-        conv_dict['5MEO'] = 'H_Trypt'
-        conv_dict['6-F-DET'] = 'Non Halluc Trypt'
+        conv_dict['PSI'] = 'PSI/5MEO'
+        conv_dict['5MEO'] = 'PSI/5MEO'
+        conv_dict['6-F-DET'] = '6-F-DET'
     if classifyDict['label'] == 'class_Psy_NMDA':
         # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5MEO vs Ketamine)
-        conv_dict['PSI'] = 'Ag_5HT2A'
-        conv_dict['5MEO'] = 'Ag_5HT2A'
-        conv_dict['KET'] = 'Ag_NMDA-R'
+        conv_dict['PSI'] = 'PSI/5MEO'
+        conv_dict['5MEO'] = 'PSI/5MEO'
+        conv_dict['KET'] = 'KET'
 
     # Drug vs Drug
+    # if classifyDict['label'] == 'class_PsiKet':
+    #     conv_dict['PSI'] = 'Psilocybin'
+    #     conv_dict['KET'] = 'Ketamine'
+    # if classifyDict['label'] == 'class_PsiDMT':
+    #     conv_dict['PSI'] = 'Psilocybin'
+    #     conv_dict['5MEO'] = '5MEO'
+    # if classifyDict['label'] == 'class_PsiMDMA':
+    #     conv_dict['PSI'] = 'Psilocybin'
+    #     conv_dict['MDMA'] = 'MDMA'
+    # if classifyDict['label'] == 'class_Trypt':
+    #     # 5-HT2A favored (Psilo) vs 5-HT1A favored (5MEO)
+    #     conv_dict['PSI'] = 'Psilocybin'
+    #     conv_dict['5MEO'] = '5MEO'
+    # if classifyDict['label'] == 'class_DT':
+    #     conv_dict['5MEO'] = '5MEO'
+    #     conv_dict['6-F-DET'] = '6-Fluoro-DET'
+    # if classifyDict['label'] == 'class_PsiSSRI':
+    #     conv_dict['PSI'] = 'Psilocybin'
+    #     conv_dict['A-SSRI'] = 'Acute SSRI'
+    # if classifyDict['label'] == 'class_SSRI':
+    #     conv_dict['A-SSRI'] = 'Acute SSRI'
+    #     conv_dict['C-SSRI'] = 'Chronic SSRI'
+    # if classifyDict['label'] == 'class_PsiDF':
+    #     conv_dict['PSI'] = 'Psilocybin'
+    #     conv_dict['6-F-DET'] = '6-Fluoro-DET'
+        
     if classifyDict['label'] == 'class_PsiKet':
-        conv_dict['PSI'] = 'Psilocybin'
-        conv_dict['KET'] = 'Ketamine'
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['KET'] = 'KET'
     if classifyDict['label'] == 'class_PsiDMT':
-        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['PSI'] = 'PSI'
         conv_dict['5MEO'] = '5MEO'
     if classifyDict['label'] == 'class_PsiMDMA':
-        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['PSI'] = 'PSI'
         conv_dict['MDMA'] = 'MDMA'
+    if classifyDict['label'] == 'class_PsiSSRI':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['A-SSRI'] = 'A-SSRI'
     if classifyDict['label'] == 'class_Trypt':
         # 5-HT2A favored (Psilo) vs 5-HT1A favored (5MEO)
-        conv_dict['PSI'] = 'Psilocybin'
+        conv_dict['PSI'] = 'PSI'
         conv_dict['5MEO'] = '5MEO'
     if classifyDict['label'] == 'class_DT':
         conv_dict['5MEO'] = '5MEO'
-        conv_dict['6-F-DET'] = '6-Fluoro-DET'
+        conv_dict['6-F-DET'] = '6-F-DET'
     if classifyDict['label'] == 'class_PsiSSRI':
-        conv_dict['PSI'] = 'Psilocybin'
-        conv_dict['A-SSRI'] = 'Acute SSRI'
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['A-SSRI'] = 'A-SSRI'
     if classifyDict['label'] == 'class_SSRI':
-        conv_dict['A-SSRI'] = 'Acute SSRI'
-        conv_dict['C-SSRI'] = 'Chronic SSRI'
+        conv_dict['A-SSRI'] = 'A-SSRI'
+        conv_dict['C-SSRI'] = 'C-SSRI'
     if classifyDict['label'] == 'class_PsiDF':
-        conv_dict['PSI'] = 'Psilocybin'
-        conv_dict['6-F-DET'] = '6-Fluoro-DET'
-
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['6-F-DET'] = '6-F-DET'
+        
     if not bool(conv_dict) and classifyDict['label'] != 'drug':
         KeyError('No dictionary found for this classification type. Check the label in classify dict is in hf.create_drugClass_dict')
 
@@ -530,6 +586,7 @@ def featureCountReformat(selected_features_list, YtickLabs, dirDict):
 
 def stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict):
     from collections import Counter
+    from plotFunctions import plot_histogram
 
     if len(YtickLabs) == 2:
         YtickLabs = [f"{YtickLabs[0]} vs {YtickLabs[1]}"]
@@ -543,7 +600,8 @@ def stringReportOut(selected_features_list, selected_features_params, YtickLabs,
         regionList = np.concatenate(selected_features_list[idx])
 
         # Process the feature per model list into a string
-        featurePerModelStr = str([len(x) for x in selected_features_list[0]])
+        featurePerModel = [len(x) for x in selected_features_list[0]]
+        featurePerModelStr = str(featurePerModel)
         paramStr = ''
 
         keyList = selected_features_params[idx][0].keys()
@@ -558,6 +616,9 @@ def stringReportOut(selected_features_list, selected_features_params, YtickLabs,
         labels, counts = list(regionDict.keys()), list(regionDict.values())
 
         finalStr = conciseStringReport(labels, counts)
+
+        # Plot the histogram of features per model
+        plot_histogram(featurePerModel, dirDict)
 
         print(f'==== {drugClass} ==== \n Features per Model: {featurePerModelStr}')
         print(f'Parameters: \n {paramStr}')
@@ -605,3 +666,36 @@ def create_new_feature_names(dendrogram, original_feature_names):
             new_feature_names.append(original_feature_names[i])
 
     return new_feature_names
+
+def simplified_name_trans_dict():
+    simpDict = dict()
+    simpDict['Psilocybin'] = 'PSI'
+    simpDict['Ketamine'] = 'KET'
+    simpDict['Entactogen'] = 'MDMA'
+    simpDict['Acute SSRI'] = 'A-SSRI'
+    simpDict['Chronic SSRI'] = 'C-SSRI'
+    simpDict['6-Fluoro-DET'] = '6-F-DET'
+    simpDict['Ag5HT2A'] = 'PSI + 5MEO'
+
+    return simpDict
+
+def drug_color_map():
+    colorDict = dict()
+    colorDict['PSI'] = '#228833'
+    colorDict['KET'] = '#AA3377'
+    colorDict['5MEO'] = '#4477AA'
+    colorDict['6-F-DET'] = '#66CCEE'
+    colorDict['MDMA'] = '#CCBB44'
+    colorDict['A-SSRI'] = '#CC3311'
+    colorDict['C-SSRI'] = '#EE6677'
+    colorDict['SAL'] = '#BBBBBB'
+
+    # Drug Combos and non-trad names.
+    colorDict['PSI/5MEO'] = '#228833'
+    colorDict['PSI + 5MEO'] = '#228833'
+    colorDict['HTrypt'] = '#228833'
+    colorDict['Non Halluc Trypt'] = '#66CCEE'
+    colorDict['Ag_5HT2A'] = '#228833'
+    colorDict['Entactogen'] = '#AA3377'
+
+    return colorDict

@@ -157,7 +157,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
         fits = fits + ['Shuffle']
 
     nestedCVSwitch=classifyDict['gridCV']
-
+    
     YtickLabs = list(labelDict.keys())
     n_classes = len(YtickLabs)
 
@@ -247,6 +247,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                     # SHAP Related code
                     X_train_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
                     explainer = shap.LinearExplainer(clf._final_estimator, X_train_trans)
+
                     explain_shap_vals = explainer.shap_values(X_train_trans)
 
                     if n_classes == 2:
@@ -317,7 +318,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                             bool_array = clf['classif'].coef_ != 0
                             featureNamesSub = featureNamesSub[bool_array.flatten()]
 
-                        # Append the selected features across splits.
+                        # Append the selected features across splits. - Consider removing, as features are the same across classes
                         for idx in np.arange(n_classes):
                             selected_features_list[idx].append(featureNamesSub)
                             if nestedCVSwitch:
@@ -335,36 +336,39 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                         pkl.dump(saveList, f)
 
             ## Plotting code for the fit model and compiled data
+            # ================== Plotting ==================
 
             # SHAP - Join all the shap_values collected across splits
             if fit != 'Shuffle':
-                pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, n_classes, cvFxn.n_splits, dirDict)
+                pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, n_classes, cvFxn.n_splits, False, dirDict)
 
             # PR Curve - save the results in a dict for compiling into a bar plot.
             # if fit != 'Shuffle':
             auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, fit, dirDict)
-            dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
             score_dict = dict()
             score_dict['auc'] = auc_dict
             score_dict['scores'] = scores
+            score_dict['featuresPerModel'] = selected_features_list[0]
             score_dict['compLabel'] = ' vs '.join(labelDict.keys())
+
+            # Save
+            dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
             with open(dictPath, 'wb') as f:
                 pkl.dump(score_dict, f)
+
+            # raise ValueError('Stop here')
 
             # Confusion Matrix
             pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
 
-            # Report out feature selected
+            # Report out feature selected if
             if featureSelSwitch:
-                # hf.feature_barplot(selected_features_list, selected_features_params, YtickLabs)
                 hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict)
 
             hf.featureCountReformat(selected_features_list, YtickLabs, dirDict)
-                
+            
             # if fit != 'Shuffle' and len(labelDict) != 2:
             #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, 8, fit=fit)
-
-        # End of clf fitting and running.
 
 def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
 
@@ -489,6 +493,9 @@ def build_pipeline(classifyDict):
         case 'LogRegElastic':
             classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
             paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
+        # case 'svm': # Does not play well with current SHAP implementation. Would require shap.KernelExplainer instead, which has a different formatting for outputs.
+        #     classif = svm.SVC(C=1, kernel='rbf', max_iter=max_iter, probability=True)
+            # paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
         case _:
             ValueError('Invalid modelStr')
 
@@ -540,7 +547,7 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
     filtAggFileName = os.path.join(dirDict['tempDir_data'], "data_preprocessed.pkl")
 
     # If the data labels are not for 'drug', filter
-    if classifyDict['label'] != 'drug':
+    if classifyDict['label'] != 'drug' and bool(conv_dict):
         pandasdf[classifyDict['label']] = pandasdf['drug'].map(conv_dict)
         pandasdf = pandasdf.dropna(subset=[classifyDict['label']])
 
@@ -596,7 +603,7 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
     y = np.array(y)
 
     # If the data labels are not for 'drug', convert to appropriate labels
-    if classifyDict['label'] != 'drug':
+    if bool(conv_dict):
         # Use the conv_dict to convert the labels, filter the data
         y = np.array([conv_dict.get(item, np.nan) for item in y])
         labels = np.unique(y)

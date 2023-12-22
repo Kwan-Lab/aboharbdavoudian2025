@@ -785,6 +785,9 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     # y_real, y_prob are in a [n_splits, n_samples, n_classes] format
 
     from sklearn.metrics import precision_recall_curve, auc
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Patch
+    from matplotlib.font_manager import FontProperties
 
     # Convert the arrays
     y_real = np.array(y_real)
@@ -802,8 +805,12 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
 
     auc_dict = dict()
 
-    colorHex = ['#228833', '#AA3377','#4477AA', '#66CCEE', '#CCBB44', '#CC3311', '#EE6677', '#BBBBBB']
+    colorDict = hf.drug_color_map()
+    # simpDict = hf.simplified_name_trans_dict()
 
+    # for label in labelDict.values():
+    #     if label in simpDict.keys():
+    #         labelDict[label] = simpDict[label]
 
     for i in np.arange(n_classes):
         label_per_split = y_real[:, :, i]
@@ -820,7 +827,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
         auc_val = auc(recall, precision)
         lab = f'{labelDict[i]}=%.2f' % (auc_val)
         auc_dict[labelDict[i]] = np.round(auc_val, 2)
-        axes.step(recall, precision, label=lab, color=colorHex[i], lw=2)
+        axes.step(recall, precision, label=lab, color=colorDict[labelDict[i]], lw=2)
 
     # Create PR curve
     precision, recall, _ = precision_recall_curve(np.concatenate(y_real_all), np.concatenate(y_prob_all))
@@ -831,17 +838,27 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     axes.step(recall, precision, label=lab, lw=3, color='black')
 
     # PR Curves
-    axes.set_xlabel('Recall')
-    axes.set_ylabel('Precision')
-    axes.legend(loc='lower left', fontsize='small')
-    axes.set_title(daObjstr + ', PR Curves')
+    axes.set_xlabel('Recall', fontsize=18)
+    axes.set_ylabel('Precision', fontsize=18)
+    legend = axes.legend(loc='lower left', fontsize='xx-large')
+
+    # Adjust the size for purposes of the paper
+    for label in legend.get_texts():
+        label.set_fontproperties(FontProperties(size=30, weight='bold'))
+
+    for label in legend.get_lines():
+        label.set_linewidth(15)
+
+    plt.tick_params(axis='both', which='both', labelsize=15, width=2, length=6)
+
+    # axes.set_title(daObjstr + ', PR Curves')
     plt.savefig(join(dirDict['outDir_model'], f"PRcurve_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
 
     plt.show()
 
     return auc_dict
 
-def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, n_splits, dirDict):
+def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, n_splits, forcePlotSwitch, dirDict):
 
     X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
     shap_values_nonmean = []
@@ -853,19 +870,28 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, 
         for shap_x_df in shap_values_list:
             shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
 
-    # Do an example force plot
 
     # Generate an array of true labels
     labelDict = {value: key for key, value in numYDict.items()}
+    cvSplit = np.random.randint(0 ,n_splits, (20, 1))
+    testPoint = np.random.randint(0, test_count-1, (20, 1))
 
+    # Do an example force plot
+    if n_classes == 2 and forcePlotSwitch:
 
-    if n_classes == 2:
-        for testItr in range(0,20):
-            # Pick random cv split and test point
-            cvSplit = np.random.randint(0, n_splits-1)
+        cvSplit1, testPoint1, cvSplit2, testPoint2 = find_max_min_index(shap_values_list, ['VISpm', 'LH'])
+        cvSplitSet = [cvSplit1, cvSplit2] * 4
+        cvSplitSet = [cvSplit1] * 4
+        # testPointSet = [testPoint1, testPoint2]
+        testPointSet = [0, 1, 2, 3]
+
+        for cvSplit, testPoint in zip(cvSplitSet, testPointSet):
+
+            # cvSplit = np.random.randint(0, n_splits-1)
+            # testPoint = np.random.randint(0, test_count-1)
+
             y_idx = np.argmax(y_real[cvSplit], axis=1)
             y_labels = [labelDict[x] for x in y_idx]
-            testPoint = np.random.randint(0, test_count-1)
             idStr = f"CV{cvSplit}_Sample{testPoint}"
             titleStr = f'Test Sample of {y_labels[testPoint]}, {idStr}'
 
@@ -880,6 +906,7 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, 
             plt.show()
 
     # Plot the SHAP values for each class
+    capSHAPval = True
     for shap_vals in shap_values_nonmean:
         # determine how many models across all the splits each feature was included in
         shapValueCount = shap_vals.agg(np.isnan).sum()
@@ -894,6 +921,10 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, 
 
         # Adjust the feature names to include their counts.
         featureNames = [f"{feat} ({testCaseCount[idx]})" for idx, feat in enumerate(sortingIdx)]
+
+        if capSHAPval:
+            shap_values_sorted = shap_values_sorted.clip(lower=-1, upper=1)
+
         shap.summary_plot(shap_values_sorted.values, X_train_trans_sorted.values, feature_names=featureNames, sort=False, show=False, max_display=10)
         # plt.title('SHAP Values, Test data', fontdict={'fontsize': 20})
         plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_10.svg"), format='svg', bbox_inches='tight')
@@ -927,3 +958,72 @@ def plot_feature_scores(clf, featureNames):
 
     plt.tight_layout()
     plt.show()
+
+def plot_histogram(data, dirDict):
+    plt.title('Feature Count per CV', fontdict={'fontsize': 20})
+    plt.hist(data, bins=10, edgecolor='black')
+    plt.savefig(join(dirDict['outDir_model'], f"featureCountHist.svg"), format='svg', bbox_inches='tight')
+    plt.show()
+
+
+def find_max_index(shap_values_list, regionSet):
+    max_value = 0  # Initialize max_value to store the maximum value
+    max_index = None  # Initialize max_index to store the corresponding index in shap_values_list
+    max_row_index = None  # Initialize max_row_index to store the index of the row with the maximum values
+
+    for idx, shap_val_tab in enumerate(shap_values_list):
+        # Check if all elements in regionSet are present in the DataFrame
+        if not all(region in shap_val_tab.columns for region in regionSet):
+            # Skip to the next iteration if not all elements are present
+            continue
+
+        # Calculate the normalized values for 'VISpm' and 'LH'
+        normalized_values = shap_val_tab.loc[:, regionSet].abs() / np.abs()
+
+        # Calculate the sum of 'VISpm' and 'LH' for each row
+        row_sums = normalized_values.sum(axis=1)
+
+        # Find the index with the maximum sum
+        current_max_value = row_sums.max()
+        if current_max_value > max_value:
+            max_value = current_max_value
+            max_index = idx
+            max_row_index = row_sums.idxmax()
+
+    return max_index, max_row_index
+
+def find_max_min_index(shap_values_list, regionSet):
+    max_value = 0  # Initialize max_value to store the maximum value
+    min_value = float('inf')  # Initialize min_value to store the minimum value
+    max_index = None  # Initialize max_index to store the corresponding index in shap_values_list
+    min_index = None  # Initialize min_index to store the corresponding index in shap_values_list
+    max_row_index = None  # Initialize max_row_index to store the index of the row with the maximum values
+    min_row_index = None  # Initialize min_row_index to store the index of the row with the minimum values
+
+    for idx, shap_val_tab in enumerate(shap_values_list):
+        # Check if all elements in regionSet are present in the DataFrame
+        if not all(region in shap_val_tab.columns for region in regionSet):
+            # Skip to the next iteration if not all elements are present
+            continue
+
+        # Calculate the normalized values for the specified regions in regionSet
+        normalized_values = shap_val_tab.loc[:, regionSet] / shap_val_tab.iloc[:, 1:].max().max()
+
+        # Calculate the sum of the specified regions for each row
+        row_sums = normalized_values.sum(axis=1)
+
+        # Find the index with the maximum sum
+        current_max_value = row_sums.max()
+        if current_max_value > max_value:
+            max_value = current_max_value
+            max_index = idx
+            max_row_index = row_sums.idxmax()
+
+        # Find the index with the minimum sum
+        current_min_value = row_sums.min()
+        if current_min_value < min_value:
+            min_value = current_min_value
+            min_index = idx
+            min_row_index = row_sums.idxmin()
+
+    return max_index, max_row_index, min_index, min_row_index
