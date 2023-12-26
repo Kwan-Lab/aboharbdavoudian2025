@@ -7,7 +7,76 @@ import os
 import pickle as pkl
 from collections import defaultdict
 
-# Functions deployed elsewhere
+def create_color_dict(dictType='drug', rgbSwitch=1):
+    # Create a dictionary of colors for brain regions or drugs
+    color_dict = dict()
+
+    if dictType == 'drug':
+        color_dict['PSI'] = '#228833'
+        color_dict['KET'] = '#AA3377'
+        color_dict['5MEO'] = '#4477AA'
+        color_dict['6-F-DET'] = '#66CCEE'
+        color_dict['MDMA'] = '#CCBB44'
+        color_dict['A-SSRI'] = '#CC3311'
+        color_dict['C-SSRI'] = '#EE6677'
+        color_dict['SAL'] = '#BBBBBB'
+
+    elif dictType == 'brainArea':
+        color_dict['Olfactory'] = '#377eb8'
+        color_dict['Cortex'] = '#ff7f00'
+        color_dict['Hippo'] = '#4daf4a'
+        color_dict['StriatumPallidum'] = '#f781bf'
+        color_dict['Thalamus'] = '#a65628'
+        color_dict['Hypothalamus'] = '#984ea3'
+        color_dict['MidHindMedulla'] = '#999999'
+        color_dict['Cerebellum'] = '#e41a1c'
+
+    if rgbSwitch:
+        # If rgbSwitch is on, replace the entries in color_dict with RGBA values.
+        for color in color_dict.items():
+            color_dict[color[0]] = (int(color[1][1:3], 16), int(color[1][3:5], 16), int(color[1][5:7], 16))
+
+    return color_dict
+
+def create_translation_dict(dictType='brainArea'):
+    # Create a dictionary of colors for brain regions or drugs
+    translation_dict = dict()
+
+    if dictType == 'drug':
+
+        translation_dict['PSI'] = 'Psilocybin'
+        translation_dict['KET'] = 'Ketamine'
+        translation_dict['5MEO'] = '5-MeO-DMT'
+        translation_dict['6-F-DET'] = '6-Fluoro-DET'
+        translation_dict['MDMA'] = 'MDMA'
+        translation_dict['A-SSRI'] = 'Acute SSRI'
+        translation_dict['C-SSRI'] = 'Chronic SSRI'
+        translation_dict['SAL'] = 'Saline'
+
+    elif dictType == 'brainArea':
+
+        translation_dict['Olfactory'] = 'Olfactory'
+        translation_dict['Cortex'] = 'Cortex'
+        translation_dict['Hippo'] = 'Hippo'
+        translation_dict['StriatumPallidum'] = 'Stri+Pall'
+        translation_dict['Thalamus'] = 'Thalamus'
+        translation_dict['Hypothalamus'] = 'Hypothalamus'
+        translation_dict['MidHindMedulla'] = 'Mid Hind Medulla'
+        translation_dict['Cerebellum'] = 'Cerebellum'
+
+    elif dictType == 'classToDrug':
+
+        translation_dict['Ag_5HT2A'] = 'PSI/5MEO'
+        translation_dict['Acute SSRI'] = 'A-SSRI'
+        translation_dict['Chronic SSRI'] = 'C-SSRI'
+        translation_dict['Psilocybin'] = 'PSI'
+        translation_dict['Ketamine'] = 'KET'
+        translation_dict['H_Trypt'] = 'PSI/5MEO'
+        translation_dict['Non Halluc Trypt'] = '6-F-DET'
+        translation_dict['6-Fluoro-DET'] = '6-F-DET'
+        translation_dict['Entactogen'] = 'MDMA'
+
+    return translation_dict
 
 def find_middle_occurrences(lst):
 
@@ -234,6 +303,16 @@ def create_brainArea_dict(dictType):
 
     return brainAreaPlotDict
 
+def replace_strings_with_dict(input_strings, translate_dict):
+    replaced_strings = []
+
+    for string in input_strings:
+        for key, value in translate_dict.items():
+            string = string.replace(key, value)
+        replaced_strings.append(string)
+
+    return replaced_strings
+
 def create_drugClass_dict(classifyDict):
     # Create a dictionary to convert drug names to drug classes
     conv_dict = dict()
@@ -255,33 +334,7 @@ def create_drugClass_dict(classifyDict):
         conv_dict['5MEO'] = 'PSI/5MEO'
         conv_dict['KET'] = 'KET'
 
-    # Drug vs Drug
-    # if classifyDict['label'] == 'class_PsiKet':
-    #     conv_dict['PSI'] = 'Psilocybin'
-    #     conv_dict['KET'] = 'Ketamine'
-    # if classifyDict['label'] == 'class_PsiDMT':
-    #     conv_dict['PSI'] = 'Psilocybin'
-    #     conv_dict['5MEO'] = '5MEO'
-    # if classifyDict['label'] == 'class_PsiMDMA':
-    #     conv_dict['PSI'] = 'Psilocybin'
-    #     conv_dict['MDMA'] = 'MDMA'
-    # if classifyDict['label'] == 'class_Trypt':
-    #     # 5-HT2A favored (Psilo) vs 5-HT1A favored (5MEO)
-    #     conv_dict['PSI'] = 'Psilocybin'
-    #     conv_dict['5MEO'] = '5MEO'
-    # if classifyDict['label'] == 'class_DT':
-    #     conv_dict['5MEO'] = '5MEO'
-    #     conv_dict['6-F-DET'] = '6-Fluoro-DET'
-    # if classifyDict['label'] == 'class_PsiSSRI':
-    #     conv_dict['PSI'] = 'Psilocybin'
-    #     conv_dict['A-SSRI'] = 'Acute SSRI'
-    # if classifyDict['label'] == 'class_SSRI':
-    #     conv_dict['A-SSRI'] = 'Acute SSRI'
-    #     conv_dict['C-SSRI'] = 'Chronic SSRI'
-    # if classifyDict['label'] == 'class_PsiDF':
-    #     conv_dict['PSI'] = 'Psilocybin'
-    #     conv_dict['6-F-DET'] = '6-Fluoro-DET'
-        
+    # Drug Class vs Drug
     if classifyDict['label'] == 'class_PsiKet':
         conv_dict['PSI'] = 'PSI'
         conv_dict['KET'] = 'KET'
@@ -315,6 +368,24 @@ def create_drugClass_dict(classifyDict):
         KeyError('No dictionary found for this classification type. Check the label in classify dict is in hf.create_drugClass_dict')
 
     return conv_dict
+
+def create_feature_count_dict(shap_vals, test_count, n_splits):
+    
+    X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
+    shap_values_nonmean = []
+    if n_classes == 2:
+        shap_values_nonmean.append(pd.concat(shap_values_list, axis=0))
+        test_count = shap_values_list[0].shape[0]
+    else:
+        test_count = shap_values_list[0][0].shape[0]
+        for shap_x_df in shap_values_list:
+            shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
+
+    shapValueCount = shap_vals.agg(np.isnan).sum()
+    feature_model_count = n_splits - shapValueCount/test_count
+    shapValFeature_sorted = feature_model_count.sort_values(ascending=False)
+
+    return sortingIdx
 
 def filter_features(pandasdf, classifyDict):
     # Takes in a pandas dataframe, returns a version where features are filtered and the remainder are aggregated.
@@ -583,7 +654,6 @@ def featureCountReformat(selected_features_list, YtickLabs, dirDict):
     with open(dictPath, 'wb') as f:
         pkl.dump(saveObj, f)
 
-
 def stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict):
     from collections import Counter
     from plotFunctions import plot_histogram
@@ -699,3 +769,9 @@ def drug_color_map():
     colorDict['Entactogen'] = '#AA3377'
 
     return colorDict
+
+def feature_list_length(selected_features_list):
+    # Returns the number of features in each model\
+    # COMPLETE THIS
+    featurePerModel = [len(x) for x in selected_features_list[0]]
+    return featurePerModel

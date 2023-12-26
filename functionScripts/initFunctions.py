@@ -353,6 +353,10 @@ def loadLightSheetData(dirDict, switchDict):
 
         lightsheet_data = lightsheet_data.fillna(0)
 
+        ############## Convert the drug names from strings to categorical variables in sequence ##############
+        customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
+        lightsheet_data['drug'] = pd.Categorical(lightsheet_data['drug'], categories=customOrder, ordered=True)
+
         if switchDict['debugOutputs']:
             debug_ROI = 'Dorsal Raphe' # Replaced switchDict['debug_ROI']
             debugReport(lightsheet_data, 'lightsheet_data', dirDict['debug_outPath'], 'Region_Name', debug_ROI)

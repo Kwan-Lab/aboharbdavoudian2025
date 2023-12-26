@@ -1,44 +1,36 @@
-import os
-import sys
+import sys, os, shap
 import pandas as pd
 import numpy as np
-from copy import deepcopy
-import shap
 import pickle as pkl
 
-from os.path import exists
-from math import isnan
-from tqdm import tqdm
+# from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import helperFunctions as hf
 import plotFunctions as pf
 
-from sklearn import preprocessing, linear_model, cluster, svm
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.tree import DecisionTreeClassifier
+from copy import deepcopy
+
+from sklearn import preprocessing, linear_model
+from sklearn.ensemble import RandomForestClassifier
 # Used to create a consistent processing pipeline prior to training/testing.
-from sklearn.pipeline import make_pipeline, Pipeline
-from sklearn.metrics import precision_recall_curve, confusion_matrix, PrecisionRecallDisplay
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix
 from sklearn.utils import shuffle
-from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SequentialFeatureSelector, SelectFdr, SelectFpr, SelectFwe
+from sklearn.feature_selection import SelectKBest, f_classif, mutual_info_classif, SequentialFeatureSelector, SelectFdr, SelectFwe
+from sklearn.feature_selection._univariate_selection import _BaseFilter
+
 from sklearn.model_selection import StratifiedKFold, GridSearchCV, StratifiedShuffleSplit
 from sklearn.preprocessing import RobustScaler, PowerTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 
 # For the custom feature selection module below
-from sklearn.feature_selection._univariate_selection import _BaseFilter
-from numbers import Integral, Real
+from numbers import Real
 from sklearn.utils._param_validation import Interval
 from sklearn.utils.validation import check_is_fitted
-from sklearn.utils import resample
 
 from mrmr import mrmr_classif
-
 from boruta import BorutaPy
-from sklearn.ensemble import RandomForestRegressor
-import numpy as np
 
 def correlationMatrixPlot(X_data, col_names):
 
@@ -137,7 +129,7 @@ def bootstrap_fstat(pandasdf, classifyDict, dirDict):
         plt.savefig(os.path.join(outDirPath, f"{classifyDict['data']}_{classifyDict['label']}_{regionL}.png"), format='png', bbox_inches='tight')
         plt.show()
 
-def classifySamples(pandasdf, classifyDict, dirDict):
+def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
     # ================== Data and Pipeline Building ==================
 
@@ -181,7 +173,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             saveFilePath = dirDict['tempDir_outdata']
 
             # Check if data is already there
-            if classifyDict['saveLoadswitch'] & exists(saveFilePath):
+            if classifyDict['saveLoadswitch'] & os.path.exists(saveFilePath):
                 print(f"loading model: {modelStr}")
                 with open(saveFilePath, 'rb') as f:                 # Unpickle the data:
                     [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_train_trans_list, 
@@ -212,6 +204,7 @@ def classifySamples(pandasdf, classifyDict, dirDict):
                 print(f"Performing CV split ", end='')
                 for idx, (train_index, test_index) in enumerate(cvFxn.split(X, y)):
                     print(f"{idx} ", end='')
+
                     # Grab training data and test data
                     X_train, X_test = X[train_index], X[test_index]
                     y_train, y_test = y[train_index], y[test_index]
@@ -337,14 +330,12 @@ def classifySamples(pandasdf, classifyDict, dirDict):
 
             ## Plotting code for the fit model and compiled data
             # ================== Plotting ==================
-
-            # SHAP - Join all the shap_values collected across splits
-            if fit != 'Shuffle':
-                pf.plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, n_classes, cvFxn.n_splits, False, dirDict)
-
+                        
             # PR Curve - save the results in a dict for compiling into a bar plot.
             # if fit != 'Shuffle':
             auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, fit, dirDict)
+
+            # Create a structure which saves results for plotting elsewhere.
             score_dict = dict()
             score_dict['auc'] = auc_dict
             score_dict['scores'] = scores
@@ -356,7 +347,11 @@ def classifySamples(pandasdf, classifyDict, dirDict):
             with open(dictPath, 'wb') as f:
                 pkl.dump(score_dict, f)
 
-            # raise ValueError('Stop here')
+            # SHAP - Join all the shap_values collected across splits
+            if fit != 'Shuffle':
+                pf.plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, plotDict, dirDict)
+
+                pf.plot_shap_summary(X_train_trans_list, shap_values_list, n_classes, plotDict, dirDict)
 
             # Confusion Matrix
             pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
@@ -465,7 +460,7 @@ def build_pipeline(classifyDict):
             featureSelMod = BorutaFeatureSelector(feature_sel='all') # Can swap for 'feature_sel'='strong' to only include strong rec's from Boruta.
         case 'MRMR':
             # featureSelMod = FunctionTransformer(MRMRFeatureSelector, kw_args={'n_features_to_select': 10, 'pass_y': True, 'featureSel__feature_names_out': True}, )
-            featureSelMod = MRMRFeatureSelector(n_features_to_select=10)
+            featureSelMod = MRMRFeatureSelector(n_features_to_select=30)
             modVar = 'n_features_to_select'
         case 'Univar':
             featureSelMod = SelectKBest(score_func=f_classif, k='all')
@@ -553,7 +548,7 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
 
     if (classifyDict['featurefilt'] or classifyDict['featureAgg']):
 
-        if not exists(filtAggFileName):
+        if not os.path.exists(filtAggFileName):
 
             print(f"Generating filtered and aggregated data file... {data_param_string}")
             # Set to filter features based on outliers (contains 99.9th percentile values)

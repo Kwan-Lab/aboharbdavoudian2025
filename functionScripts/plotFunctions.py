@@ -14,13 +14,8 @@ from collections import namedtuple
 
 sys.path.append('dependencies')
 
-
-def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
-    # first calculate total cells for drug/sex/etc # Needs fixing, this group is gone. Use a sum or something.
-    # totalCellCountData = pandasdf.groupby(['dataset', 'drug', 'sex'])[column2Plot].mean().reset_index()
+def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
     totalCellCountData = pandasdf[pandasdf.Region_ID == 88]
-
-    drugList = list(pandasdf.drug.unique())
 
     # plotting
     # sns.set(font_scale=3)
@@ -28,31 +23,12 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     sns.despine()
 
     # Shift the color codes to RGB and add alpha
-    colorHex = ['#228833', '#AA3377','#4477AA', '#66CCEE', '#CCBB44', '#CC3311', '#EE6677', '#BBBBBB']
-    alphaVal = 0.1
-    colorRGB = []
-    for color in colorHex:
-        original_color_rgba = sns.color_palette([color])[0]
-        colorRGB.append((*original_color_rgba[:3], alphaVal)) # Adjust the alpha value (0.5 for 50% opacity)
+    colorDict = hf.create_color_dict('drug', 0)
+    boxprops = dict(alpha=0.7)
 
-    # cset = namedtuple('Bcset',
-    #         'green purple blue cyan yellow darkRed red grey')
-    # colorPal = cset(colorRGB)
-
-    markers = {'f': 'v', 'm': '^'}
     plt.figure(figsize=(9.5, 3.5))
-    order = drugList
-
-    # if logSwitch == True:
-    #     totalCellCountData['log_total_cells'] = np.log(totalCellCountData['total_cells'])
-    #     yVar = 'log_total_cells'
-    # else:
-    yVar = 'total_cells'
-    # colorPal = sns.color_palette(n_colors=len(drugList))
-
-    ax = sns.boxplot(x="drug", y=yVar, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.5, hue='drug', palette=tuple(colorRGB))
-
-    scatter = sns.scatterplot(x="drug", y=yVar, data=totalCellCountData, hue='drug', linewidth=0, style='sex', markers=True, s=50, palette=colorHex, ax=ax, edgecolor='black')
+    ax = sns.boxplot(x="drug", y=column2Plot, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.5, hue='drug', palette=colorDict, boxprops=boxprops)
+    sns.scatterplot(x="drug", y=column2Plot, data=totalCellCountData, hue='drug', linewidth=0, style='sex', markers=True, s=50, palette=colorDict, ax=ax, edgecolor='black')
 
     # remove legend
     plt.legend([], [], frameon=False)
@@ -66,11 +42,7 @@ def totalCountsPlot(pandasdf, column2Plot, dirDict, outputFormat):
     ax.set_ylabel('Total Cells (Count)', fontdict={'fontsize':20})
     ax.set_xticklabels(ax.get_xticklabels(), fontsize=15)
 
-    # if logSwitch == True:
-    #     ax.set_ylabel('log(total cells)')
-    # else:
     ax.set_yscale('log')
-
     ax.set(ylim=(8e5, 1e7))
     sns.despine()
 
@@ -346,15 +318,11 @@ def correlation_plot(lightsheet_data, classifyDict, dirDict):
         plt.show()
 
 def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
+    # Plot Hierarchical Correlation Clustering Heatmap
 
-    # Create an index for sorting the brain Areas. List below is for custom ordering.
-    # brainAreaList = lightsheet_data['Brain_Area'].unique().tolist()
-    brainAreaList= ['Olfactory', 'Cortex', 'Hippo', 'StriatumPallidum', 'Thalamus', 'Hypothalamus', 'MidHindMedulla', 'Cerebellum']
-    brainAreaListPlot= ['Olfactory', 'Cortex', 'Hippo', 'Stri+Pall', 'Thalamus', 'Hypothalamus', 'Mid Hind Medulla', 'Cerebellum']
-    brainAreaColor =     ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628','#984ea3','#999999', '#e41a1c'] #, '#dede00'
-    brainAreaPlotDict = dict(zip(brainAreaList, brainAreaListPlot))
-    brainAreaColorDict = dict(zip(brainAreaList, brainAreaColor))
-    AreaIdx = dict(zip(brainAreaList, np.arange(len(brainAreaList))))
+    brainAreaColorDict = hf.create_color_dict('brainArea', 0)
+    brainAreas = list(brainAreaColorDict.keys())
+    AreaIdx = dict(zip(brainAreas, np.arange(len(brainAreas))))
 
     colList = [classifyDict['feature'], 'Brain_Area']
     regionArea = lightsheet_data[colList]
@@ -396,7 +364,7 @@ def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
     plt.tick_params(axis='x', which='both', length=0)
     plt.title(titleStr)
     
-    # plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
+    plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
 def data_heatmap(lightsheet_data, dataFeature, dataValues, dirDict):
@@ -771,7 +739,7 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)
     figSizeMat[0] = figSizeMat[0] + 1
     plt.figure(figsize=figSizeMat)
-    ax = sns.heatmap(mean_of_conf_matrix_arrays, linewidth=0.25,cmap='coolwarm', annot=True, fmt=".2f", square=True)
+    ax = sns.heatmap(mean_of_conf_matrix_arrays, linewidth=0.25,cmap='Reds', annot=True, fmt=".2f", square=True, cbar_kws={"shrink": 0.8})
     ax.set(xticklabels=YtickLabs, yticklabels=YtickLabs, xlabel='Predicted Label', ylabel='True Label')
     plt.title(fullTitleStr, fontsize=figSizeMat[0]*1.5)
 
@@ -793,8 +761,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     y_real = np.array(y_real)
     y_prob = np.array(y_prob)
 
-    y_real_all = []
-    y_prob_all = []
+    y_real_all, y_prob_all = [], []
 
     f = plt.figure(figsize=(8, 8))
     axes = plt.axes()
@@ -829,7 +796,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
         auc_dict[labelDict[i]] = np.round(auc_val, 2)
         axes.step(recall, precision, label=lab, color=colorDict[labelDict[i]], lw=2)
 
-    # Create PR curve
+    # Create a mean PR Curve by combining all the data
     precision, recall, _ = precision_recall_curve(np.concatenate(y_real_all), np.concatenate(y_prob_all))
 
     auc_val_mean = auc(recall, precision)
@@ -840,15 +807,18 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     # PR Curves
     axes.set_xlabel('Recall', fontsize=18)
     axes.set_ylabel('Precision', fontsize=18)
-    legend = axes.legend(loc='lower left', fontsize='xx-large')
 
-    # Adjust the size for purposes of the paper
-    for label in legend.get_texts():
-        label.set_fontproperties(FontProperties(size=30, weight='bold'))
+    if n_classes == 2:
+        legend = axes.legend(loc='lower left', fontsize='xx-large')
+        # Adjust the size for purposes of the paper
+        for label in legend.get_texts():
+            label.set_fontproperties(FontProperties(size=30, weight='bold'))
 
-    for label in legend.get_lines():
-        label.set_linewidth(15)
-
+        for label in legend.get_lines():
+            label.set_linewidth(15)
+    else:
+        legend = axes.legend(loc='lower left', fontsize='large')
+        
     plt.tick_params(axis='both', which='both', labelsize=15, width=2, length=6)
 
     # axes.set_title(daObjstr + ', PR Curves')
@@ -858,7 +828,9 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
 
     return auc_dict
 
-def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, n_classes, n_splits, forcePlotSwitch, dirDict):
+def plot_shap_summary(X_train_trans_list, shap_values_list, n_classes, plotDict, dirDict):
+    
+    n_splits = len(X_train_trans_list)
 
     X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
     shap_values_nonmean = []
@@ -870,51 +842,24 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, 
         for shap_x_df in shap_values_list:
             shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
 
-
-    # Generate an array of true labels
-    labelDict = {value: key for key, value in numYDict.items()}
-    cvSplit = np.random.randint(0 ,n_splits, (20, 1))
-    testPoint = np.random.randint(0, test_count-1, (20, 1))
-
-    # Do an example force plot
-    if n_classes == 2 and forcePlotSwitch:
-
-        cvSplit1, testPoint1, cvSplit2, testPoint2 = find_max_min_index(shap_values_list, ['VISpm', 'LH'])
-        cvSplitSet = [cvSplit1, cvSplit2] * 4
-        cvSplitSet = [cvSplit1] * 4
-        # testPointSet = [testPoint1, testPoint2]
-        testPointSet = [0, 1, 2, 3]
-
-        for cvSplit, testPoint in zip(cvSplitSet, testPointSet):
-
-            # cvSplit = np.random.randint(0, n_splits-1)
-            # testPoint = np.random.randint(0, test_count-1)
-
-            y_idx = np.argmax(y_real[cvSplit], axis=1)
-            y_labels = [labelDict[x] for x in y_idx]
-            idStr = f"CV{cvSplit}_Sample{testPoint}"
-            titleStr = f'Test Sample of {y_labels[testPoint]}, {idStr}'
-
-            # Extract and plot
-            featCount = shap_values_list[cvSplit].shape[1]
-            shapVals = np.round(shap_values_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
-            testVals = np.round(X_train_trans_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
-            featNames = list(shap_values_list[cvSplit].columns[1:featCount])
-            shap.plots.force(baseline_val[cvSplit], shap_values=shapVals, features=testVals, feature_names=featNames, out_names=None, link='identity', plot_cmap='RdBu', matplotlib=True, show = False)
-            plt.title(titleStr, y=1.5, fontdict={'fontsize': 20})
-            plt.savefig(join(dirDict['outDir_model'], f"SHAP_example_{idStr}.svg"), format='svg', bbox_inches='tight')
-            plt.show()
-
     # Plot the SHAP values for each class
-    capSHAPval = True
+    cap_shap_values = True # Cap the SHAP values at 1 and -1
+    max_abs_shap_val = 1.5
+
     for shap_vals in shap_values_nonmean:
         # determine how many models across all the splits each feature was included in
         shapValueCount = shap_vals.agg(np.isnan).sum()
         feature_model_count = n_splits - shapValueCount/test_count
-        shapValFeature_sorted = feature_model_count.sort_values(ascending=False)
+        svf_sorted = feature_model_count.sort_values(ascending=False)
 
-        sortingIdx = shapValFeature_sorted.index[1:]
-        testCaseCount = [int(x) for x in shapValFeature_sorted.values[1:]]
+        if plotDict['shapSummaryThres'] is not None:
+            svf_sorted = svf_sorted[svf_sorted >= plotDict['shapSummaryThres']]
+            maxDisp = len(svf_sorted)-1
+        else:
+            maxDisp = plotDict['shapMaxDisplay']
+
+        sortingIdx = svf_sorted.index[1:]
+        testCaseCount = [int(x) for x in svf_sorted.values[1:]]
     
         X_train_trans_sorted = X_train_trans_nonmean.loc[:,sortingIdx]
         shap_values_sorted = shap_vals.loc[:,sortingIdx]
@@ -922,13 +867,65 @@ def plotSHAPSummary(X_train_trans_list, shap_values_list, baseline_val, y_real, 
         # Adjust the feature names to include their counts.
         featureNames = [f"{feat} ({testCaseCount[idx]})" for idx, feat in enumerate(sortingIdx)]
 
-        if capSHAPval:
-            shap_values_sorted = shap_values_sorted.clip(lower=-1, upper=1)
+        if cap_shap_values:
+            shap_values_sorted = shap_values_sorted.clip(lower=-max_abs_shap_val, upper=max_abs_shap_val)
 
-        shap.summary_plot(shap_values_sorted.values, X_train_trans_sorted.values, feature_names=featureNames, sort=False, show=False, max_display=10)
+        # Plot the SHAP values
+        shap.summary_plot(shap_values_sorted.values, X_train_trans_sorted.values, feature_names=featureNames, sort=False, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score')
+
+        # Save the plot +/- Titling it.
         # plt.title('SHAP Values, Test data', fontdict={'fontsize': 20})
         plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_10.svg"), format='svg', bbox_inches='tight')
         plt.show()
+
+def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, plotDict, dirDict):
+
+    if plotDict['shapForcePlotCount'] == 0:
+        return
+
+    class_count = len(numYDict.keys())
+    n_splits = len(X_train_trans_list)
+    test_count = shap_values_list[0].shape[0]
+    forcePlotCount = 10
+
+    # Generate an array of true labels
+    labelDict = {value: key for key, value in numYDict.items()}
+
+    regionList = False
+
+    if regionList:
+        cvSplit1, testPoint1, cvSplit2, testPoint2 = find_max_min_index(shap_values_list, ['VISpm', 'LH'])
+        cvSplitSet = [cvSplit1] * 4
+        testPointSet = [0, 1, 2, 3]
+        cvSplitTest = list(zip(cvSplitSet, testPointSet))
+    else:
+        cvSplitTest = np.random.randint(np.zeros((1,forcePlotCount)), [[n_splits], [test_count-1]], dtype=np.uint8).T
+
+    # Do an example force plot
+    if class_count == 2:
+
+        for cvSplit, testPoint in cvSplitTest:
+
+            y_idx = np.argmax(y_real[cvSplit], axis=1)
+            y_labels = [labelDict[x] for x in y_idx]
+            idStr = f"CV{cvSplit}_Sample{testPoint}"
+            titleStr = f'Test Sample of {y_labels[testPoint]}, {idStr}'
+
+            # Extract some key variables
+            featCount = shap_values_list[cvSplit].shape[1]
+            shapVals = np.round(shap_values_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
+            testVals = np.round(X_train_trans_list[cvSplit].iloc[testPoint,1:featCount].values, 2)
+            featNames = list(shap_values_list[cvSplit].columns[1:featCount])
+
+            # Plot
+            shap.plots.force(baseline_val[cvSplit], shap_values=shapVals, features=testVals, feature_names=featNames, out_names=None, link='identity', plot_cmap='RdBu', matplotlib=True, show = False)
+
+            # Modify the plot
+            plt.title(titleStr, y=1.5, fontdict={'fontsize': 20})
+
+            # Save the plot
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_example_{idStr}.svg"), format='svg', bbox_inches='tight')
+            plt.show()
 
 def plot_feature_scores(clf, featureNames):
     support_ = clf['featureSel'].get_support()
@@ -964,7 +961,6 @@ def plot_histogram(data, dirDict):
     plt.hist(data, bins=10, edgecolor='black')
     plt.savefig(join(dirDict['outDir_model'], f"featureCountHist.svg"), format='svg', bbox_inches='tight')
     plt.show()
-
 
 def find_max_index(shap_values_list, regionSet):
     max_value = 0  # Initialize max_value to store the maximum value
