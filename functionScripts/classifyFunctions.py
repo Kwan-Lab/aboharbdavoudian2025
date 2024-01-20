@@ -360,8 +360,6 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             if featureSelSwitch:
                 hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict)
 
-            hf.featureCountReformat(selected_features_list, YtickLabs, dirDict)
-            
             # if fit != 'Shuffle' and len(labelDict) != 2:
             #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, 8, fit=fit)
 

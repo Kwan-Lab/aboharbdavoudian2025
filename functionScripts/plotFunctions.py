@@ -367,58 +367,6 @@ def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
     plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
-def data_heatmap(lightsheet_data, dataFeature, dataValues, dirDict):
-
-    # Create a list of unique 'Region_Name' and 'Brain_Area' values
-    unique_brain_areas = lightsheet_data['Brain_Area'].unique()
-
-    for brain_area in unique_brain_areas:
-        df = lightsheet_data.loc[lightsheet_data['Brain_Area'] == brain_area]
-        df_Tilted = df.pivot(index='dataset', columns=dataFeature, values=dataValues)
-
-        # Test
-        matrix = df_Tilted.values.T
-
-        yticklabels = df_Tilted.columns.values.tolist()
-        xticklabels = df_Tilted.index.values.tolist()
-        xticklabels = [x[0:-1] for x in xticklabels]
-
-        # Correct DMT Label to 5-MeO DMT
-        xticklabels = ['5-MeO-DMT' if item == 'DMT' else item for item in xticklabels]
-        xticklabels = ['6-F-DET' if item == '6FDET' else item for item in xticklabels]
-
-        # Convert to x axis labels
-        x_labels = ['' for _ in range(matrix.shape[1])]
-        result = hf.find_middle_occurrences(xticklabels)
-        for mid_sample_ind in result:
-            x_labels[result[mid_sample_ind][1]] = xticklabels[result[mid_sample_ind][1]]
-            
-        # Plotting variables
-        scalefactor = 12
-        vmin, vmax = np.percentile(matrix.flatten(), [5, 99])
-        cmap = 'rocket'
-
-        # Plotting
-        plt.figure(figsize=(scalefactor, len(yticklabels) * scalefactor * 0.0125))
-        
-        # cmap = sns.cubehelix_palette(start=2, rot=0, dark=0, light=.95, reverse=True, as_cmap=True)
-        sns.heatmap(matrix, cmap=cmap, vmin=vmin, vmax=vmax, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels, square=True)
-
-        # Add in vertical lines breaking up sample types
-        _, line_break_ind = np.unique(xticklabels, return_index=True)
-        for idx in line_break_ind:
-            plt.axvline(x=idx, color='white', linewidth=2)
-        
-        titleStr = f"{dataValues} in {brain_area}"
-
-        plt.ylabel("Feature Names (Region Names)")
-        plt.xlabel("Samples Per Group", fontsize=12)
-        plt.tick_params(axis='x', which='both', length=0)
-        plt.title(titleStr, fontsize=15)
-        
-        plt.savefig(dirDict['classifyDir'] + titleStr + '.svg', dpi=300, format='svg', bbox_inches='tight')
-        plt.show()
-
 def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
 
     colorMapCap = False
@@ -491,8 +439,13 @@ def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
 
 def data_heatmap_block(lightsheet_data, dataFeature, dataValues, dirDict):
     # Current Mode: Create plot with colorbar, then without, and grab the svg item and place it in the second plot to ensure even spacing
-    # TODO: shift code to use 'GridSpec' and create a single image with 3 equally sized columns and a colorbar at once. 
+    # TODO: shift code to use 'GridSpec' and create a single image with 3 equally sized columns and a colorbar at once.
+    # TODO: Get rid of hard coded list of drugs.
     # Creates the heatmap for the data, arranged to be 3 columns. 
+
+    # dataFeature = 'abbreviation'
+    # dataValues = 'cell_density', 'count', 'count_norm', 'density_norm', 'count_norm_scaled'
+
     colorMapCap = True
 
     # Pivot data to represent samples, features, and data correctly for a heatmap.
@@ -844,7 +797,7 @@ def plot_shap_summary(X_train_trans_list, shap_values_list, n_classes, plotDict,
 
     # Plot the SHAP values for each class
     cap_shap_values = True # Cap the SHAP values at 1 and -1
-    max_abs_shap_val = 1.5
+    max_abs_shap_val = 1
 
     for shap_vals in shap_values_nonmean:
         # determine how many models across all the splits each feature was included in
@@ -875,7 +828,7 @@ def plot_shap_summary(X_train_trans_list, shap_values_list, n_classes, plotDict,
 
         # Save the plot +/- Titling it.
         # plt.title('SHAP Values, Test data', fontdict={'fontsize': 20})
-        plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_10.svg"), format='svg', bbox_inches='tight')
+        plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary.svg"), format='svg', bbox_inches='tight')
         plt.show()
 
 def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, plotDict, dirDict):
@@ -961,6 +914,63 @@ def plot_histogram(data, dirDict):
     plt.hist(data, bins=10, edgecolor='black')
     plt.savefig(join(dirDict['outDir_model'], f"featureCountHist.svg"), format='svg', bbox_inches='tight')
     plt.show()
+
+def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, saveDir):
+
+    plt.figure(figsize=(5, 5))  # Adjust the width and height as needed
+    plt.barh(scoreNames, aucScores, color=colorsList[0])
+    plt.barh(scoreNames, aucScrambleScores, label='Shuffled', color=colorsList[1])
+    # plt.xlim(0.5, 1),
+    plt.title('Mean Precision-Recall Area Under Curve')
+
+    # Set labels and title,
+    plt.xlabel('Mean AUC')
+    plt.ylabel('Classifier')
+
+    for index, value in enumerate(aucScores):
+        percentage_text = '{:.0%}'.format(value)  # Format the value as a percentage
+        plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
+
+    for index, value in enumerate(aucScrambleScores):
+        percentage_text = '{:.0%}'.format(value)  # Format the value as a percentage
+        plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
+
+    # Display the plot
+    plt.savefig(f"{saveDir}MeanAUC_barplot.svg", format='svg', bbox_inches='tight')     
+    plt.show()
+
+def plot_cross_model_Accuracy(scoreNames, meanScores, meanScrambleScores, colorsList, saveDir):
+    import matplotlib.pyplot as plt
+
+    # Set font to 12 pt Helvetica
+    plt.rcParams['font.family'] = 'Helvetica'
+    plt.rcParams['font.size'] = 12
+    plt.rcParams['svg.fonttype'] = 'none'
+    # Plot the bar chart
+    plt.barh(scoreNames, meanScores, label='Data', color=colorsList[0])
+    plt.barh(scoreNames, meanScrambleScores, label='Shuffled', color=colorsList[1])
+    plt.title('Mean Accuracy across cross-validation')
+
+    # Set labels and title
+    plt.xlabel('Score')
+    plt.ylabel('Classification')
+
+    # Add percentage text to the plot
+    for index, value in enumerate(meanScores):
+        percentage_text = '{:.0%}'.format(value)  # Format the value as a percentage
+        plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
+
+    for index, value in enumerate(meanScrambleScores):
+        percentage_text = '{:.0%}'.format(value)  # Format the value as a percentage
+        plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
+
+    # Save and show the plot
+    plt.savefig(f"{saveDir}MeanAcc_barplot.svg", format='svg', bbox_inches='tight')     
+    plt.show()
+
+# def plot_saline_norm_heatmap(data, controlDrug, featuredirDict):
+#     # Takes in a dataframe, arrives at means for each region under each condition, and normalizes all values relative to the influence of controlDrug.
+#     # Data - a pandas dataframe
 
 def find_max_index(shap_values_list, regionSet):
     max_value = 0  # Initialize max_value to store the maximum value

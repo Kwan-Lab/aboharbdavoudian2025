@@ -365,7 +365,7 @@ def create_drugClass_dict(classifyDict):
         conv_dict['6-F-DET'] = '6-F-DET'
         
     if not bool(conv_dict) and classifyDict['label'] != 'drug':
-        KeyError('No dictionary found for this classification type. Check the label in classify dict is in hf.create_drugClass_dict')
+        raise KeyError('No dictionary found for this classification type. Check the label in classify dict is in helperFunctions.create_drugClass_dict')
 
     return conv_dict
 
@@ -631,28 +631,6 @@ def save_string_dict():
     saveStringDict["\n                   "] = ''
 
     return saveStringDict
-
-def featureCountReformat(selected_features_list, YtickLabs, dirDict):
-    from collections import Counter
-
-    if len(YtickLabs) == 2:
-        contrastTitle = [f"{YtickLabs[0]} vs {YtickLabs[1]}"]
-    else:
-        contrastTitle = [' vs '.join(YtickLabs)]
-
-    # Report on which features make the cut.
-    if not selected_features_list[0]:
-        regionDict = []
-    else:
-        regionList = np.concatenate(selected_features_list[0])
-        regionDict = dict(Counter(regionList))
-
-    saveObj = [contrastTitle, regionDict]
-
-    # Save the output regionDict and name for plotting in a different kernal, required by brainrender
-    dictPath = os.path.join(dirDict['outDir_model'], 'featureDict.pkl')
-    with open(dictPath, 'wb') as f:
-        pkl.dump(saveObj, f)
 
 def stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict):
     from collections import Counter

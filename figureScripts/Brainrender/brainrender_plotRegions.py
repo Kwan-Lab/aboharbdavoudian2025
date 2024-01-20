@@ -12,6 +12,13 @@ from brainrender.camera import set_camera
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
+plt.rcParams['font.family'] = 'Helvetica'
+plt.rcParams['font.size'] = 8
+plt.rcParams['svg.fonttype'] = 'none'
+
+# Set if you just want text
+justLabels = True
+
 # Set appropriate directories
 helpFxnPath = 'C:\\OneDrive\\KwanLab\\Lightsheet_cFos_Pipeline\\functionScripts\\'      # Folder where helper functions are
 file_pattern = os.path.join(os.getcwd(), 'figureScripts//Brainrender//', 'br_*.csv')    # Folder where csv files are, and their format
@@ -31,6 +38,15 @@ cameraScreenshot = {
     'viewup': (0, -1, 0),
     'clippingRange': (26768, 57715),
     'focalPoint': (3678, 4091, -6418),
+    'distance': 33828,
+}
+
+# Camera coordinates seem diff if laptop not on monitor
+cameraScreenshotLaptop = {
+    'pos': (5084, -2583, 26726),
+    'viewup': (0, -1, 0),
+    'clippingRange': (19255, 50998),
+    'focalPoint': (4478, 4182, -6413),
     'distance': 33828,
 }
 
@@ -61,7 +77,8 @@ for csv_path in matching_files:
     for key, value in convDict.items():
         pltTitle = pltTitle.replace(key, value)
 
-    splitNames = pltTitle.split(' vs ')
+    splitNames = pltTitle.replace('+', '/').split(' vs ')
+
     drugColors = [colorDict[drug] for drug in splitNames]
     drugColorDict = dict(zip(splitNames, drugColors))
 
@@ -73,44 +90,49 @@ for csv_path in matching_files:
 
     regionColor = pandadf['Diff'].apply(lambda x: drugColors[1] if x < 0 else drugColors[0])
 
-    embedWindow(None)  # <- this will make your scene popup
+    if not justLabels:
 
-    # popup_scene = Scene(title=pltTitle)
-    popup_scene = Scene()
+        embedWindow(None)  # <- this will make your scene popup
 
-    if labelsFlag:
-        labelTag = '_labels'
-    else:
-        labelTag = ''
+        # popup_scene = Scene(title=pltTitle)
+        popup_scene = Scene()
 
-    # popup_scene.slice("sagittal")
-
-    for region, regCol in zip(regionList, regionColor):
-        actorObj = popup_scene.add_brain_region(region, color=regCol) #, alpha=alph, color='b'
         if labelsFlag:
-            popup_scene.add_label(actorObj, actorObj.name)
+            labelTag = '_labels'
+        else:
+            labelTag = ''
+
+        # popup_scene.slice("sagittal")
+
+        for region, regCol in zip(regionList, regionColor):
+            actorObj = popup_scene.add_brain_region(region, color=regCol) #, alpha=alph, color='b'
+            if labelsFlag:
+                popup_scene.add_label(actorObj, actorObj.name)
 
 
-    if outMode == 'still':
-    # Set camera. Adjust the camera as you'd like, hit 'C' and the window terminal is populated with new coordinates
-        popup_scene.render(interactive=False, camera=cameraScreenshot, zoom=1.5)
-        print('done')
+        if outMode == 'still':
+        # Set camera. Adjust the camera as you'd like, hit 'C' and the window terminal is populated with new coordinates
+            # popup_scene.render(interactive=False, camera=cameraScreenshot, zoom=1.5)
+            popup_scene.render(interactive=False, camera=cameraScreenshotLaptop, zoom=1.5)
+            
+            print('done')
 
-    elif outMode == 'vid':
-        
-        set_camera(popup_scene, cameraVid)
-        vm = VideoMaker(popup_scene, "./examples", "vid_spin")
+        elif outMode == 'vid':
+            
+            set_camera(popup_scene, cameraVid)
+            vm = VideoMaker(popup_scene, "./examples", "vid_spin")
 
-        # make a video with the custom make frame function
-        # this just rotates the scene
-        vm.make_video(azimuth=1.5, duration=15, fps=15)
+            # make a video with the custom make frame function
+            # this just rotates the scene
+            vm.make_video(azimuth=1.5, duration=15, fps=15)
 
-    popup_scene.screenshot(f'{outputDir}{pltTitle}{labelTag}.png')
-    # print('hold') # Drop a breakpoint here to inspect the scene
+        popup_scene.screenshot(f'{outputDir}{pltTitle}{labelTag}.png')
+        print('hold') # Drop a breakpoint here to inspect the scene
 
     # ==================== Printing text to put on the side ====================
+    # If the labels aren't on the brain, print the labels on the side.
 
-    if labelsFlag:
+    if not labelsFlag:
         # Create a figure and axis
         fig, ax = plt.subplots()
 
