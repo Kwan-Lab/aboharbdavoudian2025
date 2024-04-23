@@ -17,7 +17,7 @@ plt.rcParams['font.size'] = 8
 plt.rcParams['svg.fonttype'] = 'none'
 
 # Set if you just want text
-justLabels = True
+justLabels = False
 
 # Set appropriate directories
 helpFxnPath = 'C:\\OneDrive\\KwanLab\\Lightsheet_cFos_Pipeline\\functionScripts\\'      # Folder where helper functions are
@@ -61,7 +61,7 @@ cameraVid = {
 # Identify files according to prior pattern
 matching_files = glob.glob(file_pattern, recursive=True)
 
-colorDict = hf.drug_color_map()
+colorDict = hf.create_color_dict()
 
 # Print the matching file paths
 for csv_path in matching_files:
@@ -127,7 +127,7 @@ for csv_path in matching_files:
             vm.make_video(azimuth=1.5, duration=15, fps=15)
 
         popup_scene.screenshot(f'{outputDir}{pltTitle}{labelTag}.png')
-        print('hold') # Drop a breakpoint here to inspect the scene
+        print('Done with Img') # Drop a breakpoint here to inspect the scene
 
     # ==================== Printing text to put on the side ====================
     # If the labels aren't on the brain, print the labels on the side.
@@ -153,4 +153,4 @@ for csv_path in matching_files:
         plt.savefig(f'{outputDir}/{pltTitle}_Text.svg', format='svg', bbox_inches='tight', pad_inches=0)
 
         # Display the plot
-        print('hold')
+        print('Done with Text')

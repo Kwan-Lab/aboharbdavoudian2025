@@ -137,7 +137,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
     dirDict = hf.dataStrPathGen(classifyDict, dirDict)
 
     # Reformat the data into a format which can be used by the classifiers.
-    X, y, featureNames, labelDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
+    X, y, y_dataset, featureNames, labelDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
 
     # Use the classify dict to specify all the models to be tested.
     modelList, cvFxn, paramGrid = build_pipeline(classifyDict)
@@ -176,7 +176,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             if classifyDict['saveLoadswitch'] & os.path.exists(saveFilePath):
                 print(f"loading model: {modelStr}")
                 with open(saveFilePath, 'rb') as f:                 # Unpickle the data:
-                    [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_train_trans_list, 
+                    [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_test_trans_list,
                             scores, selected_features_list, selected_features_params, baseline_val, shap_values_list] = pkl.load(f)
                 
             else: 
@@ -193,7 +193,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     featureSelSwitch = True
 
                 # Initialize vectors for storing the features used to make the classification for each fold.
-                y_real, y_prob, conf_matrix_list_of_arrays, X_train_trans_list, scores = [], [], [], [], []
+                y_real, y_prob, conf_matrix_list_of_arrays, X_test_trans_list, explainers, scores = [], [], [], [], [], []
                 selected_features_list, selected_features_params = [[] for _ in range(n_classes)], [[] for _ in range(n_classes)]
                 
                 if n_classes == 2:
@@ -203,7 +203,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
                 print(f"Performing CV split ", end='')
                 for idx, (train_index, test_index) in enumerate(cvFxn.split(X, y)):
-                    print(f"{idx} ", end='')
+                    print(f"{idx + 1} ", end='')
 
                     # Grab training data and test data
                     X_train, X_test = X[train_index], X[test_index]
@@ -238,25 +238,22 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                         feature_selected = featureNames
 
                     # SHAP Related code
-                    X_train_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
-                    explainer = shap.LinearExplainer(clf._final_estimator, X_train_trans)
-
-                    explain_shap_vals = explainer.shap_values(X_train_trans)
+                    X_test_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
+                    explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='correlation_dependent')
+                    # explainers.append(explainer)
+                    explain_shap_vals = explainer.shap_values(X_test_trans)
 
                     if n_classes == 2:
-                        shap_values_train = pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)
-                        shap_values_list.append(shap_values_train.reset_index())
+                        shap_values_test = pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)
+                        shap_values_list.append(shap_values_test.reset_index())
                         baseline_val.append(explainer.expected_value)
                     else:
-                        shap_values_train = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
-                        for idx, shap_val in enumerate(shap_values_train):
+                        shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
+                        for idx, shap_val in enumerate(shap_values_test):
                             shap_values_list[idx].append(shap_val.reset_index())
 
                     # Store the results
-                    X_train_trans_list.append(X_train_trans.reset_index())
-
-                    if 0: #'featureSel' in clf.named_steps.keys():
-                        pf.plot_feature_scores(clf, featureNames)
+                    X_test_trans_list.append(X_test_trans.reset_index())
 
                     # if best K, get ride of the non-label names
                     if featureSelSwitch:
@@ -323,42 +320,50 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
                 if classifyDict['saveLoadswitch']:
                     # save all the products
-                    saveList = [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_train_trans_list, 
+                    saveList = [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_test_trans_list,
                                 scores, selected_features_list, selected_features_params, baseline_val, shap_values_list]
                     with open(saveFilePath, 'wb') as f:
                         pkl.dump(saveList, f)
 
             ## Plotting code for the fit model and compiled data
             # ================== Plotting ==================
-                        
             # PR Curve - save the results in a dict for compiling into a bar plot.
-            # if fit != 'Shuffle':
-            auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, fit, dirDict)
+            if 0: #fit != 'Shuffle':
+                auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, fit, dirDict)
 
-            # Create a structure which saves results for plotting elsewhere.
-            score_dict = dict()
-            score_dict['auc'] = auc_dict
-            score_dict['scores'] = scores
-            score_dict['featuresPerModel'] = selected_features_list[0]
-            score_dict['compLabel'] = ' vs '.join(labelDict.keys())
+                # Create a structure which saves results for plotting elsewhere.
+                score_dict = dict()
+                score_dict['auc'] = auc_dict
+                score_dict['scores'] = scores
+                score_dict['featuresPerModel'] = selected_features_list[0]
+                score_dict['compLabel'] = ' vs '.join(labelDict.keys())
 
-            # Save
-            dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
-            with open(dictPath, 'wb') as f:
-                pkl.dump(score_dict, f)
+                # Save
+                dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
+                with open(dictPath, 'wb') as f:
+                    pkl.dump(score_dict, f)
 
+            featureCountLists = hf.feature_model_count(selected_features_list[0])
+
+            # Shape data into a table for correlation
+            feature_df = pd.DataFrame(X, columns=featureNames, index=y_dataset)
+            pf.correlation_subset(feature_df, pandasdf, featureCountLists, plotDict['shapSummaryThres'], classifyDict, dirDict)
+        
             # SHAP - Join all the shap_values collected across splits
-            if fit != 'Shuffle':
-                pf.plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, labelDict, plotDict, dirDict)
+            if 1: #fit != 'Shuffle':
+                print('\n SHAP')
+                # pf.plot_shap_force(X_test_trans_list, shap_values_list, baseline_val, y_real, labelDict, plotDict, dirDict)
+                pf.plot_shap_summary(X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
+                # pf.plot_shap_bar(explainers, X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
 
-                pf.plot_shap_summary(X_train_trans_list, shap_values_list, n_classes, plotDict, dirDict)
+            raise NotImplementedError('Stop here')
 
             # Confusion Matrix
             pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
 
             # Report out feature selected if
             if featureSelSwitch:
-                hf.stringReportOut(selected_features_list, selected_features_params, YtickLabs, dirDict)
+                hf.stringReportOut(selected_features_list[0], selected_features_params, YtickLabs, dirDict)
 
             # if fit != 'Shuffle' and len(labelDict) != 2:
             #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, 8, fit=fit)
@@ -505,7 +510,6 @@ def build_pipeline(classifyDict):
     pipelineList.append(('classif', classif))
 
     # Create a base model
-    
     clf = Pipeline(pipelineList)
     
     if classifyDict.get('model_featureSel') not in ('None', 'Fdr', 'Fwe', 'Fwe_BH') and classifyDict['model_featureSel_mode'] == 'gridCV':
@@ -525,7 +529,7 @@ def build_pipeline(classifyDict):
     if classifyDict['CVstrat'] == 'StratKFold':
         cvFxn = StratifiedKFold(n_splits=classifyDict['CV_count'])  # 8 examples of each label
     elif classifyDict['CVstrat'] == 'ShuffleSplit':
-        cvFxn = StratifiedShuffleSplit(n_splits=classifyDict['CV_count'], test_size=classifyDict['test_size'])  # 8 examples of each label
+        cvFxn = StratifiedShuffleSplit(n_splits=classifyDict['CV_count'], test_size=classifyDict['test_size'])
     
     return modelList, cvFxn, paramGrid
 
@@ -589,6 +593,7 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
 
     X = np.array(ls_data_agg.values)
     y = np.array([x[0:-1] for x in np.array(ls_data_agg.index)])
+    y_dataset = ls_data_agg.index
 
     # Since these labels come from the dataset, not the drug, they need to be converted to the appropriate label.
     y = ['6-F-DET' if item == '6FDET' else item for item in y]
@@ -611,7 +616,7 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
     # Create a list of the features
     featureNames = np.array(ls_data_agg.columns.tolist())
 
-    return X, y, featureNames, y_Int_dict
+    return X, y, y_dataset, featureNames, y_Int_dict
 
 class MRMRFeatureSelector(BaseEstimator, TransformerMixin):
     def __init__(self, n_features_to_select=10):

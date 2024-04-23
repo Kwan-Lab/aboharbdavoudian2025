@@ -24,7 +24,8 @@ def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
 
     # Shift the color codes to RGB and add alpha
     colorDict = hf.create_color_dict('drug', 0)
-    boxprops = dict(alpha=0.7)
+    # boxprops = dict(alpha=0.7)
+    boxprops = dict()
 
     plt.figure(figsize=(9.5, 3.5))
     ax = sns.boxplot(x="drug", y=column2Plot, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.5, hue='drug', palette=colorDict, boxprops=boxprops)
@@ -53,56 +54,50 @@ def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
 def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
     from sklearn.decomposition import PCA
-    from sklearn.preprocessing import RobustScaler
+    from sklearn.preprocessing import RobustScaler, PowerTransformer
     from itertools import combinations
+    from sklearn.pipeline import Pipeline
 
-    colorHex = ['#228833', '#AA3377','#4477AA', '#66CCEE', '#CCBB44', '#CC3311', '#EE6677', '#BBBBBB']
-
+    colorHex = hf.create_color_dict(dictType='drug')
 
     # If some filtering is desired, do so here
     if classifyDict['featurefilt']:
-        # vmax = np.percentile(pandasdf[column2Plot], 99.9)
-        # pandasdf_over = pandasdf[pandasdf[column2Plot] > vmax]
-        # features_over = pandasdf_over['abbreviation'].unique()
-        # pandasdf = pandasdf[~pandasdf['abbreviation'].isin(features_over)]
         pandasdf = hf.filter_features(pandasdf, classifyDict)
         filtTag = 'filt'
     else:
         filtTag = ''
 
-    
     # Pivot the lightsheet data table
     df_Tilted = pandasdf.pivot(index='dataset', columns='abbreviation', values=column2Plot)
+    y = np.array([x[:-1] for x in df_Tilted.index])
+    df_Tilted['y_vec'] = y
+
     n_comp = 4
 
-    # Perform dimensionality reduction
-    # Scale features beforehand
-    X_scaled = RobustScaler().fit_transform(df_Tilted)
-    # X_scaled_pd = pd.DataFrame(X_scaled, index=df_Tilted.index, columns=df_Tilted.columns)
-    # sns.pairplot(X_scaled_pd)
-    # plt.show()
+    # Apply some preprocessing to mimic pipeline
+    transMod = PowerTransformer(method='yeo-johnson', standardize=False)
+    scaleMod = RobustScaler()
 
-    y = np.array([x[:-1] for x in df_Tilted.index])
-    y = ['5MEO' if item == 'DMT' else item for item in y]
-    y = ['6-F-DET' if item == '6FDET' else item for item in y]
-
-    customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
-    
-    # Visualize the scaled features
     if dimRedMeth == 'PCA':
-        pca = PCA(n_components=n_comp)
-        X_scaled_dimRed = pca.fit_transform(X_scaled)
+        dimRedMod = PCA(n_components=n_comp)
     elif dimRedMeth == 'LDA':
-        lda = LDA(n_components=n_comp)
-        X_scaled_dimRed = lda.fit_transform(X_scaled, y)
+        dimRedMod = LDA(n_components=n_comp)
     else:
         KeyError('dimRedMethod not recognized, pick LDA or PCA')
+
+    pipelineList = [('transMod', transMod), ('scaleMod', scaleMod), ('dimRedMod', dimRedMod)]
+    # pipelineList = [('scaleMod', scaleMod), ('dimRedMod', dimRedMod)]
+    pipelineObj = Pipeline(pipelineList)
+
+    # Scale the data
+    df_Tilted_transformed = pipelineObj.fit_transform(df_Tilted.iloc[:, :-1], df_Tilted.iloc[:, -1])
+    customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
 
     # Create average cases for each drug.
     compName = dimRedMeth[0:2]
     colNames = [f"{compName}{x}" for x in range(1, n_comp+1)]
 
-    dimRedData = pd.DataFrame(data=X_scaled_dimRed, index=df_Tilted.index, columns=colNames)
+    dimRedData = pd.DataFrame(data=df_Tilted_transformed, index=df_Tilted.index, columns=colNames)
     dimRedData.loc[:, 'drug'] = pd.Categorical(y, categories=customOrder, ordered=True)
     dimRedDrugMean = dimRedData.groupby(by='drug').mean()
 
@@ -244,13 +239,9 @@ def distance_matrix(lightsheet_data, classifyDict, dirDict):
 def correlation_plot(lightsheet_data, classifyDict, dirDict):
     # Create an index for sorting the brain Areas. List below is for custom ordering.
     # brainAreaList = lightsheet_data['Brain_Area'].unique().tolist()
-    brainAreaList= ['Olfactory', 'Cortex', 'Hippo', 'StriatumPallidum', 'Thalamus', 'Hypothalamus', 'MidHindMedulla', 'Cerebellum']
-    brainAreaColor =     ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628','#984ea3','#999999', '#e41a1c'] #, '#dede00'
+    brainAreaColorDict = hf.create_color_dict(dictType='brainArea', rgbSwitch=0)
     brainAreaPlotDict = hf.create_brainArea_dict('short')
-    
-    brainAreaColorDict = dict(zip(brainAreaList, brainAreaColor))
-
-    regionArea = hf.create_region_to_area_dict(lightsheet_data, classifyDict)
+    regionArea = hf.create_region_to_area_dict(lightsheet_data, classifyDict['feature'])
     regionArea['Region_Color'] = regionArea['Brain_Area'].map(brainAreaColorDict)
 
     df_Tilted = lightsheet_data.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])
@@ -367,165 +358,184 @@ def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
     plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
-def data_heatmap_single(lightsheet_data, dataFeature, dataValues, dirDict):
+def correlation_subset(processed_data, lightsheet_data, modelCountDict, threshold, classifyDict, dirDict):
+    # Generates a correlation matrix heatmap based on the correlation between specific features within a comparison.
 
-    colorMapCap = False
+    brainAreaColorDict = hf.create_color_dict('brainArea', 0)
+    brainAreas = list(brainAreaColorDict.keys())
+    AreaIdx = dict(zip(brainAreas, np.arange(len(brainAreas))))
 
-    # Pivot data to represent samples, features, and data correctly for a heatmap.
-    df_Tilted = lightsheet_data.pivot(index=dataFeature, columns='dataset', values=dataValues)
+    # Use the unprocessesd lightsheet_data to generate a structure for sorting the processed data
+    colList = [classifyDict['feature'], 'Brain_Area']
+    regionArea = lightsheet_data[colList]
+    regionArea.drop_duplicates(inplace=True)
+    regionArea['Brain_Area_Idx'] = [AreaIdx[x] for x in regionArea['Brain_Area']]
+    regionArea['Region_Color'] = [brainAreaColorDict[x] for x in regionArea['Brain_Area']]
+    regionArea.sort_values(by='Brain_Area_Idx', inplace=True)
 
-    # Create a dictionary of region to area
-    regionArea = hf.create_region_to_area_dict(lightsheet_data, dataFeature)
+    # Filter the lightsheet_data to only include data from the drug column which matches condition
+    # df = lightsheet_data[lightsheet_data['drug'] == drug]
+    df = processed_data
 
-    # Sort accordingly
-    df_Tilted = df_Tilted.loc[regionArea[dataFeature]]
-    region_idx = regionArea.Brain_Area_Idx  # Extract for horizontal lines in plot later.
+    # identify which regions in modelCount have higher or equal to the threshold
+    regionKeepIdx = np.array(np.array(modelCountDict[1]).astype(int) > threshold)
+    regionList = np.array(modelCountDict[0])[regionKeepIdx]
+    df_Tilted = df[regionList]
 
-    # Extract data
-    matrix = df_Tilted.values
+    corr_matrix = np.corrcoef(df_Tilted.values.T)
+    # ax = sns.heatmap(corr_matrix, cmap='rocket', fmt='.2f', yticklabels=regionList, xticklabels=regionList, square=True)
+    ax = sns.clustermap(corr_matrix, cmap="vlag", center=0, fmt='.2f', yticklabels=df_Tilted.columns, xticklabels=df_Tilted.columns, dendrogram_ratio = 0.1, figsize=(10, 10))
 
-    xticklabels = df_Tilted.columns.values.tolist()
-    yticklabels = df_Tilted.index.values.tolist()
+    regionArea.set_index('abbreviation', inplace=True)
+    
+    for tick_label in ax.ax_heatmap.axes.get_yticklabels():
+        tick_text = tick_label.get_text()
+        regionColor = regionArea.loc[tick_text, 'Region_Color']
+        tick_label.set_color(regionColor)
 
-    xticklabels = [x[0:-1] for x in xticklabels]
-
-    # Correct DMT Label to 5-MeO DMT
-    xticklabels = ['5-MeO-DMT' if item == 'DMT' else item for item in xticklabels]
-    xticklabels = ['6-F-DET' if item == '6FDET' else item for item in xticklabels]
-
-    # Convert to x axis labels
-    x_labels = ['' for _ in range(matrix.shape[1])]
-    result = hf.find_middle_occurrences(xticklabels)
-    for mid_sample_ind in result:
-        x_labels[result[mid_sample_ind][1]] = xticklabels[result[mid_sample_ind][1]]
+    for tick_label in ax.ax_heatmap.axes.get_xticklabels():
+        tick_text = tick_label.get_text()
+        regionColor = regionArea.loc[tick_text, 'Region_Color']
+        tick_label.set_color(regionColor)
         
-    # Plotting variables
-    scalefactor = 12
-    cmap = 'rocket'
-
-    # Plotting
-    plt.figure(figsize=(scalefactor, len(yticklabels) * scalefactor * 0.0125))
-
-    formatter = tkr.ScalarFormatter(useMathText=True)
-    formatter.set_scientific(True)
-    formatter.set_powerlimits((-2, 2))
-
-    if colorMapCap:
-        vmin, vmax = np.percentile(matrix.flatten(), [5, 99])
-        sns.heatmap(matrix, cmap=cmap, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels, vmin=vmin, vmax=vmax, cbar_kws={"format": formatter})
-    else:
-        sns.heatmap(matrix, cmap=cmap, fmt='.2f', yticklabels=yticklabels, xticklabels=x_labels, cbar_kws={"format": formatter})
-
-    # Add in vertical lines breaking up sample types
-    _, line_break_ind = np.unique(xticklabels, return_index=True)
-    for idx in line_break_ind:
-        plt.axvline(x=idx, color='white', linewidth=2)
-    
-    titleStr = f"{dataValues}"
-
-    # Add in horizontal lines breaking up brain regions types.
-    _, line_break_ind = np.unique(region_idx, return_index=True)
-    for idx in line_break_ind:
-        plt.axhline(y=idx, color='white', linewidth=2)
-    
-    titleStr = f"{dataValues}"
-    plt.ylabel("Feature Names (Region Names)")
-    plt.xlabel("Samples Per Group", fontsize=12)
+    # Label and save the image
+    titleStr = f"Region {classifyDict['data']} correlation between {classifyDict['label']}"
     plt.tick_params(axis='x', which='both', length=0)
-    plt.title(titleStr, fontsize=15)
+    plt.title(titleStr, fontsize=10)
     
-    plt.savefig(dirDict['classifyDir'] + titleStr + '.svg', dpi=300, format='svg', bbox_inches='tight')
+    plt.savefig(os.path.join(dirDict['outDir_model'], titleStr + '.svg'), dpi=300, format='svg', bbox_inches='tight')
     plt.show()
 
-def data_heatmap_block(lightsheet_data, dataFeature, dataValues, dirDict):
+def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
     # Current Mode: Create plot with colorbar, then without, and grab the svg item and place it in the second plot to ensure even spacing
     # TODO: shift code to use 'GridSpec' and create a single image with 3 equally sized columns and a colorbar at once.
-    # TODO: Get rid of hard coded list of drugs.
-    # Creates the heatmap for the data, arranged to be 3 columns. 
+    # Creates the heatmap for the data
+    # heatmapDict['feature'] = 'abbreviation'
+    # heatmapDict['data'] = 'cell_density', 'count', 'count_norm', 'density_norm', 'count_norm_scaled'
 
-    # dataFeature = 'abbreviation'
-    # dataValues = 'cell_density', 'count', 'count_norm', 'density_norm', 'count_norm_scaled'
-
+    # Set variables
     colorMapCap = True
+    dataFeature = heatmapDict['feature']
+    dataValues = heatmapDict['data']
+    blockCount =heatmapDict['blockCount']
 
-    # Pivot data to represent samples, features, and data correctly for a heatmap.
-    df_Tilted_all = lightsheet_data.pivot(index=dataFeature, columns='dataset', values=dataValues)
+    # take the mean across all the datasets for each region, then log transform
+    if heatmapDict['logChangeSal'] == True:
+        # Create a version of the dataset which is averaged and adjusted against SAL. 
+        df_avg  = lightsheet_data.groupby([dataFeature, 'drug'])[dataValues].mean().reset_index()
+        df_piv = df_avg.pivot(index=dataFeature, columns='drug', values=dataValues)
+        df_piv = df_piv.div(df_piv['SAL'], axis=0)
+        # df_piv.drop(columns=['SAL'], inplace=True)
+        df_plot = np.log(df_piv)
+        
+    else:
+        # Pivot data to represent samples, features, and data correctly for a heatmap.
+        df_plot = lightsheet_data.pivot(index=dataFeature, columns='dataset', values=dataValues)
 
-    row_idx_set = [[0, 105], [106, 210], [211, 315]]
+    # Resort for coherence across figures
+    reIdx = heatmapDict['SortList']
+    if heatmapDict['logChangeSal'] == False:
+        # Identify the highest dataset number and use that to sort things. 
+        # Will throw an error if dataset numbers are not the same across conditions.
+        maxSampleNum = np.max(np.array([x[-1:] for x in list(lightsheet_data.dataset)]).astype(int)) + 1
+        reIdx = [f'{item}{i}' for item in reIdx for i in range(1, maxSampleNum)]
+    df_plot = df_plot[reIdx]
 
     # Create a dictionary of region to area
     regionArea = hf.create_region_to_area_dict(lightsheet_data, dataFeature)
 
-    # Sort the data to be combined per larger area
-    df_Tilted_all = df_Tilted_all.loc[regionArea[dataFeature]]
+    # Create indicies for dividing the data into the correct number of  sections regardless of the size
+    row_idx_set = np.zeros((blockCount, 2), dtype=int)
+    if heatmapDict['areaBlocks'] == True:
+        # Make the blocks 2 roughly equal size blocks
+        line_break_num, line_break_ind = np.unique(regionArea.Brain_Area_Idx, return_index=True)
+        row_idx_set[0,:] = [line_break_ind[0], line_break_ind[5]]
+        row_idx_set[1,:] = [line_break_ind[5], len(df_plot)]
+    
+    else:
+        indices = np.linspace(0, len(df_plot), num=blockCount+1, dtype=int)
+        for block_idx in range(blockCount):
+            row_idx_set[block_idx][0] = indices[block_idx]
+            row_idx_set[block_idx][1] = indices[block_idx+1]
+    
 
-    # Resort for coherence across figures
-    newList =['PSI', 'KET', 'DMT', '6FDET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
-    newListnum = [f'{item}{i}' for item in newList for i in range(1, 8 + 1)]
-    df_Tilted_all = df_Tilted_all[newListnum]
+    # Sort the data to be combined per larger area
+    df_plot = df_plot.loc[regionArea[dataFeature]]
 
     # Find the ends of the colormap
     if colorMapCap:
-        vmin, vmax = np.percentile(df_Tilted_all.values.flatten(), [1, 99])
+        vmin, vmax = np.percentile(df_plot.values.flatten(), [1, 99])
     else:
-        vmin = df_Tilted_all.min().min()
-        vmax = df_Tilted_all.max().max()
+        vmin = df_plot.min().min()
+        vmax = df_plot.max().max()
 
-
-    scalefactor = 12
     # Plotting variables
-    cmap = 'rocket'
     formatter = tkr.ScalarFormatter(useMathText=True)
     formatter.set_scientific(True)
     formatter.set_powerlimits((-2, 2))
 
-    # Create a version with and without the colorbar
+    # Create a version with and without the colorbar for purposes of keeping segments equally sized.
     colorBarSwitch = [True, False]
 
     for cbs in colorBarSwitch:
 
-        fig, axes = plt.subplots(1, 3, figsize=(scalefactor*2.4, len(df_Tilted_all)/len(row_idx_set) * scalefactor * 0.0125))  # Adjust figsize as needed
+        if heatmapDict['logChangeSal'] == True:
+            cmap = sns.diverging_palette(240, 10, as_cmap=True, center='light')
+            scalefactor = 5
+            figH = (scalefactor*8)/blockCount
+            figW = blockCount * 3
+        else:
+            cmap = 'rocket'
+            scalefactor = 12
+            figH = (scalefactor*5)/blockCount
+            figW = blockCount * 10
+
+        fig, axes = plt.subplots(1, blockCount, figsize=(figW, figH))  # Adjust figsize as needed
+        # figsize=(scalefactor*2.4, len(df_plot)/len(row_idx_set) * scalefactor * 0.0125)
+
+        if blockCount == 1:
+            axes = [axes]
 
         for idx, row_set in enumerate(row_idx_set):
 
             # Slice and modify previous structures to create segment
-            df_Tilted = df_Tilted_all.iloc[row_set[0]: row_set[1], :]
-            regionArea_local = regionArea[regionArea[dataFeature].isin(df_Tilted.index)]
+            df_plot_seg = df_plot.iloc[row_set[0]: row_set[1], :]
+            regionArea_local = regionArea[regionArea[dataFeature].isin(df_plot_seg.index)]
             region_idx = regionArea_local.Brain_Area_Idx  # Extract for horizontal lines in plot later.
 
-            # Extract data
-            matrix = df_Tilted.values
+            matrix = df_plot_seg.values
 
-            xticklabels = df_Tilted.columns.values.tolist()
-            yticklabels = df_Tilted.index.values.tolist()
+            xticklabels = df_plot_seg.columns.values.tolist()
+            yticklabels = df_plot_seg.index.values.tolist()
+            if heatmapDict['logChangeSal'] == True:
 
-            xticklabels = [x[0:-1] for x in xticklabels]
+                heatmap = sns.heatmap(matrix, cmap=cmap, ax=axes[idx] , fmt='.2f', cbar = cbs, yticklabels=yticklabels, xticklabels=xticklabels, vmin=vmin, vmax=vmax, cbar_kws={"format": formatter}, center=0)
+                horzLineColor = 'black'
 
-            # Correct DMT Label to 5-MeO DMT
-            xticklabels = ['5MEO' if item == 'DMT' else item for item in xticklabels]
-            xticklabels = ['6-F-DET' if item == '6FDET' else item for item in xticklabels]
-
-            # Convert to x axis labels
-            x_labels = ['' for _ in range(matrix.shape[1])]
-            result = hf.find_middle_occurrences(xticklabels)
-            for mid_sample_ind in result:
-                x_labels[result[mid_sample_ind][1]] = xticklabels[result[mid_sample_ind][1]]
+            else:
+                xticklabels = [x[0:-1] for x in xticklabels]
+                # Convert to x axis labels
+                x_labels = ['' for _ in range(matrix.shape[1])]
+                result = hf.find_middle_occurrences(xticklabels)
+                for mid_sample_ind in result:
+                    x_labels[result[mid_sample_ind][1]] = xticklabels[result[mid_sample_ind][1]]
                 
-            heatmap = sns.heatmap(matrix, cmap=cmap, ax=axes[idx] ,fmt='.2f', cbar = cbs, yticklabels=yticklabels, xticklabels=x_labels, vmin=vmin, vmax=vmax, cbar_kws={"format": formatter})
+                heatmap = sns.heatmap(matrix, cmap=cmap, ax=axes[idx], fmt='.2f', cbar = cbs, square=True, yticklabels=yticklabels, xticklabels=x_labels, vmin=vmin, vmax=vmax, cbar_kws={"format": formatter})
+    
+                # Clear the x-ticks
+                heatmap.tick_params(axis='x', which='both', length=0, labelsize=14)
 
-            # Clear the x-ticks
-            heatmap.tick_params(axis='x', which='both', length=0, labelsize=14)
+                # Add in vertical lines breaking up sample types
+                _, line_break_ind = np.unique(xticklabels, return_index=True)
+                for l_idx in line_break_ind:
+                    axes[idx].axvline(x=l_idx, color='white', linewidth=1)
+                horzLineColor = 'white'
 
-            # Add in vertical lines breaking up sample types
-            _, line_break_ind = np.unique(xticklabels, return_index=True)
-            for l_idx in line_break_ind:
-                axes[idx].axvline(x=l_idx, color='white', linewidth=1)
-            
             # Add in horizontal lines breaking up brain regions types.
-            _, line_break_ind = np.unique(region_idx, return_index=True)
-            for l_idx in line_break_ind:
-                axes[idx].axhline(y=l_idx, color='white', linewidth=1)
-            
+            line_break_num, line_break_ind = np.unique(region_idx, return_index=True)
+            for l_idx in line_break_ind[1:]:
+                axes[idx].axhline(y=l_idx, color=horzLineColor, linewidth=1)
+                
             # Set the ylabel on the first subplot.
             if idx == 0:
                 axes[idx].set_ylabel("Region Names", fontsize=20)
@@ -539,6 +549,147 @@ def data_heatmap_block(lightsheet_data, dataFeature, dataValues, dirDict):
         fig.text(0.5, -.02, "Samples Per Group", ha='center', fontsize=20)
         plt.tight_layout(h_pad = 0, w_pad = .5)
 
+        # Change the axis of the colorbar to represent multiples of 
+
+        plt.savefig(dirDict['classifyDir'] + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.show()
+
+def plot_data_heatmap_perArea(lightsheet_data, heatmapDict, dirDict):
+    # Current Mode: Create plot with colorbar, then without, and grab the svg item and place it in the second plot to ensure even spacing
+    # TODO: shift code to use 'GridSpec' and create a single image with 3 equally sized columns and a colorbar at once.
+    # Creates the heatmap for the data
+    # heatmapDict['feature'] = 'abbreviation'
+    # heatmapDict['data'] = 'cell_density', 'count', 'count_norm', 'density_norm', 'count_norm_scaled'
+
+    # Set variables
+    colorMapCap = True
+    dataFeature = heatmapDict['feature']
+    dataValues = heatmapDict['data']
+    blockCount =heatmapDict['blockCount']
+
+    # take the mean across all the datasets for each region, then log transform
+    if heatmapDict['logChangeSal'] == True:
+        # Create a version of the dataset which is averaged and adjusted against SAL. 
+        df_avg  = lightsheet_data.groupby([dataFeature, 'drug'])[dataValues].mean().reset_index()
+        df_piv = df_avg.pivot(index=dataFeature, columns='drug', values=dataValues)
+        df_piv = df_piv.div(df_piv['SAL'], axis=0)
+        # df_piv.drop(columns=['SAL'], inplace=True)
+        df_plot = np.log(df_piv)
+        
+    else:
+        # Pivot data to represent samples, features, and data correctly for a heatmap.
+        df_plot = lightsheet_data.pivot(index=dataFeature, columns='dataset', values=dataValues)
+
+    # Resort for coherence across figures
+    reIdx = heatmapDict['SortList']
+    if heatmapDict['logChangeSal'] == False:
+        # Identify the highest dataset number and use that to sort things. 
+        # Will throw an error if dataset numbers are not the same across conditions.
+        maxSampleNum = np.max(np.array([x[-1:] for x in list(lightsheet_data.dataset)]).astype(int)) + 1
+        reIdx = [f'{item}{i}' for item in reIdx for i in range(1, maxSampleNum)]
+    df_plot = df_plot[reIdx]
+
+    # Create indicies for dividing the data into the correct number of  sections regardless of the size
+    row_idx_set = np.zeros((blockCount, 2), dtype=int)
+    indices = np.linspace(0, len(df_plot), num=blockCount+1, dtype=int)
+    for block_idx in range(blockCount):
+        row_idx_set[block_idx][0] = indices[block_idx]
+        row_idx_set[block_idx][1] = indices[block_idx+1]
+        
+    # Create a dictionary of region to area
+    regionArea = hf.create_region_to_area_dict(lightsheet_data, dataFeature)
+
+    # Sort the data to be combined per larger area
+    df_plot = df_plot.loc[regionArea[dataFeature]]
+
+    # Find the ends of the colormap
+    if colorMapCap:
+        vmin, vmax = np.percentile(df_plot.values.flatten(), [1, 99])
+    else:
+        vmin = df_plot.min().min()
+        vmax = df_plot.max().max()
+
+    # Plotting variables
+    formatter = tkr.ScalarFormatter(useMathText=True)
+    formatter.set_scientific(True)
+    formatter.set_powerlimits((-2, 2))
+
+    # Create a version with and without the colorbar for purposes of keeping segments equally sized.
+    colorBarSwitch = [True, False]
+
+    for cbs in colorBarSwitch:
+
+        if heatmapDict['logChangeSal'] == True:
+            cmap = sns.diverging_palette(240, 10, as_cmap=True, center='light')
+            scalefactor = 12
+            figH = (scalefactor*5)/blockCount
+            figW = blockCount * 3
+        else:
+            cmap = 'rocket'
+            scalefactor = 12
+            figH = (scalefactor*5)/blockCount
+            figW = blockCount * 10
+
+        fig, axes = plt.subplots(1, blockCount, figsize=(figW, figH))  # Adjust figsize as needed
+        # figsize=(scalefactor*2.4, len(df_plot)/len(row_idx_set) * scalefactor * 0.0125)
+
+        if blockCount == 1:
+            axes = [axes]
+
+        for idx, row_set in enumerate(row_idx_set):
+
+            # Slice and modify previous structures to create segment
+            df_plot_seg = df_plot.iloc[row_set[0]: row_set[1], :]
+            regionArea_local = regionArea[regionArea[dataFeature].isin(df_plot_seg.index)]
+            region_idx = regionArea_local.Brain_Area_Idx  # Extract for horizontal lines in plot later.
+
+            matrix = df_plot_seg.values
+
+            xticklabels = df_plot_seg.columns.values.tolist()
+            yticklabels = df_plot_seg.index.values.tolist()
+            if heatmapDict['logChangeSal'] == True:
+
+                heatmap = sns.heatmap(matrix, cmap=cmap, ax=axes[idx] , fmt='.2f', cbar = cbs, yticklabels=yticklabels, xticklabels=xticklabels, vmin=vmin, vmax=vmax, cbar_kws={"format": formatter}, center=0)
+                horzLineColor = 'black'
+
+            else:
+                xticklabels = [x[0:-1] for x in xticklabels]
+                # Convert to x axis labels
+                x_labels = ['' for _ in range(matrix.shape[1])]
+                result = hf.find_middle_occurrences(xticklabels)
+                for mid_sample_ind in result:
+                    x_labels[result[mid_sample_ind][1]] = xticklabels[result[mid_sample_ind][1]]
+                
+                heatmap = sns.heatmap(matrix, cmap=cmap, ax=axes[idx], fmt='.2f', cbar = cbs, yticklabels=yticklabels, xticklabels=x_labels, vmin=vmin, vmax=vmax, cbar_kws={"format": formatter})
+    
+                # Clear the x-ticks
+                heatmap.tick_params(axis='x', which='both', length=0, labelsize=14)
+
+                # Add in vertical lines breaking up sample types
+                _, line_break_ind = np.unique(xticklabels, return_index=True)
+                for l_idx in line_break_ind:
+                    axes[idx].axvline(x=l_idx, color='white', linewidth=1)
+                horzLineColor = 'white'
+
+            # Add in horizontal lines breaking up brain regions types.
+            line_break_num, line_break_ind = np.unique(region_idx, return_index=True)
+            for l_idx in line_break_ind[1:]:
+                axes[idx].axhline(y=l_idx, color=horzLineColor, linewidth=1)
+                
+            # Set the ylabel on the first subplot.
+            if idx == 0:
+                axes[idx].set_ylabel("Region Names", fontsize=20)
+
+            # if idx == 2:
+            #     cbar = heatmap.collections[0].colorbar
+            #     cbar.set_label('Colorbar Label', rotation=270, labelpad=5)
+
+        titleStr = f"Data_{dataValues}_block_colorbar_{cbs}"  
+        fig.suptitle(titleStr, fontsize=30, y=1.02)
+        fig.text(0.5, -.02, "Samples Per Group", ha='center', fontsize=20)
+        plt.tight_layout(h_pad = 0, w_pad = .5)
+
+        # Change the axis of the colorbar to represent multiples of 
 
         plt.savefig(dirDict['classifyDir'] + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
         plt.show()
@@ -689,7 +840,7 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     if '\n' in titleStr:
         titleStr = titleStr.replace('\n                  ', '')
 
-    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)
+    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)/2.2
     figSizeMat[0] = figSizeMat[0] + 1
     plt.figure(figsize=figSizeMat)
     ax = sns.heatmap(mean_of_conf_matrix_arrays, linewidth=0.25,cmap='Reds', annot=True, fmt=".2f", square=True, cbar_kws={"shrink": 0.8})
@@ -716,7 +867,8 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
 
     y_real_all, y_prob_all = [], []
 
-    f = plt.figure(figsize=(8, 8))
+    figSizeMat = np.array((n_classes, n_classes))/2.2
+    f = plt.figure(figsize=figSizeMat)
     axes = plt.axes()
 
     # Depending on feature list y passed, determine if the classes are numbers or strings
@@ -725,12 +877,7 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
 
     auc_dict = dict()
 
-    colorDict = hf.drug_color_map()
-    # simpDict = hf.simplified_name_trans_dict()
-
-    # for label in labelDict.values():
-    #     if label in simpDict.keys():
-    #         labelDict[label] = simpDict[label]
+    colorDict = hf.create_color_dict(dictType='drug', rgbSwitch=0, alpha_value=0, scaleVal=False)
 
     for i in np.arange(n_classes):
         label_per_split = y_real[:, :, i]
@@ -758,32 +905,30 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     axes.step(recall, precision, label=lab, lw=3, color='black')
 
     # PR Curves
-    axes.set_xlabel('Recall', fontsize=18)
-    axes.set_ylabel('Precision', fontsize=18)
+    axes.set_xlabel('Recall')
+    axes.set_ylabel('Precision')
 
     if n_classes == 2:
         legend = axes.legend(loc='lower left', fontsize='xx-large')
         # Adjust the size for purposes of the paper
         for label in legend.get_texts():
             label.set_fontproperties(FontProperties(size=30, weight='bold'))
-
         for label in legend.get_lines():
             label.set_linewidth(15)
     else:
         legend = axes.legend(loc='lower left', fontsize='large')
-        
-    plt.tick_params(axis='both', which='both', labelsize=15, width=2, length=6)
+        for label in legend.get_lines():
+            label.set_linewidth(.5)
 
-    # axes.set_title(daObjstr + ', PR Curves')
     plt.savefig(join(dirDict['outDir_model'], f"PRcurve_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
-
     plt.show()
 
     return auc_dict
 
-def plot_shap_summary(X_train_trans_list, shap_values_list, n_classes, plotDict, dirDict):
+def plot_shap_summary(X_train_trans_list, shap_values_list, y_vec, n_classes, plotDict, classifyDict, dirDict):
     
     n_splits = len(X_train_trans_list)
+    shap_threshold = np.ceil(n_splits * plotDict['shapSummaryThres']/100)
 
     X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
     shap_values_nonmean = []
@@ -806,53 +951,265 @@ def plot_shap_summary(X_train_trans_list, shap_values_list, n_classes, plotDict,
         svf_sorted = feature_model_count.sort_values(ascending=False)
 
         if plotDict['shapSummaryThres'] is not None:
-            svf_sorted = svf_sorted[svf_sorted >= plotDict['shapSummaryThres']]
+            svf_sorted = svf_sorted[svf_sorted >= shap_threshold]
             maxDisp = len(svf_sorted)-1
         else:
             maxDisp = plotDict['shapMaxDisplay']
 
-        sortingIdx = svf_sorted.index[1:]
-        testCaseCount = [int(x) for x in svf_sorted.values[1:]]
-    
-        X_train_trans_sorted = X_train_trans_nonmean.loc[:,sortingIdx]
-        shap_values_sorted = shap_vals.loc[:,sortingIdx]
+        # For effective plotting and sorting purposes, NaNs -> 0s
+        shap_vals = shap_vals.fillna(0)
 
-        # Adjust the feature names to include their counts.
-        featureNames = [f"{feat} ({testCaseCount[idx]})" for idx, feat in enumerate(sortingIdx)]
+        # Filter the data for the top features
+        sortingIdx = svf_sorted.index
+        X_train_trans_sorted = X_train_trans_nonmean[sortingIdx]
+        shap_vals = shap_vals[sortingIdx]
+
+        # if there are 2 classes, sort by the median difference
+        if n_classes == 2:
+            # Map the index column to a new 'drug' column using y_vec
+            shap_vals['drug'] = y_vec[shap_vals['index']]
+
+            # Identify unique drug names
+            drugList = list(shap_vals['drug'].unique())
+
+            drugMedians = pd.DataFrame(index=list(shap_vals.columns[1:-1]), columns=drugList)
+            shap_vals.reset_index(inplace=True, drop=True)
+            for drug in drugList:
+                drugMedians.loc[:, drug] = shap_vals.loc[shap_vals['drug'] == drug].median()
+            
+            # Find the difference between the medians
+            drugMedians['medianDiff'] = abs(drugMedians[drugList[0]] - drugMedians[drugList[1]])
+
+            # Sort by the median difference
+            drugMedians_sort = drugMedians.sort_values(by='medianDiff', ascending=False)
+
+            # Resort data by the drug median
+            shap_vals = shap_vals[drugMedians_sort.index]
+            X_train_trans_sorted = X_train_trans_sorted[drugMedians_sort.index]
+
+        sortSHAP = False
+        parenVal = 'medianDiff'
+
+        if parenVal == 'count':
+            # Adjust the feature names to include their counts.
+            parenVal = [int(x) for x in svf_sorted.values[1:]]
+            featureNames = [f"{feat} ({svf_sorted[feat]})" for feat in list(shap_vals.columns)]
+        elif parenVal == 'medianDiff':
+            parenVal = drugMedians_sort.medianDiff.round(2)
+            featureNames = [f"{feat} ({parenVal[feat]})" for feat in list(shap_vals.columns)]
 
         if cap_shap_values:
-            shap_values_sorted = shap_values_sorted.clip(lower=-max_abs_shap_val, upper=max_abs_shap_val)
+            shap_vals = shap_vals.clip(lower=-max_abs_shap_val, upper=max_abs_shap_val)
 
+        # Find the min and the max of the SHAP values
+        shap_values_min = shap_vals.min().min()
+        shap_values_max = shap_vals.max().max()
+
+        # Find whether the min or max is larger in magnitude and assgin it to 'maxVal'
+        if abs(shap_values_min) > shap_values_max:
+            maxVal = abs(shap_values_min)
+        else:
+            maxVal = shap_values_max
+        maxVal = maxVal + 0.01
+
+        # Create a method that accounts for the number of features in the plot to set the figure size. Scale for purposes of other elements.
+        scaleFactor = 3
+        figW = 1.763
+        figH = 0.141 + (0.09 * len(shap_vals.columns)) # Original height per data 0.0913125
+        # figSize = (figH * scaleFactor, figW * scaleFactor)
+               
         # Plot the SHAP values
-        shap.summary_plot(shap_values_sorted.values, X_train_trans_sorted.values, feature_names=featureNames, sort=False, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score')
+        if 'MDMA' in classifyDict['label']:
 
-        # Save the plot +/- Titling it.
-        # plt.title('SHAP Values, Test data', fontdict={'fontsize': 20})
-        plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary.svg"), format='svg', bbox_inches='tight')
+            firstHalfIdx = int(len(featureNames)/2)
+            shap.summary_plot(shap_vals.values[:, 0:firstHalfIdx], X_train_trans_sorted.values[:, 0:firstHalfIdx], feature_names=featureNames[0:firstHalfIdx], sort=sortSHAP, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score', plot_size=.3)
+            plt.xlim([-maxVal, maxVal])
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_1_Sym.svg"), format='svg', bbox_inches='tight')
+            plt.show()
+
+            shap.summary_plot(shap_vals.values[:, firstHalfIdx:], X_train_trans_sorted.values[:, firstHalfIdx:], feature_names=featureNames[firstHalfIdx:], sort=sortSHAP, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score', plot_size=.3)
+            plt.xlim([-maxVal, maxVal])
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_2_Sym.svg"), format='svg', bbox_inches='tight')
+            plt.show()
+        else:
+            shap.summary_plot(shap_vals.values, X_train_trans_sorted.values, feature_names=featureNames, sort=sortSHAP, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score', plot_size=.45)
+            plt.xlim([-maxVal, maxVal])
+            # Save the plot +/- Titling it.
+            # Update the font on the x axis tick labels
+
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_Sym.svg"), format='svg', bbox_inches='tight') #, bbox_inches='tight'
+            plt.show()
+
+def plot_shap_bar(explainers, X_train_trans_list, shap_values_list, y_vec, n_classes, plotDict, classifyDict, dirDict):
+    
+    n_splits = len(X_train_trans_list)
+    shap_threshold = np.ceil(n_splits * plotDict['shapSummaryThres']/100)
+
+    X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
+    shap_values_nonmean = []
+    if n_classes == 2:
+        shap_values_nonmean.append(pd.concat(shap_values_list, axis=0))
+        test_count = shap_values_list[0].shape[0]
+    else:
+        test_count = shap_values_list[0][0].shape[0]
+        for shap_x_df in shap_values_list:
+            shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
+
+    # Plot the SHAP values for each class
+    cap_shap_values = True # Cap the SHAP values at 1 and -1
+    max_abs_shap_val = 1
+
+    # expOut = []
+    # for explainer, x_data in zip(explainers, X_train_trans_list):
+    #     expOut1 = explainer(x_data.drop('index', axis=1))
+
+
+
+    for shap_vals in shap_values_nonmean:
+        # determine how many models across all the splits each feature was included in
+        shapValueCount = shap_vals.agg(np.isnan).sum()
+        feature_model_count = n_splits - shapValueCount/test_count
+        svf_sorted = feature_model_count.sort_values(ascending=False)
+
+        if plotDict['shapSummaryThres'] is not None:
+            svf_sorted = svf_sorted[svf_sorted >= shap_threshold]
+            maxDisp = len(svf_sorted)-1
+        else:
+            maxDisp = plotDict['shapMaxDisplay']
+
+        # For effective plotting and sorting purposes, NaNs -> 0s
+        shap_vals = shap_vals.fillna(0)
+
+        # Filter the data for the top features
+        sortingIdx = svf_sorted.index
+        X_train_trans_sorted = X_train_trans_nonmean[sortingIdx]
+        shap_vals = shap_vals[sortingIdx]
+
+        # if there are 2 classes, sort by the median difference
+        if n_classes == 2:
+            # Map the index column to a new 'drug' column using y_vec
+            shap_vals['drug'] = y_vec[shap_vals['index']]
+
+            # Identify unique drug names
+            drugList = list(shap_vals['drug'].unique())
+
+            drugMedians = pd.DataFrame(index=list(shap_vals.columns[1:-1]), columns=drugList)
+            shap_vals.reset_index(inplace=True, drop=True)
+            for drug in drugList:
+                drugMedians.loc[:, drug] = shap_vals.loc[shap_vals['drug'] == drug].median()
+            
+            # Find the difference between the medians
+            drugMedians['medianDiff'] = abs(drugMedians[drugList[0]] - drugMedians[drugList[1]])
+
+            # Sort by the median difference
+            drugMedians_sort = drugMedians.sort_values(by='medianDiff', ascending=False)
+
+            # Resort data by the drug median
+            shap_vals = shap_vals[drugMedians_sort.index]
+            X_train_trans_sorted = X_train_trans_sorted[drugMedians_sort.index]
+
+        sortSHAP = True
+        parenVal = 'medianDiff'
+
+        # explainer(x_data.drop('index', axis=1))
+        thingOut = explainers[0](X_train_trans_list[0].drop('index', axis=1))
+        shap.plots.bar(thingOut, max_display=12)
         plt.show()
 
+
+        if parenVal == 'count':
+            # Adjust the feature names to include their counts.
+            parenVal = [int(x) for x in svf_sorted.values[1:]]
+            featureNames = [f"{feat} ({svf_sorted[feat]})" for feat in list(shap_vals.columns)]
+        elif parenVal == 'medianDiff':
+            parenVal = drugMedians_sort.medianDiff.round(2)
+            featureNames = [f"{feat} ({parenVal[feat]})" for feat in list(shap_vals.columns)]
+
+        if cap_shap_values:
+            shap_vals = shap_vals.clip(lower=-max_abs_shap_val, upper=max_abs_shap_val)
+
+        # Find the min and the max of the SHAP values
+        shap_values_min = shap_vals.min().min()
+        shap_values_max = shap_vals.max().max()
+
+        # Find whether the min or max is larger in magnitude and assgin it to 'maxVal'
+        if abs(shap_values_min) > shap_values_max:
+            maxVal = abs(shap_values_min)
+        else:
+            maxVal = shap_values_max
+        maxVal = maxVal + 0.01
+
+        # Create a method that accounts for the number of features in the plot to set the figure size. Scale for purposes of other elements.
+        scaleFactor = 5
+        figW = 1.763
+        figH = 0.141 + (0.0913125 * len(shap_vals.columns)) * 1.5
+        figSize = (figW * scaleFactor, figH * scaleFactor)
+        #, plot_size=figSize
+               
+        # Plot the SHAP values
+        if 'MDMA' in classifyDict['label']:
+            firstHalfIdx = int(len(featureNames)/2)
+            pltHdl = shap.summary_plot(shap_vals.values[:, 0:firstHalfIdx], X_train_trans_sorted.values[:, 0:firstHalfIdx], feature_names=featureNames[0:firstHalfIdx], sort=sortSHAP, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score')
+            plt.xlim([-maxVal, maxVal])
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_1_Sym.svg"), format='svg', bbox_inches='tight')
+            plt.show()
+
+            shap.summary_plot(shap_vals.values[:, firstHalfIdx:], X_train_trans_sorted.values[:, firstHalfIdx:], feature_names=featureNames[firstHalfIdx:], sort=sortSHAP, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score')
+            plt.xlim([-maxVal, maxVal])
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_2_Sym.svg"), format='svg', bbox_inches='tight')
+            plt.show()
+        else:
+            pltHdl = shap.summary_plot(shap_vals.values, X_train_trans_sorted.values, feature_names=featureNames, sort=sortSHAP, show=False, max_display=maxDisp, cmap='PuOr_r', color_bar_label='cFos Score')
+            plt.xticks(fontsize=14)
+            plt.xlim([-maxVal, maxVal])
+            # Save the plot +/- Titling it.
+            # Update the font on the x axis tick labels
+
+            # shap.plots.bar(shap_vals.values, max_display=12)
+            # plt.show()
+
+            plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_Sym.svg"), format='svg', bbox_inches='tight') #, bbox_inches='tight'
+            plt.show()
+
 def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, plotDict, dirDict):
+    import itertools
 
     if plotDict['shapForcePlotCount'] == 0:
         return
+    else:
+        forcePlotCount = plotDict['shapForcePlotCount']
 
     class_count = len(numYDict.keys())
     n_splits = len(X_train_trans_list)
     test_count = shap_values_list[0].shape[0]
-    forcePlotCount = 10
 
     # Generate an array of true labels
     labelDict = {value: key for key, value in numYDict.items()}
 
-    regionList = False
+    regionList = True
+    regionListSet = ['VISpm', 'LH', 'MA']
 
     if regionList:
-        cvSplit1, testPoint1, cvSplit2, testPoint2 = find_max_min_index(shap_values_list, ['VISpm', 'LH'])
+        cvSplit1, testPoint1, cvSplit2, testPoint2 = find_max_min_index(shap_values_list, regionListSet)
         cvSplitSet = [cvSplit1] * 4
         testPointSet = [0, 1, 2, 3]
         cvSplitTest = list(zip(cvSplitSet, testPointSet))
     else:
         cvSplitTest = np.random.randint(np.zeros((1,forcePlotCount)), [[n_splits], [test_count-1]], dtype=np.uint8).T
+
+    idx_db = sortShap(shap_values_list, regionListSet)
+    idx_db = list(idx_db.sort_values(by='normVal', ascending=False).index)
+
+    # Replicate each of the points in idx_db by 4
+    idx_db2 = np.tile(idx_db, [4, 1]).T
+
+    # Reshape the list into a 1D array
+    idx_db2 = idx_db2.reshape(-1)
+    testPointSet = [0, 1, 2, 3] * 100
+
+    cvSplitTest = list(zip(idx_db2, testPointSet))
+
+    cvSplitTest = cvSplitTest[0:forcePlotCount]
 
     # Do an example force plot
     if class_count == 2:
@@ -881,6 +1238,9 @@ def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, 
             plt.show()
 
 def plot_feature_scores(clf, featureNames):
+    # A function which plots feature scores from a pipeline object if that feature selection method has scores/pvalues.
+    # Examples - Fdr, Fwe, and Fwe_BH
+
     support_ = clf['featureSel'].get_support()
     scores_ = clf['featureSel'].scores_[support_]
     pvalues_ = clf['featureSel'].pvalues_[support_]
@@ -918,13 +1278,14 @@ def plot_histogram(data, dirDict):
 def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, saveDir):
 
     plt.figure(figsize=(5, 5))  # Adjust the width and height as needed
-    plt.barh(scoreNames, aucScores, color=colorsList[0])
+    plt.barh(scoreNames, aucScores, label='Data', color=colorsList[0])
     plt.barh(scoreNames, aucScrambleScores, label='Shuffled', color=colorsList[1])
-    # plt.xlim(0.5, 1),
-    plt.title('Mean Precision-Recall Area Under Curve')
+
+    # Add legend
+    plt.legend()
 
     # Set labels and title,
-    plt.xlabel('Mean AUC')
+    plt.xlabel('Mean Area Under Precision-Recall Curve')
     plt.ylabel('Classifier')
 
     for index, value in enumerate(aucScores):
@@ -942,18 +1303,18 @@ def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, s
 def plot_cross_model_Accuracy(scoreNames, meanScores, meanScrambleScores, colorsList, saveDir):
     import matplotlib.pyplot as plt
 
-    # Set font to 12 pt Helvetica
-    plt.rcParams['font.family'] = 'Helvetica'
-    plt.rcParams['font.size'] = 12
-    plt.rcParams['svg.fonttype'] = 'none'
     # Plot the bar chart
+    plt.figure(figsize=(5, 5))  # Adjust the width and height as needed
     plt.barh(scoreNames, meanScores, label='Data', color=colorsList[0])
     plt.barh(scoreNames, meanScrambleScores, label='Shuffled', color=colorsList[1])
-    plt.title('Mean Accuracy across cross-validation')
+
+    # Add a legend explaining colors
+    plt.legend()
 
     # Set labels and title
     plt.xlabel('Score')
     plt.ylabel('Classification')
+    plt.title('Mean Accuracy across cross-validation')
 
     # Add percentage text to the plot
     for index, value in enumerate(meanScores):
@@ -967,10 +1328,6 @@ def plot_cross_model_Accuracy(scoreNames, meanScores, meanScrambleScores, colors
     # Save and show the plot
     plt.savefig(f"{saveDir}MeanAcc_barplot.svg", format='svg', bbox_inches='tight')     
     plt.show()
-
-# def plot_saline_norm_heatmap(data, controlDrug, featuredirDict):
-#     # Takes in a dataframe, arrives at means for each region under each condition, and normalizes all values relative to the influence of controlDrug.
-#     # Data - a pandas dataframe
 
 def find_max_index(shap_values_list, regionSet):
     max_value = 0  # Initialize max_value to store the maximum value
@@ -1006,6 +1363,8 @@ def find_max_min_index(shap_values_list, regionSet):
     max_row_index = None  # Initialize max_row_index to store the index of the row with the maximum values
     min_row_index = None  # Initialize min_row_index to store the index of the row with the minimum values
 
+    idxList = []
+
     for idx, shap_val_tab in enumerate(shap_values_list):
         # Check if all elements in regionSet are present in the DataFrame
         if not all(region in shap_val_tab.columns for region in regionSet):
@@ -1024,6 +1383,7 @@ def find_max_min_index(shap_values_list, regionSet):
             max_value = current_max_value
             max_index = idx
             max_row_index = row_sums.idxmax()
+            idxList.append(idx)
 
         # Find the index with the minimum sum
         current_min_value = row_sums.min()
@@ -1032,4 +1392,51 @@ def find_max_min_index(shap_values_list, regionSet):
             min_index = idx
             min_row_index = row_sums.idxmin()
 
+    max_index = idxList[-1]
+
     return max_index, max_row_index, min_index, min_row_index
+
+def sortShap(shap_values_list, regionSet):
+    max_value = 0  # Initialize max_value to store the maximum value
+    min_value = float('inf')  # Initialize min_value to store the minimum value
+    max_index = None  # Initialize max_index to store the corresponding index in shap_values_list
+    min_index = None  # Initialize min_index to store the corresponding index in shap_values_list
+    max_row_index = None  # Initialize max_row_index to store the index of the row with the maximum values
+    min_row_index = None  # Initialize min_row_index to store the index of the row with the minimum values
+
+    idxList = []
+
+    normalizedVals = []
+    databaseIdx = pd.DataFrame(index=np.arange(0, len(shap_values_list)), columns=['normVal'])
+
+    for idx, shap_val_tab in enumerate(shap_values_list):
+        # Check if all elements in regionSet are present in the DataFrame
+        if not all(region in shap_val_tab.columns for region in regionSet):
+            # Skip to the next iteration if not all elements are present
+            continue
+
+        # Calculate the normalized values for the specified regions in regionSet
+        normalized_values = shap_val_tab.loc[:, regionSet] / shap_val_tab.iloc[:, 1:].max().max()
+
+        # Calculate the sum of the specified regions for each row
+        row_sums = normalized_values.sum(axis=1)
+
+        databaseIdx.loc[idx, 'normVal'] = row_sums.max()
+        # Find the index with the maximum sum
+        current_max_value = row_sums.max()
+        if current_max_value > max_value:
+            max_value = current_max_value
+            max_index = idx
+            max_row_index = row_sums.idxmax()
+            idxList.append(idx)
+
+        # Find the index with the minimum sum
+        current_min_value = row_sums.min()
+        if current_min_value < min_value:
+            min_value = current_min_value
+            min_index = idx
+            min_row_index = row_sums.idxmin()
+
+    max_index = idxList[-1]
+
+    return databaseIdx

@@ -12,7 +12,7 @@ if not os.path.isdir(figDir):
 # Define colors for the columns
 # colors = ['red', 'green', 'blue', 'purple', 'orange', 'gold'] # Full set
 colors = ['red', 'green', 'purple', 'orange'] # subset to show feature selection
-
+ 
 # Define the number of gradient steps and grid size
 num_steps = 6
 grid_size = len(colors)  # Modify this list to change the number of columns and colors
@@ -31,6 +31,9 @@ for shuffle_switch, fName in zip(shuffleSet, shuffleSet_name):
         for j in range(grid_size):
             color_index = min(j, len(colors) - 1)
             gradient_matrix[i, j] = mcolors.to_rgba(colors[color_index], 1.0 - ((i*color_step) + 1) / 10)
+
+    # Delete columns 0 and 3 
+    gradient_matrix = np.delete(gradient_matrix, [0, 3], axis=1)
 
     # Shuffle columns if needed
     if shuffle_switch:

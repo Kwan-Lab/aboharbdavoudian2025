@@ -7,7 +7,7 @@ import os
 import pickle as pkl
 from collections import defaultdict
 
-def create_color_dict(dictType='drug', rgbSwitch=1):
+def create_color_dict(dictType='drug', rgbSwitch=0, alpha_value=1, scaleVal=False):
     # Create a dictionary of colors for brain regions or drugs
     color_dict = dict()
 
@@ -20,6 +20,14 @@ def create_color_dict(dictType='drug', rgbSwitch=1):
         color_dict['A-SSRI'] = '#CC3311'
         color_dict['C-SSRI'] = '#EE6677'
         color_dict['SAL'] = '#BBBBBB'
+
+        # Drug Combos and non-trad names.
+        color_dict['PSI/5MEO'] = '#228833'
+        color_dict['PSI + 5MEO'] = '#228833'
+        color_dict['HTrypt'] = '#228833'
+        color_dict['Non Halluc Trypt'] = '#66CCEE'
+        color_dict['Ag_5HT2A'] = '#228833'
+        color_dict['Entactogen'] = '#AA3377'
 
     elif dictType == 'brainArea':
         color_dict['Olfactory'] = '#377eb8'
@@ -35,6 +43,16 @@ def create_color_dict(dictType='drug', rgbSwitch=1):
         # If rgbSwitch is on, replace the entries in color_dict with RGBA values.
         for color in color_dict.items():
             color_dict[color[0]] = (int(color[1][1:3], 16), int(color[1][3:5], 16), int(color[1][5:7], 16))
+
+        if scaleVal:
+            # Scale the values between 0 and 1
+            for color in color_dict.items():
+                color_dict[color[0]] = tuple(ti/255 for ti in color[1])
+
+        if alpha_value != 0:
+            # addAlpha is true, add the alpha value
+            for color in color_dict.items():
+                color_dict[color[0]] = color[1] + (alpha_value,)  # Add alpha value to the RGB tuple
 
     return color_dict
 
@@ -147,11 +165,8 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
 
     # Set variable for color coding output plots
     brainAreaList= ['Olfactory', 'Cortex', 'Hippo', 'StriatumPallidum', 'Thalamus', 'Hypothalamus', 'MidHindMedulla', 'Cerebellum']
-    brainAreaListPlot= ['Olfactory', 'Cortex', 'Hippo', 'Stri+Pall', 'Thalamus', 'Hypothalamus', 'Mid Hind Medulla', 'Cerebellum']
-    brainAreaColor =     ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628','#984ea3','#999999', '#e41a1c'] #, '#dede00'
-    brainAreaPlotDict = dict(zip(brainAreaList, brainAreaListPlot))
-    brainAreaColorDict = dict(zip(brainAreaList, brainAreaColor))
     AreaIdx = dict(zip(brainAreaList, np.arange(len(brainAreaList))))
+    brainAreaColorDict = create_color_dict(dictType='brainArea', rgbSwitch=0, alpha_value=1, scaleVal=False)
 
     colList = [classifyDict['feature'], 'Brain_Area']
     regionArea = lightsheet_data.loc[:, colList]
@@ -159,9 +174,6 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     regionArea['Brain_Area_Idx'] = [AreaIdx[x] for x in regionArea.loc[:, 'Brain_Area']]
     regionArea['Region_Color'] = [brainAreaColorDict[x] for x in regionArea.loc[:, 'Brain_Area']]
     regionArea.sort_values(by='abbreviation', inplace=True)
-
-    clusterColors = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628','#984ea3','#999999', '#e41a1c']
-    colorDict = dict(zip(range(cluster_count), clusterColors))
 
     # Extract data from pandas df
     df_Tilted = lightsheet_data.pivot(index='dataset', columns=classifyDict['feature'], values=classifyDict['data'])    
@@ -205,8 +217,8 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     plt.axhline(y=classifyDict['cluster_thres'], color='r', linestyle='--', linewidth=3)
     plt.yticks(fontsize=30)
 
-    figSavePath = os.path.join(dirDict['outDir_data'], 'origDendrogram.png')
-    plt.savefig(figSavePath, bbox_inches='tight')
+    figSavePath = os.path.join(dirDict['outDir_data'], 'origDendrogram.svg')
+    plt.savefig(figSavePath, bbox_inches='tight', format='svg')
     plt.show()
 
     # Show the cluster map
@@ -214,12 +226,11 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     plt.title(f"{titleStr}, Clustered", fontsize=15)
     plt.title(titleStr, fontsize=15)
 
-    figSavePath = os.path.join(dirDict['outDir_data'], 'origClustered.png')
-    plt.savefig(figSavePath, bbox_inches='tight')
+    figSavePath = os.path.join(dirDict['outDir_data'], 'origClustered.svg')
+    plt.savefig(figSavePath, bbox_inches='tight', format='svg')
     plt.show()
 
     # Generate new features based on clustering - average of each cluster
-    # new_labels = hierarchy.fcluster(col_row_link, cluster_count, criterion='maxclust')  # Cluster based on how many clusters you want
     new_labels = hierarchy.fcluster(col_row_link, classifyDict['cluster_thres'], criterion='distance')
     unique_values, counts = np.unique(new_labels, return_counts=True)
 
@@ -258,8 +269,8 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     plt.xlabel('Feature', fontsize=15)
 
     # Save the figure in the dirDict['tempDir']
-    figSavePath = os.path.join(dirDict['outDir_data'], 'clustered.png')
-    plt.savefig(figSavePath, bbox_inches='tight')
+    figSavePath = os.path.join(dirDict['outDir_data'], 'clustered.svg')
+    plt.savefig(figSavePath, bbox_inches='tight', format='svg')
     plt.show()
 
     # Following the aggregation, check for multicollinearity
@@ -582,6 +593,10 @@ def dataStrPathGen(classifyDict, dirDict):
     if classifyDict['featurefilt']:
         keys_to_keep += ['featurefilt', 'filtType']
 
+    # Add gridCV at the end
+    if classifyDict['gridCV']:
+        keys_to_keep.append('gridCV')
+
     smallDict = {key: value for key, value in classifyDict.items() if key in keys_to_keep}
     data_param_string = "-".join([f"{key}={value}" for key, value in smallDict.items()])
 
@@ -616,7 +631,8 @@ def save_string_dict():
     saveStringDict['featureAgg=True'] = 'featAgg'
     saveStringDict['featureSel_linkage=average-featureSel_distance=correlation'] = 'avgCorrClus'
     saveStringDict['cluster_thres='] = 'clusThres'
-    
+
+    saveStringDict['gridCV=True'] = 'gridCV'
     saveStringDict['featureTrans_PowerTransformer(standardize=False)'] = 'PowerTrans'
     saveStringDict['featureSel'] = 'fSel'
     saveStringDict['featureScale_RobustScaler()'] = 'RobScal'
@@ -641,42 +657,38 @@ def stringReportOut(selected_features_list, selected_features_params, YtickLabs,
     else:
         YtickLabs = [' vs '.join(YtickLabs)]
 
-    f"Feature count per model {[len(x) for x in selected_features_list[0]]}"
+    f"Feature count per model {[len(x) for x in selected_features_list]}"
 
     # Report on which features make the cut.
-    for idx, drugClass in enumerate(YtickLabs):
-        regionList = np.concatenate(selected_features_list[idx])
 
-        # Process the feature per model list into a string
-        featurePerModel = [len(x) for x in selected_features_list[0]]
-        featurePerModelStr = str(featurePerModel)
-        paramStr = ''
+    # Process the feature per model list into a string
+    featurePerModel = [len(x) for x in selected_features_list]
+    featurePerModelStr = str(featurePerModel)
+    paramStr = ''
 
-        keyList = selected_features_params[idx][0].keys()
-        for key in list(keyList):
-            keyVals = [x[key] for x in selected_features_params[idx]]
-            paramStr += f"{key}: {str(keyVals)} \n"
+    keyList = selected_features_params[0][0].keys()
+    for key in list(keyList):
+        keyVals = [x[key] for x in selected_features_params[0]]
+        paramStr += f"{key}: {str(keyVals)} \n"
 
-        if len(regionList) == 0:
-            continue
+    if np.sum(featurePerModel) == 0:
+        return
 
-        regionDict = dict(Counter(regionList))
-        labels, counts = list(regionDict.keys()), list(regionDict.values())
+    labels, counts = feature_model_count(selected_features_list)
+    finalStr = conciseStringReport(labels, counts)
 
-        finalStr = conciseStringReport(labels, counts)
+    # Plot the histogram of features per model
+    plot_histogram(featurePerModel, dirDict)
 
-        # Plot the histogram of features per model
-        plot_histogram(featurePerModel, dirDict)
+    print(f'==== {YtickLabs} ==== \n Features per Model: {featurePerModelStr}')
+    print(f'Parameters: \n {paramStr}')
+    print(f'Total Regions = {str(len(labels))} \n {finalStr}')
 
-        print(f'==== {drugClass} ==== \n Features per Model: {featurePerModelStr}')
-        print(f'Parameters: \n {paramStr}')
-        print(f'Total Regions = {str(len(labels))} \n {finalStr}')
-
-        file = open(os.path.join(dirDict['outDir_model'], 'featureSelReadout.txt'), 'w')
-        file.write(f'==== {drugClass} ==== \n Features per Model: {featurePerModelStr} \n')
-        file.write(f'Parameters: \n {paramStr}')
-        file.write(f'Total Regions = {str(len(labels))} \n {finalStr}')
-        file.close()
+    file = open(os.path.join(dirDict['outDir_model'], 'featureSelReadout.txt'), 'w')
+    file.write(f'==== {YtickLabs} ==== \n Features per Model: {featurePerModelStr} \n')
+    file.write(f'Parameters: \n {paramStr}')
+    file.write(f'Total Regions = {str(len(labels))} \n {finalStr}')
+    file.close()
 
 def feature_barplot(selected_features_list, selected_features_params, YtickLabs):
     from collections import Counter
@@ -727,29 +739,11 @@ def simplified_name_trans_dict():
 
     return simpDict
 
-def drug_color_map():
-    colorDict = dict()
-    colorDict['PSI'] = '#228833'
-    colorDict['KET'] = '#AA3377'
-    colorDict['5MEO'] = '#4477AA'
-    colorDict['6-F-DET'] = '#66CCEE'
-    colorDict['MDMA'] = '#CCBB44'
-    colorDict['A-SSRI'] = '#CC3311'
-    colorDict['C-SSRI'] = '#EE6677'
-    colorDict['SAL'] = '#BBBBBB'
-
-    # Drug Combos and non-trad names.
-    colorDict['PSI/5MEO'] = '#228833'
-    colorDict['PSI + 5MEO'] = '#228833'
-    colorDict['HTrypt'] = '#228833'
-    colorDict['Non Halluc Trypt'] = '#66CCEE'
-    colorDict['Ag_5HT2A'] = '#228833'
-    colorDict['Entactogen'] = '#AA3377'
-
-    return colorDict
-
-def feature_list_length(selected_features_list):
+def feature_model_count(selected_features_list):
     # Returns the number of features in each model\
-    # COMPLETE THIS
-    featurePerModel = [len(x) for x in selected_features_list[0]]
-    return featurePerModel
+    from collections import Counter
+
+    regionList = np.concatenate(selected_features_list)
+    regionDict = dict(Counter(regionList))
+    labels, counts = list(regionDict.keys()), list(regionDict.values())
+    return labels, counts

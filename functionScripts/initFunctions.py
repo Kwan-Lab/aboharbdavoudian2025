@@ -21,7 +21,7 @@ def loadLightSheetData(dirDict, switchDict):
 
     intFile = dirDict['tempDir'] + 'lightSheet_all.pkl'
 
-    if not os.path.exists(intFile):
+    if 1: #not os.path.exists(intFile):
 
         ############## Batch 1 ##############
         # Merging first Batch of Light sheet data
@@ -30,11 +30,9 @@ def loadLightSheetData(dirDict, switchDict):
         sex_list = [x.split('_')[1][0].upper() for x in csv_list]
 
         if switchDict['batchSplit']:
-            csv_drug_list = [switchDict['splitTag']
-                             [0] + x for x in csv_drug_list]
+            csv_drug_list = [switchDict['splitTag'][0] + x for x in csv_drug_list]
 
-        B1_dataset_list = ['SAL5', 'SAL6', 'SAL7', 'SAL8', 'KET1',
-                           'KET2', 'KET3', 'KET4', 'PSI5', 'PSI6', 'PSI7', 'PSI8']
+        B1_dataset_list = ['SAL5', 'SAL6', 'SAL7', 'SAL8', 'KET1', 'KET2', 'KET3', 'KET4', 'PSI5', 'PSI6', 'PSI7', 'PSI8']
 
         for csv_i, csvName in enumerate(csv_list):
             tmpDb = pd.read_csv(dirDict['B1'] + csvName + '.csv', sep=',')
@@ -59,21 +57,14 @@ def loadLightSheetData(dirDict, switchDict):
         # rename ID column correctly
         lightSheet_B1 = lightSheet_B1.rename(columns={'id': 'graph_order', 'name': 'Region'})
 
-        ############## Batch 2 ##############
-        if switchDict['oldBatch2']:
-            lightSheetRawData = pd.read_excel(
-                dirDict['B2_Orig'] + 'AlexKwan_40brainproject_NeuNcFos 642 density.xlsx', sheet_name='Raw Data')
-        else:
-            lightSheetRawData = pd.read_excel(
-                dirDict['B2'] + 'AlexKwan_40brainproject_NeuNcFos 642 density_V2.xlsx', sheet_name='All Samples')
+        lightSheet_B1.to_csv(dirDict['debugDir'] + 'lightsheet_B1.csv')
 
-            # In the #Realigned data, Region was swapped to 'name'. Change it back.
-        lightSheetRawData = lightSheetRawData.rename(
-            columns={'name': 'Region'})
+        ############## Batch 2 ##############
+        lightSheetRawData = pd.read_excel(dirDict['B2'] + 'AlexKwan_40brainproject_NeuNcFos 642 density_V2.xlsx', sheet_name='All Samples')
+        lightSheetRawData = lightSheetRawData.rename(columns={'name': 'Region'})
 
         # - Pull Columns, detect drug related columns.
-        drugColumns = lightSheetRawData.columns[lightSheetRawData.columns.str.contains(
-            'AlKw') * lightSheetRawData.columns.str.contains('count')]  # Columns w/ AlKw are drug related
+        drugColumns = lightSheetRawData.columns[lightSheetRawData.columns.str.contains('AlKw') * lightSheetRawData.columns.str.contains('count')]  # Columns w/ AlKw are drug related
 
         for drug_col_i, drug_col in enumerate(drugColumns):
 
@@ -86,12 +77,10 @@ def loadLightSheetData(dirDict, switchDict):
                 lambda x: x.strip() if isinstance(x, str) else x)
 
             # Remove prefixes  if present
-            tmpString = drug_col.replace("AlKw_", "").replace(
-                "52022_", "").replace(" count", "")
+            tmpString = drug_col.replace("AlKw_", "").replace("52022_", "").replace(" count", "")
 
             # Correct the A_ and C_ to A- and C-
-            tmpString = tmpString.replace(
-                "C_SSRI", "C-SSRI").replace("A_SSRI", "A-SSRI").replace('__', '_').replace('_ ', '_')
+            tmpString = tmpString.replace("C_SSRI", "C-SSRI").replace("A_SSRI", "A-SSRI").replace('__', '_').replace('_ ', '_')
 
             # There is a typo in the Data sheet - 6DET should be 6FDET (only true for M2)
             tmpString = tmpString.replace("6DET", "6FDET")
@@ -127,6 +116,8 @@ def loadLightSheetData(dirDict, switchDict):
             for drug_i, drug in enumerate(drugDataSet):
                 swapInd = lightSheet_B2['dataset'] == drug
                 lightSheet_B2['drug'][swapInd] = newDrugName[drug_i]
+        
+        lightSheet_B2.to_csv(dirDict['debugDir'] + 'lightsheet_B2.csv')
 
         ############## Batch 3 ##############
         # MDMA Batch 3
@@ -180,8 +171,7 @@ def loadLightSheetData(dirDict, switchDict):
                 lambda x: x.strip() if isinstance(x, str) else x)
 
             # Remove prefixes  if present
-            tmpString = drug_col.replace("Kwan_120222_", "").replace(
-                "52022_", "").replace(" count", "")
+            tmpString = drug_col.replace("Kwan_120222_", "").replace("52022_", "").replace(" count", "")
 
             # Create the table                                                              # Table starts w/ Region and count
             drug = tmpString.split('_')[0]
@@ -202,8 +192,7 @@ def loadLightSheetData(dirDict, switchDict):
 
         # remove, prepare data
         background_ROIs = ['background', 'left root', 'right root']
-        lightSheet_B3 = lightSheet_B3[~lightSheet_B3['Region'].isin(
-            background_ROIs)]
+        lightSheet_B3 = lightSheet_B3[~lightSheet_B3['Region'].isin(background_ROIs)]
         lightSheet_B3.to_csv(dirDict['debugDir'] + 'lightsheet_B3.csv')
 
         ############## Merge All the Datasets ##############
@@ -268,8 +257,10 @@ def loadLightSheetData(dirDict, switchDict):
         # remove unneccesary ID columns to avoid confusion
         lightSheet_all = lightSheet_all.drop(['graph_order'], axis=1)
 
-        # reorder columns
+        # reorder columns, drop graph_order
         lightSheet_all = lightSheet_all[['Region ID', 'Region Name', 'count', 'volume (mm^3)', 'density (cells/mm^3)', 'sex', 'drug', 'dataset', 'total_cells']]
+
+        lightSheet_all.to_csv(dirDict['debugDir'] + 'lightsheet_atlas_all.csv')
 
         ############## Scale the density/counts ##############
 
@@ -352,6 +343,11 @@ def loadLightSheetData(dirDict, switchDict):
         lightsheet_data.loc[:, 'density_norm'] = lightsheet_data.loc[:, 'count_norm']/lightsheet_data.loc[:, 'volume_(mm^3)']
 
         lightsheet_data = lightsheet_data.fillna(0)
+
+        lightsheet_data.to_csv(dirDict['debugDir'] + 'lightsheet_atlas_summary.csv')
+
+        # Overwrite the dataset values with the updated drug names.
+        lightsheet_data['dataset'] = lightsheet_data['drug'] + lightsheet_data['dataset'].str[-1]
 
         ############## Convert the drug names from strings to categorical variables in sequence ##############
         customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
