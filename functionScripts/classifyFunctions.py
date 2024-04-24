@@ -224,12 +224,12 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                         print({k: v for k, v in grid_search.best_params_.items()})
 
                     # Fit the model
-                    try:
-                        clf.fit(X_train, y_train)
-                    except:
-                        print(f"\n Failed to fit CV {idx} - {modelStr}")
-                        print(f"\n Next Idx")
-                        continue
+                    # try:
+                    clf.fit(X_train, y_train)
+                    # except:
+                    #     print(f"\n Failed to fit CV {idx} - {modelStr}")
+                    #     print(f"\n Next Idx")
+                    #     continue
 
                     # Create some structures to interpret the results
                     if 'featureSel' in clf.named_steps.keys():
@@ -239,18 +239,20 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
                     # SHAP Related code
                     X_test_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
-                    explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='correlation_dependent')
-                    # explainers.append(explainer)
-                    explain_shap_vals = explainer.shap_values(X_test_trans)
+                    if n_classes == 2:
+                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='correlation_dependent')
+                        # explainers.append(explainer)
+                        explain_shap_vals = explainer.shap_values(X_test_trans)
 
                     if n_classes == 2:
                         shap_values_test = pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)
                         shap_values_list.append(shap_values_test.reset_index())
                         baseline_val.append(explainer.expected_value)
                     else:
-                        shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
-                        for idx, shap_val in enumerate(shap_values_test):
-                            shap_values_list[idx].append(shap_val.reset_index())
+                        print('Not Implemented for drug')
+                        # shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
+                        # for idx, shap_val in enumerate(shap_values_test):
+                        #     shap_values_list[idx].append(shap_val.reset_index())
 
                     # Store the results
                     X_test_trans_list.append(X_test_trans.reset_index())
@@ -343,20 +345,18 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                 with open(dictPath, 'wb') as f:
                     pkl.dump(score_dict, f)
 
-            featureCountLists = hf.feature_model_count(selected_features_list[0])
 
-            # Shape data into a table for correlation
-            feature_df = pd.DataFrame(X, columns=featureNames, index=y_dataset)
-            pf.correlation_subset(feature_df, pandasdf, featureCountLists, plotDict['shapSummaryThres'], classifyDict, dirDict)
+            # # Shape data into a table for correlation
+            # featureCountLists = hf.feature_model_count(selected_features_list[0])
+            # feature_df = pd.DataFrame(X, columns=featureNames, index=y_dataset)
+            # pf.correlation_subset(feature_df, pandasdf, featureCountLists, plotDict['shapSummaryThres'], classifyDict, dirDict)
         
             # SHAP - Join all the shap_values collected across splits
-            if 1: #fit != 'Shuffle':
+            if 0: #fit != 'Shuffle':
                 print('\n SHAP')
                 # pf.plot_shap_force(X_test_trans_list, shap_values_list, baseline_val, y_real, labelDict, plotDict, dirDict)
                 pf.plot_shap_summary(X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
                 # pf.plot_shap_bar(explainers, X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
-
-            raise NotImplementedError('Stop here')
 
             # Confusion Matrix
             pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
@@ -585,7 +585,7 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
         
     # ================== Sort the data for classification ==================
     if classifyDict['label'] == 'drug':
-        datasetNames = ['PSI', 'KET', 'DMT', '6FDET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
+        datasetNames = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
         new_list = [f'{item}{i}' for item in datasetNames for i in range(1, 9)]
         ls_data_agg = ls_data_agg.reindex(new_list)
 

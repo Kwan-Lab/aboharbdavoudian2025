@@ -44,7 +44,7 @@ def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
     ax.set_xticklabels(ax.get_xticklabels(), fontsize=15)
 
     ax.set_yscale('log')
-    ax.set(ylim=(8e5, 1e7))
+    # ax.set(ylim=(8e5, 1e7))
     sns.despine()
 
     plt.savefig(dirDict['outDir'] + 'totalCells.' + outputFormat,  format=outputFormat, bbox_inches='tight')
