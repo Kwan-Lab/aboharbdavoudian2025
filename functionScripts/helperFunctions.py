@@ -747,3 +747,31 @@ def feature_model_count(selected_features_list):
     regionDict = dict(Counter(regionList))
     labels, counts = list(regionDict.keys()), list(regionDict.values())
     return labels, counts
+
+def create_ABA_dict(dirDict):
+        # Goes into the atlasDir looking for the specified files below, merges and filters them into a dictionary.
+        
+        # get Allen brain atlases
+        ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'ABA_CCF.csv')
+        ABA_tree = ABA_tree.rename(columns={'structure ID': 'id', '"Summary Structure" Level for Analyses': 'summary_struct'})
+        ABA_tree = ABA_tree[['id', 'full structure name', 'abbreviation', 'Major Division', 'summary_struct']]
+
+        ABA_hier = pd.read_csv(dirDict['atlasDir'] + 'ABAHier2017_csv.csv')
+        ABA_hier = ABA_hier.loc[:, ~ABA_hier.columns.str.contains('^Unnamed')]
+        ABA_hier = ABA_hier.rename(columns={'Region ID': 'id', 'CustomRegion': 'Brain Area'})
+
+        # merge the atlases
+        ABA_tree = pd.merge(ABA_tree, ABA_hier, on=['id'])
+
+        # define hierarchy by 'summary structure' from Wang/Ding . . . Ng, Cell 2020
+        ABA_dict = ABA_tree[ABA_tree.summary_struct == 'Y']
+
+        # remove ventricular systems, fiber tracts
+        remove_list = ['Fibretracts', 'VentricularSystems']
+        ABA_dict_filt = ABA_dict[~ABA_dict['Brain Area'].isin(remove_list)]
+
+        # cleaning up and Merging with Data
+        ABA_dict_filt = ABA_dict_filt.rename(columns={'id': 'Region ID'})
+        ABA_dict_filt = ABA_dict_filt.drop(columns=['full structure name', 'Major Division', 'summary_struct'])
+
+        return ABA_dict_filt
