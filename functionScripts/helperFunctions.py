@@ -3,9 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.cluster.hierarchy as sch
-import os
+import os, sys
 import pickle as pkl
-from collections import defaultdict
+from collections import defaultdict, Counter
+
 
 def create_color_dict(dictType='drug', rgbSwitch=0, alpha_value=1, scaleVal=False):
     # Create a dictionary of colors for brain regions or drugs
@@ -678,7 +679,7 @@ def stringReportOut(selected_features_list, selected_features_params, YtickLabs,
     finalStr = conciseStringReport(labels, counts)
 
     # Plot the histogram of features per model
-    plot_histogram(featurePerModel, dirDict)
+    # plot_histogram(featurePerModel, dirDict)
 
     print(f'==== {YtickLabs} ==== \n Features per Model: {featurePerModelStr}')
     print(f'Parameters: \n {paramStr}')
@@ -775,3 +776,91 @@ def create_ABA_dict(dirDict):
         ABA_dict_filt = ABA_dict_filt.drop(columns=['full structure name', 'Major Division', 'summary_struct'])
 
         return ABA_dict_filt
+
+def retrieve_dict_data(dirDict, classifyDict):
+
+    sys.path.append('../dependencies/')
+
+    # Define the target directory
+    targDir = dirDict['classifyDir']
+    tagList = [f"data={classifyDict['data']}-", 'PowerTrans_RobScal_fSel_BorFS_clf_LogReg(multinom)_CV100']
+
+    # Call the function and get the list of paths based on the tagList
+    score_dict_paths = []
+
+    # Walk through the directory and its subdirectories
+    for root, dirs, files in os.walk(targDir):
+        # Check if 'scoreDict.pkl' is present in the files
+        if 'scoreDict_Real.pkl' in files:
+            if all(tag in root for tag in tagList):
+                score_dict_paths.append(os.path.join(root, 'scoreDict_Real.pkl'))
+
+    # Each directory name will be used to generate a label, based on the sequence between the strings in the directory name below
+    startStr = tagList[0]
+    endStr = '\PowerTrans'
+    featureLists, countNames  = [], []
+
+    # Print the result
+    print(f"Found 'scoreDict.pkl' files in directories containing {tagList}:")
+    for path in score_dict_paths:
+
+        # Load the scoreDict.pkl file and extract desired variables.
+        with open(path, 'rb') as f:                 
+            featureDict = pkl.load(f)
+            featureLists.append(featureDict['featuresPerModel'])
+
+        # Extract the label for the entry
+        countNames.append(featureDict['compLabel'])
+
+    return featureLists, countNames
+
+def listToCounterFilt(listArray, filterByFreq=0):
+
+    counter_u = Counter(listArray)
+    
+    if filterByFreq > 0:
+        return Counter({k: v for k, v in counter_u.items() if v >= filterByFreq})
+    else:
+        return counter_u
+
+def overlapCounter(list1, list2, filterByFreq=0):
+
+    counter_u = listToCounterFilt(list1, filterByFreq)
+    counter_v = listToCounterFilt(list2, filterByFreq)
+
+    list1 = list(counter_u.keys())
+    list2 = list(counter_v.keys())
+
+    only_list1 = list(set(list1) - set(list2))
+    only_list2 = list(set(list2) - set(list1))
+
+    intersection = list(set(list1) & set(list2))
+    
+    return only_list1, only_list2, intersection
+
+def sort_comparison_idx(orderedList, dataList):
+    # Ordered list - a hardcoded list which has comparisons in the desired sequences - may include extras
+    # dataList - a list representing the sequence of comparison data in data structures
+    # function returns an index which resorts dataList and associated structures into the order in Ordered List
+
+    orderedList = [name for name in orderedList if name in dataList]
+    sort_indices = [dataList.index(name) for name in orderedList]
+
+    return sort_indices
+
+def weighted_jaccard_similarity(u, v, filt):
+
+    counter_u, counter_v = Counter(u), Counter(v)
+
+    # If Filt is non-0, filter out features in each counter whose count is not above it.
+    if filt:
+        counter_u = Counter({k: v for k, v in counter_u.items() if v > filt})
+        counter_v = Counter({k: v for k, v in counter_v.items() if v > filt})
+
+    intersection = sum((counter_u & counter_v).values())
+    union = sum((counter_u | counter_v).values())
+
+    # Using the modified Jaccard similarity with frequency
+    similarity = intersection / union if union != 0 else 0
+
+    return similarity

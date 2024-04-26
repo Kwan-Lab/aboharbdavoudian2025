@@ -111,47 +111,32 @@ def loadLightSheetData(dirDict, switchDict):
 
 def createDirs(rootDir, switchDict, dirDict):
 
-    if switchDict['batchSplit'] or switchDict['scalingFactor']:
-        dsplitTag, scaleTag = '', '', ''
+    dirString = ''
 
-        if switchDict['batchSplit']:
-            dsplitTag = 'split'
+    # if switchDict['batchSplit'] or switchDict['scalingFactor']:
+    #     dsplitTag, scaleTag = '', ''
 
-        if switchDict['scalingFactor']:
-            scaleTag = 'scaled'
+    #     if switchDict['batchSplit']:
+    #         dsplitTag = 'split'
 
-        # stringVar = (tsplitTag, dsplitTag, tsplitTag, b3tag)
-        stringVar = (scaleTag, dsplitTag)
-        stringVar = [i for i in stringVar if i]
-        dirString = str(len(stringVar)) + '.' + '_'.join(stringVar) + '_'
+    #     if switchDict['scalingFactor']:
+    #         scaleTag = 'scaled'
 
-    else:
-        dirString = '0._'
+    #     # stringVar = (tsplitTag, dsplitTag, tsplitTag, b3tag)
+    #     stringVar = (scaleTag, dsplitTag)
+    #     stringVar = [i for i in stringVar if i]
+    #     dirString = str(len(stringVar)) + '.' + '_'.join(stringVar) + '_'
 
-    tempDir = rootDir + dirString + 'Temp\\'
-    outDir = rootDir + dirString + 'Output\\'
-    classifyDir = join(outDir, 'classif\\')
-    debugDir = rootDir + dirString + 'Debug\\'  # Debugging paths and setup
-    debug_outPath = debugDir + 'lightSheet_all_ROI.xlsx'
+    dirDict['debugDir'] = rootDir + dirString + 'Debug\\'
+    dirDict['tempDir'] = rootDir + dirString + 'Temp\\'
+    dirDict['outDir'] = rootDir + dirString + 'Output\\'
+    dirDict['classifyDir'] = join(dirDict['outDir'], 'classif\\')
+    dirDict['crossComp_figDir'] = join(dirDict['outDir'], 'crossComp\\')
 
-    # Make directories if they don't exist
-    if not os.path.exists(tempDir):
-        os.mkdir(tempDir)
-
-    if not os.path.exists(outDir):
-        os.mkdir(outDir)
-
-    if not os.path.exists(debugDir):
-        os.mkdir(debugDir)
-
-    if not os.path.exists(classifyDir):
-        os.mkdir(classifyDir)
-
-    dirDict['debugDir'] = debugDir
-    dirDict['tempDir'] = tempDir
-    dirDict['outDir'] = outDir
-    dirDict['classifyDir'] = classifyDir
-    dirDict['debug_outPath'] = debug_outPath
+    # Cycle through the dirDict, and make sure each path exists
+    for key, path in dirDict.items():
+        if not os.path.isdir(path):
+            os.makedirs(path)
 
     return dirDict
 

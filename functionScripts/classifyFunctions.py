@@ -11,7 +11,7 @@ import plotFunctions as pf
 
 from copy import deepcopy
 
-from sklearn import preprocessing, linear_model
+from sklearn import preprocessing, linear_model, svm
 from sklearn.ensemble import RandomForestClassifier
 # Used to create a consistent processing pipeline prior to training/testing.
 from sklearn.pipeline import Pipeline
@@ -148,7 +148,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
     if classifyDict['shuffle']:
         fits = fits + ['Shuffle']
 
-    nestedCVSwitch=classifyDict['gridCV']
+    nestedCVSwitch = classifyDict['gridCV']
     
     YtickLabs = list(labelDict.keys())
     n_classes = len(YtickLabs)
@@ -176,8 +176,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             if classifyDict['saveLoadswitch'] & os.path.exists(saveFilePath):
                 print(f"loading model: {modelStr}")
                 with open(saveFilePath, 'rb') as f:                 # Unpickle the data:
-                    [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_test_trans_list,
-                            scores, selected_features_list, selected_features_params, baseline_val, shap_values_list] = pkl.load(f)
+                    [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_test_trans_list, scores, selected_features_list, selected_features_params, baseline_val, shap_values_list] = pkl.load(f)
                 
             else: 
                 print(f"evaluating model: {modelStr}")
@@ -224,12 +223,12 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                         print({k: v for k, v in grid_search.best_params_.items()})
 
                     # Fit the model
-                    # try:
-                    clf.fit(X_train, y_train)
-                    # except:
-                    #     print(f"\n Failed to fit CV {idx} - {modelStr}")
-                    #     print(f"\n Next Idx")
-                    #     continue
+                    try:
+                        clf.fit(X_train, y_train)
+                    except:
+                        print(f"\n Failed to fit CV {idx} - {modelStr}")
+                        print(f"\n Next Idx")
+                        continue
 
                     # Create some structures to interpret the results
                     if 'featureSel' in clf.named_steps.keys():
@@ -240,19 +239,23 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     # SHAP Related code
                     X_test_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
                     if n_classes == 2:
-                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='correlation_dependent')
-                        # explainers.append(explainer)
-                        explain_shap_vals = explainer.shap_values(X_test_trans)
+                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=plotDict['featurePert'])
+                    else:
+                        # Multiclass explainer must use interventional perturbation
+                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='interventional')
+                        
+                    explainers.append(explainer)
+                    explain_shap_vals = explainer.shap_values(X_test_trans)
 
                     if n_classes == 2:
                         shap_values_test = pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)
                         shap_values_list.append(shap_values_test.reset_index())
                         baseline_val.append(explainer.expected_value)
                     else:
-                        print('Not Implemented for drug')
-                        # shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
-                        # for idx, shap_val in enumerate(shap_values_test):
-                        #     shap_values_list[idx].append(shap_val.reset_index())
+                        shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
+                        for idx, shap_val in enumerate(shap_values_test):
+                            shap_values_list[idx].append(shap_val.reset_index(drop=True))
+                            baseline_val[idx].append(explainer.expected_value)
 
                     # Store the results
                     X_test_trans_list.append(X_test_trans.reset_index())
@@ -330,7 +333,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             ## Plotting code for the fit model and compiled data
             # ================== Plotting ==================
             # PR Curve - save the results in a dict for compiling into a bar plot.
-            if 0: #fit != 'Shuffle':
+            if fit != 'Shuffle':
                 auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, fit, dirDict)
 
                 # Create a structure which saves results for plotting elsewhere.
@@ -344,7 +347,6 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                 dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
                 with open(dictPath, 'wb') as f:
                     pkl.dump(score_dict, f)
-
 
             # # Shape data into a table for correlation
             # featureCountLists = hf.feature_model_count(selected_features_list[0])
@@ -491,8 +493,8 @@ def build_pipeline(classifyDict):
         case 'LogRegElastic':
             classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
             paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
-        # case 'svm': # Does not play well with current SHAP implementation. Would require shap.KernelExplainer instead, which has a different formatting for outputs.
-        #     classif = svm.SVC(C=1, kernel='rbf', max_iter=max_iter, probability=True)
+        case 'svm': # Does not play well with current SHAP implementation. Would require shap.KernelExplainer instead, which has a different formatting for outputs.
+            classif = svm.SVC(C=1, kernel='linear', max_iter=max_iter, probability=True)
             # paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
         case _:
             ValueError('Invalid modelStr')

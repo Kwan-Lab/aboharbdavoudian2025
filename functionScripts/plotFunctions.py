@@ -1,18 +1,26 @@
+import os, sys, shap
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from os.path import exists, join
 from math import isnan
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 import matplotlib.patches as patches
 import matplotlib.ticker as tkr
 import helperFunctions as hf
 import scipy.stats as stats
-import os, sys, shap
 from collections import namedtuple
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+import textwrap
+import matplotlib.ticker as tkr
 
 sys.path.append('dependencies')
+
+
 
 def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
     totalCellCountData = pandasdf[pandasdf.Region_ID == 88]
@@ -990,10 +998,10 @@ def plot_shap_summary(X_train_trans_list, shap_values_list, y_vec, n_classes, pl
         sortSHAP = False
         parenVal = 'medianDiff'
 
-        if parenVal == 'count':
+        if parenVal == 'count' or n_classes > 2:
             # Adjust the feature names to include their counts.
             parenVal = [int(x) for x in svf_sorted.values[1:]]
-            featureNames = [f"{feat} ({svf_sorted[feat]})" for feat in list(shap_vals.columns)]
+            featureNames = [f"{feat} ({int(svf_sorted[feat])})" for feat in list(shap_vals.columns)]
         elif parenVal == 'medianDiff':
             parenVal = drugMedians_sort.medianDiff.round(2)
             featureNames = [f"{feat} ({parenVal[feat]})" for feat in list(shap_vals.columns)]
@@ -1395,6 +1403,292 @@ def find_max_min_index(shap_values_list, regionSet):
     max_index = idxList[-1]
 
     return max_index, max_row_index, min_index, min_row_index
+
+def plot_featureCount_violin(scoreNames, featureLists, dirDict):
+    import seaborn as sns
+    import pandas as pd
+
+    colorsList = [[82, 211, 216], [56, 135, 190]]
+    colorsList = np.array(colorsList)/256
+
+    # Your list of lists (sublists with numbers)
+    data = [[len(sublist) for sublist in inner_list] for inner_list in featureLists]
+
+    # Create a data frame with melted data
+    flat_data = [item for sublist in data for item in sublist]
+
+    df = pd.melt(pd.DataFrame(data, index=scoreNames).T, var_name='Category', value_name='Values')
+
+    # Create horizontally oriented violin plot
+    plt.figure(figsize=(5, 5))  # Adjust the width and height as needed
+
+    ax = sns.violinplot(x='Values', y='Category', bw_adjust=.5, data=df, orient='h', color=colorsList[0])  #, palette=colors)  # Remove inner bars and set color
+    # for violin in ax.collections:
+    #     violin.set_alpha(1)
+
+    # Set plot labels and title
+    plt.xlabel('Number of Regions in Classifier')
+    plt.ylabel('Classifier')
+
+    plt.savefig(f"{dirDict['crossComp_figDir']}\\RegionCountPerSplit_violin.svg", format='svg', bbox_inches='tight')     
+
+    # Show the plot
+    plt.show()
+
+def plot_similarity_matrix(scoreNames, featureLists, filterByFreq, dirDict):
+    from matplotlib import cm
+
+    modelCount = len(featureLists)
+    # regionDict = dict(Counter(featureLists[0]))
+    # labels, counts = list(regionDict.keys()), list(regionDict.values())
+
+    # Initialize a grid
+    grid = [[0 for _ in range(modelCount)] for _ in range(modelCount)]
+
+    # Flatten every list
+    featureListFlat = [[element for item in subList for element in item] for subList in featureLists]
+
+    jacSim = False 
+
+    # compare the mean distances across items of the list
+    for idx_a, listA in enumerate(featureListFlat):
+        for idx_b, listB in enumerate(featureListFlat):
+            
+            if jacSim:
+                # Jaccard Sim
+                grid[idx_a][idx_b] = hf.weighted_jaccard_similarity(listA, listB, 75)
+            else:
+                # Overlap count
+                _, _, intersection = hf.overlapCounter(listA, listB, filterByFreq)
+                grid[idx_a][idx_b] = len(intersection)
+
+    # Plot the grid
+    fig, ax = plt.subplots(figsize=(7,7))
+    im = sns.heatmap(grid, cmap='Blues', annot=True, fmt='.0f', ax=ax, yticklabels=scoreNames, xticklabels=scoreNames, annot_kws={'size': 15})
+
+    # Remove the colorbar
+    cbar = ax.collections[0].colorbar
+    cbar.remove()
+
+    # Set font size for x-axis ticks and labels
+    ax.tick_params(axis='x', labelsize=12)
+
+    # Set font size for y-axis ticks and labels
+    ax.tick_params(axis='y', labelsize=12, rotation=0)
+
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+
+    # Cycle through sns heatmap annotations and remove those that are equal to 0
+    for text in ax.texts:
+        if int(text.get_text()) == 0:
+            text.set_text("")
+
+    # plt.title(titleStr, fontdict={'fontsize': 18})
+    plt.savefig(f"{dirDict['crossComp_figDir']}\\MeanSimilarity_heatmap.svg", format='svg', bbox_inches='tight')     
+    plt.show()
+
+def plot_featureOverlap_VennDiagram(scoreNames, featureLists, filterByFreq, dirDict):
+    wrapper = textwrap.TextWrapper(width=12, break_on_hyphens=False)  # Adjust width as needed
+
+    # Flatten every list
+    featureListFlat = [[element for item in subList for element in item] for subList in featureLists]
+
+    # Sample data
+    for idx1, list1 in enumerate(featureListFlat):
+        for idx2, list2 in enumerate(featureListFlat):
+
+            # Skip the same list
+            if idx1 == idx2:
+                continue
+
+            # Filter out features in each counter whose count is not above it.
+            only_list1, only_list2, intersection = hf.overlapCounter(list1, list2, filterByFreq)
+
+            # Skip if there is no overlap
+            if intersection == []:
+                continue
+
+            # Create a Venn diagram
+            venn_diagram = venn2(subsets=(len(only_list1), len(only_list2), len(intersection)/2),
+                                set_labels=(scoreNames[idx1], scoreNames[idx2]))
+
+
+            venn_labels = {'100': only_list1, '010': only_list2, '110': intersection}
+            for idx, (labId, labels) in enumerate(venn_labels.items()):
+                wrapped_labels = wrapper.fill(text='  '.join(labels))
+                venn_diagram.get_label_by_id(labId).set_text(wrapped_labels)
+                venn_diagram.get_label_by_id(labId).set_fontsize(8)  # Adjust font size if needed
+
+            # # Customize the size of the Venn diagram
+            # plt.gcf().set_size_inches(8, 8)
+            figName = f'VD_{scoreNames[idx1]} and {scoreNames[idx2]}'
+            figName = figName.replace('/', '+')
+            figName = figName.replace(' ', '_')
+            plt.savefig(f"{dirDict['crossComp_figDir']}\\{figName}.svg", format='svg', bbox_inches='tight')     
+
+            # Display the plot
+            plt.show()
+
+def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict):
+    # Current Mode: Create plot with colorbar, then without, and grab the svg item and place it in the second plot to ensure even spacing
+    # Creates the heatmap for the data
+
+    plt.rcParams['font.family'] = 'Helvetica'
+    plt.rcParams['font.size'] = 9
+    plt.rcParams['svg.fonttype'] = 'none'
+
+    # Set variables
+    dataFeature = 'abbreviation'
+    blockCount = 2
+
+    sys.path.append('../dependencies/')
+
+    # Create a sorted structure from the data for scaffolding the desired heatmap
+    brainAreaColorDict = hf.create_color_dict(dictType='brainArea', rgbSwitch=0)
+    brainAreaPlotDict = hf.create_brainArea_dict('short')
+    regionArea = hf.create_region_to_area_dict(df_raw, 'abbreviation')
+    regionArea['Region_Color'] = regionArea['Brain_Area'].map(brainAreaColorDict)
+
+    df_Tilted = df_raw.pivot(index='abbreviation', columns='dataset', values='count')
+    df_Tilted = df_Tilted.reindex(regionArea['abbreviation'].tolist(), axis=0)
+
+    featureListFlat = [[element for item in subList for element in item] for subList in featureLists]
+
+
+    # Process the data from above
+    featureListDicts = [hf.listToCounterFilt(x, filterByFreq=0) for x in featureListFlat]
+    featureListArray = [list(x.keys()) for x in featureListDicts]
+
+    # Add in columns for each of the actual comparisons.
+    df_frame = df_Tilted.reindex(columns=scoreNames)
+
+    # Populate df_frame with 0s
+    for col in df_frame.columns:
+        df_frame[col] = 0
+        
+    for idx, (comp, featureList) in enumerate(zip(df_frame.columns, featureListDicts)):
+        for regionName in featureList.keys():
+            df_frame.loc[regionName, comp] = featureList[regionName]
+        # df_frame[comp] = df_frame.index.isin(featureListArray[idx])
+        # print(f"{comp}: {df_frame[comp].sum()}")
+            
+    # Remove any rows which are not above threshold
+    df_plot = df_frame[df_frame.sum(axis=1) >= filterByFreq]
+        
+    # Remove the abbreviations from regionArea not represented in df_plot, Filter the regionArea for 'Cortex' and 'Thalamus'
+    regionArea = hf.create_region_to_area_dict(df_raw, dataFeature)
+    regionArea = regionArea[regionArea['abbreviation'].isin(df_plot.index)]
+    regionArea = regionArea[regionArea['Brain_Area'].isin(['Cortex', 'Thalamus'])]
+
+    # Sort the data to be combined per larger area
+    df_plot = df_plot.loc[regionArea[dataFeature]]
+    modelCount = len(df_plot.columns)
+
+    # Create indicies for dividing the data into the correct number of sections regardless of the size
+    row_idx_set = np.zeros((blockCount, 2), dtype=int)
+    indices = np.linspace(0, len(df_plot), num=blockCount+1, dtype=int)
+    for block_idx in range(blockCount):
+        row_idx_set[block_idx][0] = indices[block_idx]
+        row_idx_set[block_idx][1] = indices[block_idx+1]
+
+    # Hand change to make Cortex 1st block, Thal 2nd
+    row_idx_set[0,1] = 25
+    row_idx_set[1,0] = 25
+
+    # merge df_plot and regionArea, moving the Brain_Area_Idx and Brain_Area columns to df_plot
+    df_plot_combo = df_plot.merge(regionArea, left_index=True, right_on=dataFeature)
+
+    # Cycle through the df_plot_combo's distinct Brain_Area_Idx, and resort data by row sums
+    newIdx = []
+    for idx in regionArea.Brain_Area_Idx.unique():
+        # Identify which regions have the same Brain_Area_Idx
+        df_seg = df_plot_combo[df_plot_combo.Brain_Area_Idx == idx]
+        sorted_seg_idx = df_seg.iloc[:, 0:modelCount].sum(axis=1).sort_values(ascending=False).index
+
+        # Append to list
+        newIdx = newIdx + list(sorted_seg_idx)
+
+    # Resort the data
+    df_plot = df_plot_combo.reindex(newIdx, axis=0)
+    df_plot = df_plot.set_index('abbreviation')
+    df_plot = df_plot.drop(columns=['Brain_Area_Idx', 'Brain_Area'])
+
+    # Drop the columns which do not include the string 'PSI'
+    df_plot = df_plot.loc[:, df_plot.columns.str.contains('PSI')]
+
+    # Update the column names to have 'PSI' in front.
+    origcolNames = df_plot.columns
+    colNames = [x.split(' vs ') for x in df_plot.columns]
+    newColNames = [f'{x[1]} vs {x[0]}' for x in colNames]
+    newColNames[-1], newColNames[-2] = origcolNames[-1], origcolNames[-2]
+    newColNames = [x.replace('/', ' & ') for x in newColNames]
+    df_plot.columns = newColNames
+
+    # Plotting variables
+    formatter = tkr.ScalarFormatter(useMathText=True)
+    formatter.set_scientific(False)
+    formatter.set_powerlimits((-2, 2))
+
+    scalefactor = 12
+    figH = (scalefactor*2.5)/blockCount
+    figW = blockCount * 2.5
+
+    colorbar = [False, True]
+
+    for cbs in colorbar:
+
+        fig, axes = plt.subplots(1, blockCount, figsize=(figW, figH))  # Adjust figsize as needed
+        # figsize=(scalefactor*2.4, len(df_plot)/len(row_idx_set) * scalefactor * 0.0125)
+
+        if blockCount == 1:
+            axes = [axes]
+
+        for idx, row_set in enumerate(row_idx_set):
+
+            # Slice and modify previous structures to create segment
+            df_plot_seg = df_plot.iloc[row_set[0]: row_set[1], :]
+            regionArea_local = regionArea[regionArea[dataFeature].isin(df_plot_seg.index)]
+            region_idx = regionArea_local.Brain_Area_Idx  # Extract for horizontal lines in plot later.
+
+            matrix = df_plot_seg.values
+
+            xticklabels = df_plot_seg.columns.values.tolist()
+            yticklabels = df_plot_seg.index.values.tolist()
+
+            heatmap = sns.heatmap(matrix, cmap='crest', ax=axes[idx] , fmt='.2f', cbar = False, square=True, yticklabels=yticklabels, xticklabels=xticklabels, cbar_kws={"format": formatter}, center=0)
+            horzLineColor = 'black'
+
+            # Rotate the xticklabels 45 degrees
+            axes[idx].set_xticklabels(axes[idx].get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+
+            # Add a colorbar
+            # Change the colorbar labels to be in non-scientific notation
+
+            if cbs:
+                cbar = heatmap.figure.colorbar(heatmap.collections[0], ax=axes[idx], location='right', use_gridspec=True, pad=0.05)
+                cbar.set_label('Feature Count', rotation=270, labelpad=5)
+                cbar.ax.yaxis.set_major_formatter(formatter)
+
+            # Add in horizontal lines breaking up brain regions types.
+            line_break_num, line_break_ind = np.unique(region_idx, return_index=True)
+            for l_idx in line_break_ind[1:]:
+                axes[idx].axhline(y=l_idx, color=horzLineColor, linewidth=1)
+                
+            # Set the yl abel on the first subplot.
+            # if idx == 0:
+            #     axes[idx].set_ylabel("Region Names", fontsize=20)
+
+            # if idx == 2:
+            #     cbar = heatmap.collections[0].colorbar
+            #     cbar.set_label('Colorbar Label', rotation=270, labelpad=5)
+
+        titleStr = f"FeatureCountHeatmap"  
+        # fig.suptitle(titleStr, fontsize=20, y=1)
+        # fig.text(0.5, -.02, "Samples Per Group", ha='center', fontsize=20)
+        plt.tight_layout(h_pad = 0, w_pad = .5)
+
+        plt.savefig(f"{dirDict['crossComp_figDir']}{titleStr}_cb_{cbs}.svg", dpi=300, format='svg', bbox_inches='tight')
+        plt.show()
 
 def sortShap(shap_values_list, regionSet):
     max_value = 0  # Initialize max_value to store the maximum value
