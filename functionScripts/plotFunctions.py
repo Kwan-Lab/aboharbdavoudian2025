@@ -17,8 +17,57 @@ import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 import textwrap
 import matplotlib.ticker as tkr
+from statannotations.Annotator import Annotator
 
 sys.path.append('dependencies')
+
+def plot_headTwitchTotal(dirDict):
+
+    htrDataPath = os.sep.join([dirDict['dataDir'],'behavioral','HTR_summary_data.csv'])
+    df = pd.read_csv(htrDataPath)
+
+    plt.rcParams['font.family'] = 'Helvetica'
+    plt.rcParams['font.size'] = 20*1.2
+    plt.rcParams['svg.fonttype'] = 'none'
+
+    # Some parameters
+    lineWidth = 1
+    figHeight = 6
+    figWidthHT_Count = 6.77
+    figWidthHT_Peak = 3.385
+
+    colorDict = hf.create_color_dict()
+
+    # Plot the box and whisker plot
+    plt.figure(figsize=(figWidthHT_Count, figHeight))
+
+    plotOrder = ['Saline', '6-Fluoro-DET', 'Psilocybin', '5-MeO-DMT']
+    tickLabels = ['SAL', '6-F-DET', 'PSI', '5MEO']
+
+    colorPal = [colorDict[tickLabel] for tickLabel in tickLabels]
+
+    boxprops = dict() # alpha=0.7
+    ax = sns.boxplot(data=df, x= 'drug', y= 'total_HTR', order=plotOrder, palette=colorPal, boxprops=boxprops, linewidth=lineWidth) 
+    ax.legend().remove()
+    sns.swarmplot(data=df, x= 'drug', y= 'total_HTR', color='black', order=plotOrder, size=8, palette=colorPal) # order=['Psilocybin', '5-MeO-DMT']
+
+    # Stats - Place here to keep lines within the figure.
+    pairs = [('Saline', 'Psilocybin'), ('6-Fluoro-DET', 'Psilocybin'), ('Saline', '5-MeO-DMT'), ('6-Fluoro-DET', '5-MeO-DMT')]
+    annotator = Annotator(ax, pairs, data=df, x='drug', y='total_HTR', order=plotOrder)
+    annotator.configure(test='Mann-Whitney', text_format='star', loc='outside')
+    annotator.apply_and_annotate()
+
+    # Label the axes
+    plt.ylim(0, 150)
+    plt.xticks(ticks=[0, 1, 2, 3], labels=tickLabels, rotation=45, ha='right')
+    plt.yticks(np.arange(0, 151, 50))
+
+    plt.ylabel('Head Twitch Count', fontsize=30*1.067)
+    plt.xlabel('', fontsize=8)
+
+    savePath = os.path.join(dirDict['outDir'], 'HTR_total.svg')
+    plt.savefig(savePath, dpi=300, format='svg', bbox_inches='tight')
+    plt.show()
 
 def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
     totalCellCountData = pandasdf[pandasdf.Region_ID == 88]
