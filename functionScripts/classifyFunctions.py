@@ -239,7 +239,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     # SHAP Related code
                     X_test_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
                     if n_classes == 2:
-                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=plotDict['featurePert'])
+                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=classifyDict['featurePert'])
                     else:
                         # Multiclass explainer must use interventional perturbation
                         explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='interventional')
@@ -334,7 +334,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             # ================== Plotting ==================
             # PR Curve - save the results in a dict for compiling into a bar plot.
             if fit != 'Shuffle':
-                auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, fit, dirDict)
+                auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
 
                 # Create a structure which saves results for plotting elsewhere.
                 score_dict = dict()
@@ -349,19 +349,24 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     pkl.dump(score_dict, f)
 
             # # Shape data into a table for correlation
-            # featureCountLists = hf.feature_model_count(selected_features_list[0])
-            # feature_df = pd.DataFrame(X, columns=featureNames, index=y_dataset)
-            # pf.correlation_subset(feature_df, pandasdf, featureCountLists, plotDict['shapSummaryThres'], classifyDict, dirDict)
+            if plotDict['featureCorralogram']:
+                featureCountLists = hf.feature_model_count(selected_features_list[0])
+                feature_df = pd.DataFrame(X, columns=featureNames, index=y_dataset)
+                pf.correlation_subset(feature_df, pandasdf, featureCountLists, plotDict['shapSummaryThres'], classifyDict, dirDict)
         
-            # SHAP - Join all the shap_values collected across splits
-            if 0: #fit != 'Shuffle':
-                print('\n SHAP')
-                # pf.plot_shap_force(X_test_trans_list, shap_values_list, baseline_val, y_real, labelDict, plotDict, dirDict)
-                pf.plot_shap_summary(X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
-                # pf.plot_shap_bar(explainers, X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
+            # SHAP
+            if fit != 'Shuffle':
+                if plotDict['plot_SHAPforce']:
+                    pf.plot_shap_force(X_test_trans_list, shap_values_list, baseline_val, y_real, labelDict, plotDict, dirDict)
+
+                if plotDict['plot_SHAPsummary']:
+
+                    pf.plot_shap_summary(X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
+                    # pf.plot_shap_bar(explainers, X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
 
             # Confusion Matrix
-            pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
+            if plotDict['plot_ConfusionMatrix']:
+                pf.plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, saveStr, dirDict)
 
             # Report out feature selected if
             if featureSelSwitch:

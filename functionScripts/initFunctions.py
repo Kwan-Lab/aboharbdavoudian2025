@@ -18,19 +18,19 @@ def loadLightSheetData(dirDict, switchDict):
     startTime = time.time()
 
     # Create a path for the intermediate to be saved. If it is present, load it. If not, create it.
-    intFile = dirDict['tempDir'] + 'lightSheet_all.pkl'
+    intFile = os.sep.join([dirDict['tempDir'], 'lightsheet_all.pkl'])
 
-    if not os.path.exists(intFile):
+    if 1: #not os.path.exists(intFile):
 
         # Load batch 1        
         lightSheet_B1 = load_lightsheet_batchCSV(dirDict, switchDict, 'B1')
 
         # Load batch 2        
-        excelfilePath_B2 = dirDict['B2'] + 'AlexKwan_40brainproject_NeuNcFos 642 density_V2.xlsx'
+        excelfilePath_B2 = os.sep.join([dirDict['B2'], 'AlexKwan_40brainproject_NeuNcFos 642 density_V2.xlsx'])
         lightSheet_B2 = load_lightsheet_excel(excelfilePath_B2, dirDict, switchDict, 'B2')
 
         # Load batch 3
-        excelfilePath_B3 = dirDict['B3'] + 'density channel 642.xlsx'
+        excelfilePath_B3 = os.sep.join([dirDict['B3'], 'density channel 642.xlsx'])
         lightSheet_B3 = load_lightsheet_excel(excelfilePath_B3, dirDict, switchDict, 'B3')
 
         # Merge All the Datasets
@@ -46,7 +46,7 @@ def loadLightSheetData(dirDict, switchDict):
 
         ############## convert 'graph_order' to Region_ID and Region_Name, per Atlas ##############
         # remap IDs to match with Allen Brain Atlas structure tree
-        ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'structure_tree_2017.csv')
+        ABA_tree = pd.read_csv(os.sep.join([dirDict['atlasDir'], 'structure_tree_2017.csv']))
 
         idDict = ABA_tree.set_index('graph_order')['id'].to_dict()
         nameDict = ABA_tree.set_index('graph_order')['name'].to_dict()
@@ -73,7 +73,7 @@ def loadLightSheetData(dirDict, switchDict):
         ls_sum.total_cells = ls_sum.total_cells.astype(int)
 
         if switchDict['debugOutputs']:
-            ls_sum.to_csv(dirDict['debugDir'] + 'lightsheet_atlas_summary.csv')
+            ls_sum.to_csv(os.sep.join([dirDict['debugDir'], 'lightsheet_atlas_summary.csv']))
 
         # Scale specific datasets in batch 1
         
@@ -94,7 +94,8 @@ def loadLightSheetData(dirDict, switchDict):
         ############ Saving ################
 
         if switchDict['debugOutputs']:
-            debugReport(ls_sum, 'lightsheet_data', dirDict['debug_outPath'], 'Region_Name', 'Dorsal Raphe')
+            # debugReport(ls_sum, 'lightsheet_data', dirDict['debugDir'] + 'lightSheet_all_ROI.xlsx', 'Region_Name', 'Dorsal Raphe')
+            ls_sum.to_csv(os.sep.join([dirDict['debugDir'], 'lightsheet_final.csv']))
 
         print('Done, Saving file...')
         ls_sum.to_pickle(intFile)
@@ -109,63 +110,62 @@ def loadLightSheetData(dirDict, switchDict):
 
     return ls_sum
 
-def createDirs(rootDir, switchDict, dirDict):
+def setPath_createDirs():
 
-    dirString = ''
+    # Set Paths to Atlas, Data, and Output
+    dirDict = dict()
+    dirDict['outputFormat'] = 'svg'
 
-    # if switchDict['batchSplit'] or switchDict['scalingFactor']:
-    #     dsplitTag, scaleTag = '', ''
+    rootDir = os.getcwd()
+    dirDict['atlasDir'] =   os.sep.join([rootDir, 'Atlas'])
+    dirDict['dataDir'] =    os.sep.join([rootDir, 'Data'])
+    dirDict['B1'] =         os.sep.join([dirDict['dataDir'], 'lightSheetV1'])
+    dirDict['B2'] =         os.sep.join([dirDict['dataDir'], 'lightSheetV2'])
+    dirDict['B3'] =         os.sep.join([dirDict['dataDir'], 'lightSheetV3'])
 
-    #     if switchDict['batchSplit']:
-    #         dsplitTag = 'split'
-
-    #     if switchDict['scalingFactor']:
-    #         scaleTag = 'scaled'
-
-    #     # stringVar = (tsplitTag, dsplitTag, tsplitTag, b3tag)
-    #     stringVar = (scaleTag, dsplitTag)
-    #     stringVar = [i for i in stringVar if i]
-    #     dirString = str(len(stringVar)) + '.' + '_'.join(stringVar) + '_'
-
-    dirDict['debugDir'] = rootDir + dirString + 'Debug\\'
-    dirDict['tempDir'] = rootDir + dirString + 'Temp\\'
-    dirDict['outDir'] = rootDir + dirString + 'Output\\'
-    dirDict['classifyDir'] = join(dirDict['outDir'], 'classif\\')
-    dirDict['crossComp_figDir'] = join(dirDict['outDir'], 'crossComp\\')
+    # Set Output Directories - then make sure they exist.
+    outDirDict = dict()
+    outDirDict['debugDir'] = os.sep.join([rootDir, 'Debug'])
+    outDirDict['tempDir'] = os.sep.join([rootDir, 'Temp'])
+    outDirDict['outDir'] = os.sep.join([rootDir, 'Output'])
+    outDirDict['classifyDir'] = os.sep.join([outDirDict['outDir'], 'classif'])
+    outDirDict['crossComp_figDir'] = os.sep.join([outDirDict['outDir'], 'crossComp'])
 
     # Cycle through the dirDict, and make sure each path exists
-    for key, path in dirDict.items():
+    for key, path in outDirDict.items():
         if not os.path.isdir(path):
             os.makedirs(path)
+    
+    dirDict.update(outDirDict)
 
     return dirDict
 
-def debugReport(pdDataFrame, sheetName, debug_outPath, roiColName, debug_ROI):
-    if len(debug_ROI) == 0:
-        if os.path.exists(debug_outPath):
-            with pd.ExcelWriter(debug_outPath, mode='a', if_sheet_exists='replace') as writer:
-                pdDataFrame.to_excel(writer, sheetName)
-        else:
-            with pd.ExcelWriter(debug_outPath) as writer:
-                pdDataFrame.to_excel(writer, sheetName)
-    else:
+def debugReport(pdDataFrame=None, sheetName=None, debugPath=None, roiColName=None, debug_ROI=None):
 
+    # Filter data to focus debugging.
+    if debug_ROI is None:
+        roiTag = ''
+        expObj = pdDataFrame
+    else:
+        roiTag = '_ROI'
         for Roi_i, Roi in enumerate(debug_ROI):
             tmp = pdDataFrame.loc[pdDataFrame[roiColName].str.contains(
                 debug_ROI[Roi_i])]
             if Roi_i == 0:
-                tmp_out = tmp
+                expObj = tmp
             else:
-                tmp_out = pd.concat([tmp_out, tmp])
+                expObj = pd.concat([expObj, tmp])
 
-        # Export the filtered list
-        if os.path.exists(debug_outPath):
-            with pd.ExcelWriter(debug_outPath, mode='a', if_sheet_exists='replace') as writer:
-                tmp_out.to_excel(writer, sheetName + '_ROI')
-        else:
-            with pd.ExcelWriter(debug_outPath) as writer:
-                tmp_out.to_excel(writer, sheetName + '_ROI')
+    # Generate the appropriate writing object
+    if os.path.exists(debugPath):
+        writeObj = pd.ExcelWriter(debugPath, mode='a', if_sheet_exists='replace')
+    else:
+        writeObj = pd.ExcelWriter(debugPath)
 
+    # Write data
+    with writeObj as writer:
+        expObj.to_excel(writer, sheetName + roiTag)
+        
 def load_lightsheet_batchCSV(dirDict, switchDict, debugTag):
     # Merging first Batch of Light sheet data
 
@@ -182,7 +182,7 @@ def load_lightsheet_batchCSV(dirDict, switchDict, debugTag):
             csv_drug_list = [switchDict['splitTag'][0] + x for x in csv_drug_list]
 
         for csv_i, csvName in enumerate(csv_list):
-            tmpDb = pd.read_csv(dirDict['B1'] + csvName + '.csv', sep=',')
+            tmpDb = pd.read_csv(os.sep.join([dirDict['B1'], csvName + '.csv']), sep=',')
 
             tmpDb['drug'] = csv_drug_list[csv_i]
             tmpDb['sex'] = sex_list[csv_i]
@@ -205,7 +205,7 @@ def load_lightsheet_batchCSV(dirDict, switchDict, debugTag):
         lightSheet_B1 = lightSheet_B1.rename(columns={'id': 'graph_order', 'name': 'Region'})
 
         if switchDict['debugOutputs']:
-            lightSheet_B1.to_csv(dirDict['debugDir'] + f'lightsheet_{debugTag}.csv')
+            lightSheet_B1.to_csv(os.sep.join([dirDict['debugDir'], f'lightsheet_{debugTag}.csv']))
         
         return lightSheet_B1
 
@@ -271,7 +271,7 @@ def load_lightsheet_excel(excelFileName, dirDict, switchDict, dbFileTag):
         lightSheet_DB = lightSheet_DB[~lightSheet_DB['Region'].isin(background_ROIs)]
     
     if switchDict['debugOutputs']:
-        lightSheet_DB.to_csv(dirDict['debugDir'] + f'lightsheet_{dbFileTag}.csv')
+        lightSheet_DB.to_csv(os.sep.join([dirDict['debugDir'], f'lightsheet_{dbFileTag}.csv']))
 
     return lightSheet_DB
 
@@ -311,7 +311,8 @@ def merge_databases(lightSheet_B1, lightSheet_B2, lightSheet_B3, switchDict, dir
 
         # Debug Stop A - Post Merging of the datasets
         if switchDict['debugOutputs']:
-            debugReport(lightSheet_all, 'lightSheet_all', dirDict['debug_outPath'])
+            # debugReport(lightSheet_all, 'lightSheet_all', dirDict['debugDir'] + 'lightSheet_all_ROI.xlsx')
+            lightSheet_all.to_csv(os.sep.join([dirDict['debugDir'], 'lightSheet_postMerge.csv']))
 
         return lightSheet_all
 

@@ -7,7 +7,6 @@ import os, sys
 import pickle as pkl
 from collections import defaultdict, Counter
 
-
 def create_color_dict(dictType='drug', rgbSwitch=0, alpha_value=1, scaleVal=False):
     # Create a dictionary of colors for brain regions or drugs
     color_dict = dict()
@@ -350,7 +349,7 @@ def create_drugClass_dict(classifyDict):
     if classifyDict['label'] == 'class_PsiKet':
         conv_dict['PSI'] = 'PSI'
         conv_dict['KET'] = 'KET'
-    if classifyDict['label'] == 'class_PsiDMT':
+    if classifyDict['label'] == 'class_Psi5MEO':
         conv_dict['PSI'] = 'PSI'
         conv_dict['5MEO'] = '5MEO'
     if classifyDict['label'] == 'class_PsiMDMA':
@@ -606,19 +605,20 @@ def dataStrPathGen(classifyDict, dirDict):
         data_param_string = data_param_string.replace(key, value)
 
     # Paths and directories - make directories for both figure outputs and temporary file locations
-    tempDataStr = f"{dirDict['tempDir']}{data_param_string}"
-    outDataStr = f"{dirDict['classifyDir']}{data_param_string}"
-
-    if not os.path.exists(tempDataStr):
-        os.mkdir(tempDataStr)
-
-    if not os.path.exists(outDataStr):
-        os.mkdir(outDataStr)
-
-    # Store new paths and strings in the dirDict
-    dirDict['tempDir_data'] = tempDataStr
-    dirDict['outDir_data'] = outDataStr
+    tempDataStr = os.sep.join([dirDict['tempDir'], data_param_string])
+    outDataStr = os.sep.join([dirDict['classifyDir'], data_param_string])
     dirDict['data_param_string'] = data_param_string
+
+    tmpDir = dict()
+    tmpDir['tempDir_data'] = tempDataStr
+    tmpDir['outDir_data'] = outDataStr
+
+    # Cycle through the dict, and make sure each path exists
+    for key, path in tmpDir.items():
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
+    dirDict.update(tmpDir)
 
     return dirDict
 
@@ -753,11 +753,11 @@ def create_ABA_dict(dirDict):
         # Goes into the atlasDir looking for the specified files below, merges and filters them into a dictionary.
         
         # get Allen brain atlases
-        ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'ABA_CCF.csv')
+        ABA_tree = pd.read_csv(os.sep.join([dirDict['atlasDir'], 'ABA_CCF.csv']))
         ABA_tree = ABA_tree.rename(columns={'structure ID': 'id', '"Summary Structure" Level for Analyses': 'summary_struct'})
         ABA_tree = ABA_tree[['id', 'full structure name', 'abbreviation', 'Major Division', 'summary_struct']]
 
-        ABA_hier = pd.read_csv(dirDict['atlasDir'] + 'ABAHier2017_csv.csv')
+        ABA_hier = pd.read_csv(os.sep.join([dirDict['atlasDir'], 'ABAHier2017_csv.csv']))
         ABA_hier = ABA_hier.loc[:, ~ABA_hier.columns.str.contains('^Unnamed')]
         ABA_hier = ABA_hier.rename(columns={'Region ID': 'id', 'CustomRegion': 'Brain Area'})
 
@@ -783,7 +783,7 @@ def retrieve_dict_data(dirDict, classifyDict):
 
     # Define the target directory
     targDir = dirDict['classifyDir']
-    tagList = [f"data={classifyDict['data']}-", 'PowerTrans_RobScal_fSel_BorFS_clf_LogReg(multinom)_CV100']
+    tagList = classifyDict['crossComp_tagList']
 
     # Call the function and get the list of paths based on the tagList
     score_dict_paths = []
@@ -794,6 +794,8 @@ def retrieve_dict_data(dirDict, classifyDict):
         if 'scoreDict_Real.pkl' in files:
             if all(tag in root for tag in tagList):
                 score_dict_paths.append(os.path.join(root, 'scoreDict_Real.pkl'))
+
+    assert len(score_dict_paths) > 0, f"No files found in {targDir} with the tag {tagList}"
 
     # Each directory name will be used to generate a label, based on the sequence between the strings in the directory name below
     startStr = tagList[0]

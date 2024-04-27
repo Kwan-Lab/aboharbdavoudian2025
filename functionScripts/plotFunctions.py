@@ -20,8 +20,6 @@ import matplotlib.ticker as tkr
 
 sys.path.append('dependencies')
 
-
-
 def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
     totalCellCountData = pandasdf[pandasdf.Region_ID == 88]
 
@@ -55,7 +53,7 @@ def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
     # ax.set(ylim=(8e5, 1e7))
     sns.despine()
 
-    plt.savefig(dirDict['outDir'] + 'totalCells.' + outputFormat,  format=outputFormat, bbox_inches='tight')
+    plt.savefig(dirDict['outDir'] + os.sep + 'totalCells.' + outputFormat,  format=outputFormat, bbox_inches='tight')
 
     sns.set_theme()
 
@@ -80,7 +78,7 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     y = np.array([x[:-1] for x in df_Tilted.index])
     df_Tilted['y_vec'] = y
 
-    n_comp = 4
+    n_comp = 2
 
     # Apply some preprocessing to mimic pipeline
     transMod = PowerTransformer(method='yeo-johnson', standardize=False)
@@ -138,7 +136,7 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
         plt.yticks(fontsize=15)
 
         # Save
-        plt.savefig(dirDict['outDir'] + f"dimRed_{filtTag}_{col1} x {col2}.{dirDict['outputFormat']}", format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{filtTag}_{col1} x {col2}.{dirDict['outputFormat']}", format=dirDict['outputFormat'], bbox_inches='tight')
 
         plt.show()
     
@@ -206,7 +204,7 @@ def histPrePostScale(pandasdf, dataPerPlot, dirDict):
         axes[3].title.set_text(f"Robust Scaled yj norm: {feat}")
         axes[3].grid(False)
 
-        plt.savefig(os.path.join(outDirPath, f"scaleChain_{feat}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(os.sep.join([outDirPath, f"scaleChain_{feat}.{dirDict['outputFormat']}"]), format=dirDict['outputFormat'], bbox_inches='tight')
 
 def distance_matrix(lightsheet_data, classifyDict, dirDict):
     import matplotlib.patheffects as PathEffects
@@ -232,7 +230,7 @@ def distance_matrix(lightsheet_data, classifyDict, dirDict):
         )
         plt.title(dist_met, fontsize=45)
 
-        plt.savefig(dirDict['outDir'] + f'Dist_{dist_met}_raw.png', format='png', bbox_inches='tight')
+        plt.savefig(dirDict['outDir'] + os.sep + f'Dist_{dist_met}_raw.png', format='png', bbox_inches='tight')
 
         sns.clustermap(pairwise, 
                        cmap='rocket', 
@@ -240,7 +238,7 @@ def distance_matrix(lightsheet_data, classifyDict, dirDict):
                         dendrogram_ratio = 0.1)
 
         plt.title(dist_met, fontsize=45)
-        plt.savefig(dirDict['outDir'] + f'Dist_{dist_met}_clustered.png', format='png', bbox_inches='tight')
+        plt.savefig(dirDict['outDir'] + os.sep + f'Dist_{dist_met}_clustered.png', format='png', bbox_inches='tight')
 
         plt.show()
 
@@ -313,7 +311,7 @@ def correlation_plot(lightsheet_data, classifyDict, dirDict):
         plt.tick_params(axis='x', which='both', length=0)
         plt.title(titleStr, fontsize=65)
         
-        plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
+        plt.savefig(dirDict['classifyDir'] + os.sep + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
         plt.show()
 
 def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
@@ -363,7 +361,7 @@ def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
     plt.tick_params(axis='x', which='both', length=0)
     plt.title(titleStr)
     
-    plt.savefig(dirDict['classifyDir'] + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
+    plt.savefig(dirDict['classifyDir'] + os.sep + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
 def correlation_subset(processed_data, lightsheet_data, modelCountDict, threshold, classifyDict, dirDict):
@@ -411,7 +409,7 @@ def correlation_subset(processed_data, lightsheet_data, modelCountDict, threshol
     plt.tick_params(axis='x', which='both', length=0)
     plt.title(titleStr, fontsize=10)
     
-    plt.savefig(os.path.join(dirDict['outDir_model'], titleStr + '.svg'), dpi=300, format='svg', bbox_inches='tight')
+    plt.savefig(os.sep.join([dirDict['outDir_model'], titleStr + '.svg']), dpi=300, format='svg', bbox_inches='tight')
     plt.show()
 
 def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
@@ -425,7 +423,7 @@ def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
     colorMapCap = True
     dataFeature = heatmapDict['feature']
     dataValues = heatmapDict['data']
-    blockCount =heatmapDict['blockCount']
+    blockCount = heatmapDict['blockCount']
 
     # take the mean across all the datasets for each region, then log transform
     if heatmapDict['logChangeSal'] == True:
@@ -559,7 +557,7 @@ def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
 
         # Change the axis of the colorbar to represent multiples of 
 
-        plt.savefig(dirDict['classifyDir'] + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(dirDict['classifyDir'] + os.sep + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
         plt.show()
 
 def plot_data_heatmap_perArea(lightsheet_data, heatmapDict, dirDict):
@@ -699,7 +697,7 @@ def plot_data_heatmap_perArea(lightsheet_data, heatmapDict, dirDict):
 
         # Change the axis of the colorbar to represent multiples of 
 
-        plt.savefig(dirDict['classifyDir'] + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(dirDict['classifyDir'] + os.sep + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
         plt.show()
 
 def create_heatmaps_allC(matrix, dim_to_loop=0, titleStatic='Heatmap', titleLoop=[], dirDict=[]):
@@ -738,7 +736,7 @@ def create_heatmaps_allC(matrix, dim_to_loop=0, titleStatic='Heatmap', titleLoop
         else:
             axes[i].tick_params(left=False, labelleft=False)
 
-    plt.savefig(dirDict['classifyDir'] + fullTitleStr + dirDict['outputFormat'], dpi=300,
+    plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + dirDict['outputFormat'], dpi=300,
                 format=dirDict['outputFormat'], bbox_inches='tight')
 
     # Add a colorbar on the far right plot
@@ -820,7 +818,7 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     sm.set_array([])
 
     # Not working
-    # plt.savefig(dirDict['classifyDir'] + fullTitleStr + '.png', dpi=300,
+    # plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + '.png', dpi=300,
     #             format='png', bbox_inches='tight')
 
     # [left, bottom, width, height] of the colorbar axis
@@ -828,7 +826,7 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     cbar = fig.colorbar(sm, cax=cbar_ax)
 
     plt.tight_layout()
-    plt.savefig(dirDict['classifyDir'] + fullTitleStr + '.png', dpi=300, format='png', bbox_inches='tight')
+    plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + '.png', dpi=300, format='png', bbox_inches='tight')
     plt.show()
 
 ### Classification based plots
@@ -859,7 +857,7 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     plt.savefig(join(dirDict['outDir_model'], f"ConfusionMatrix_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
     plt.show()
 
-def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
+def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, plotSwitch, fit, dirDict):
     # n_classes = int, number of classes
     # y_real, y_prob = test set labels and probabilities assigned to test set samples.
     # y_real, y_prob are in a [n_splits, n_samples, n_classes] format
@@ -876,8 +874,10 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     y_real_all, y_prob_all = [], []
 
     figSizeMat = np.array((n_classes, n_classes))/2.2
-    f = plt.figure(figsize=figSizeMat)
-    axes = plt.axes()
+
+    if plotSwitch:
+        f = plt.figure(figsize=figSizeMat)
+        axes = plt.axes()
 
     # Depending on feature list y passed, determine if the classes are numbers or strings
     if all(isinstance(key, str) for key in labelDict.keys()):
@@ -897,12 +897,15 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
         y_real_all.append(label_per_split_reshape)
         y_prob_all.append(prob_per_split_reshape)
 
-        # Create PR curve
+        # Calculate the PR Curve
         precision, recall, _ = precision_recall_curve(label_per_split_reshape, prob_per_split_reshape)
         auc_val = auc(recall, precision)
         lab = f'{labelDict[i]}=%.2f' % (auc_val)
         auc_dict[labelDict[i]] = np.round(auc_val, 2)
-        axes.step(recall, precision, label=lab, color=colorDict[labelDict[i]], lw=2)
+
+        # Depending on switch, plot it.
+        if plotSwitch:
+            axes.step(recall, precision, label=lab, color=colorDict[labelDict[i]], lw=2)
 
     # Create a mean PR Curve by combining all the data
     precision, recall, _ = precision_recall_curve(np.concatenate(y_real_all), np.concatenate(y_prob_all))
@@ -910,26 +913,27 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, fit, dirDict):
     auc_val_mean = auc(recall, precision)
     lab = f'Mean Curve=%.2f' % (auc_val_mean)
     auc_dict['Mean'] = np.round(auc_val_mean, 2)
-    axes.step(recall, precision, label=lab, lw=3, color='black')
 
-    # PR Curves
-    axes.set_xlabel('Recall')
-    axes.set_ylabel('Precision')
+    if plotSwitch:
+        axes.step(recall, precision, label=lab, lw=3, color='black')
+        axes.set_xlabel('Recall')
+        axes.set_ylabel('Precision')
 
-    if n_classes == 2:
-        legend = axes.legend(loc='lower left', fontsize='xx-large')
-        # Adjust the size for purposes of the paper
-        for label in legend.get_texts():
-            label.set_fontproperties(FontProperties(size=30, weight='bold'))
-        for label in legend.get_lines():
-            label.set_linewidth(15)
-    else:
-        legend = axes.legend(loc='lower left', fontsize='large')
-        for label in legend.get_lines():
-            label.set_linewidth(.5)
+        if n_classes == 2:
+            legend = axes.legend(loc='lower left', fontsize='xx-large')
+            # Adjust the size for purposes of the paper
+            for label in legend.get_texts():
+                label.set_fontproperties(FontProperties(size=30, weight='bold'))
+            for label in legend.get_lines():
+                label.set_linewidth(15)
+        else:
+            legend = axes.legend(loc='lower left', fontsize='large')
+            for label in legend.get_lines():
+                label.set_linewidth(.5)
 
-    plt.savefig(join(dirDict['outDir_model'], f"PRcurve_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
-    plt.show()
+
+        plt.savefig(join(dirDict['outDir_model'], f"PRcurve_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
+        plt.show()
 
     return auc_dict
 
@@ -1280,7 +1284,7 @@ def plot_feature_scores(clf, featureNames):
 def plot_histogram(data, dirDict):
     plt.title('Feature Count per CV', fontdict={'fontsize': 20})
     plt.hist(data, bins=10, edgecolor='black')
-    plt.savefig(join(dirDict['outDir_model'], f"featureCountHist.svg"), format='svg', bbox_inches='tight')
+    plt.savefig(os.sep.join([dirDict['outDir_model'], "featureCountHist.svg"]), format='svg', bbox_inches='tight')          
     plt.show()
 
 def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, saveDir):
@@ -1305,7 +1309,7 @@ def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, s
         plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
 
     # Display the plot
-    plt.savefig(f"{saveDir}MeanAUC_barplot.svg", format='svg', bbox_inches='tight')     
+    plt.savefig(os.sep.join([saveDir ,"MeanAUC_barplot.svg"]), format='svg', bbox_inches='tight')          
     plt.show()
 
 def plot_cross_model_Accuracy(scoreNames, meanScores, meanScrambleScores, colorsList, saveDir):
@@ -1334,7 +1338,7 @@ def plot_cross_model_Accuracy(scoreNames, meanScores, meanScrambleScores, colors
         plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
 
     # Save and show the plot
-    plt.savefig(f"{saveDir}MeanAcc_barplot.svg", format='svg', bbox_inches='tight')     
+    plt.savefig(os.sep.join([saveDir ,"MeanAcc_barplot.svg"]), format='svg', bbox_inches='tight')     
     plt.show()
 
 def find_max_index(shap_values_list, regionSet):
@@ -1430,7 +1434,7 @@ def plot_featureCount_violin(scoreNames, featureLists, dirDict):
     plt.xlabel('Number of Regions in Classifier')
     plt.ylabel('Classifier')
 
-    plt.savefig(f"{dirDict['crossComp_figDir']}\\RegionCountPerSplit_violin.svg", format='svg', bbox_inches='tight')     
+    plt.savefig(os.sep.join([dirDict['crossComp_figDir'], "RegionCountPerSplit_violin.svg"]), format='svg', bbox_inches='tight')     
 
     # Show the plot
     plt.show()
@@ -1484,7 +1488,7 @@ def plot_similarity_matrix(scoreNames, featureLists, filterByFreq, dirDict):
             text.set_text("")
 
     # plt.title(titleStr, fontdict={'fontsize': 18})
-    plt.savefig(f"{dirDict['crossComp_figDir']}\\MeanSimilarity_heatmap.svg", format='svg', bbox_inches='tight')     
+    plt.savefig(os.sep.join([dirDict['crossComp_figDir'], "MeanSimilarity_heatmap.svg"]), format='svg', bbox_inches='tight')     
     plt.show()
 
 def plot_featureOverlap_VennDiagram(scoreNames, featureLists, filterByFreq, dirDict):
@@ -1524,7 +1528,7 @@ def plot_featureOverlap_VennDiagram(scoreNames, featureLists, filterByFreq, dirD
             figName = f'VD_{scoreNames[idx1]} and {scoreNames[idx2]}'
             figName = figName.replace('/', '+')
             figName = figName.replace(' ', '_')
-            plt.savefig(f"{dirDict['crossComp_figDir']}\\{figName}.svg", format='svg', bbox_inches='tight')     
+            plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"{figName}.svg"]), format='svg', bbox_inches='tight')     
 
             # Display the plot
             plt.show()
@@ -1687,7 +1691,7 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
         # fig.text(0.5, -.02, "Samples Per Group", ha='center', fontsize=20)
         plt.tight_layout(h_pad = 0, w_pad = .5)
 
-        plt.savefig(f"{dirDict['crossComp_figDir']}{titleStr}_cb_{cbs}.svg", dpi=300, format='svg', bbox_inches='tight')
+        plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"{titleStr}_cb_{cbs}.svg"]), dpi=300, format='svg', bbox_inches='tight')
         plt.show()
 
 def sortShap(shap_values_list, regionSet):
