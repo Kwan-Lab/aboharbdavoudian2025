@@ -333,20 +333,19 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             ## Plotting code for the fit model and compiled data
             # ================== Plotting ==================
             # PR Curve - save the results in a dict for compiling into a bar plot.
-            if fit != 'Shuffle':
-                auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
+            auc_dict = pf.plotPRcurve(n_classes, y_real, y_prob, labelDict, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
 
-                # Create a structure which saves results for plotting elsewhere.
-                score_dict = dict()
-                score_dict['auc'] = auc_dict
-                score_dict['scores'] = scores
-                score_dict['featuresPerModel'] = selected_features_list[0]
-                score_dict['compLabel'] = ' vs '.join(labelDict.keys())
+            # Create a structure which saves results for plotting elsewhere.
+            score_dict = dict()
+            score_dict['auc'] = auc_dict
+            score_dict['scores'] = scores
+            score_dict['featuresPerModel'] = selected_features_list[0]
+            score_dict['compLabel'] = ' vs '.join(labelDict.keys())
 
-                # Save
-                dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
-                with open(dictPath, 'wb') as f:
-                    pkl.dump(score_dict, f)
+            # Save
+            dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
+            with open(dictPath, 'wb') as f:
+                pkl.dump(score_dict, f)
 
             # # Shape data into a table for correlation
             if plotDict['featureCorralogram']:

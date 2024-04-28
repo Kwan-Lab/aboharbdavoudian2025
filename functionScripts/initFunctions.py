@@ -86,6 +86,10 @@ def loadLightSheetData(dirDict, switchDict):
         ls_sum.loc[:, 'count_norm'] = ls_sum.loc[:, 'count']/ls_sum.loc[:, 'total_cells']
         ls_sum.loc[:, 'density_norm'] = ls_sum.loc[:, 'count_norm']/ls_sum.loc[:, 'volume_(mm^3)']
 
+        # Some regions appear to have 0 volume, likely due to rounding. This creates NaNs in density.
+        ls_sum.loc[:, 'cell_density'].fillna(0, inplace=True)
+        ls_sum.loc[:, 'density_norm'].fillna(0, inplace=True)
+
         # change drug column to categorical to allow for sequencing. Change according to dataset.
         if np.any(ls_sum['drug'].isin(['5MEO','PSI'])):
             customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']

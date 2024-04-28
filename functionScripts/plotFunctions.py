@@ -1614,10 +1614,7 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
 
     # Add in columns for each of the actual comparisons.
     df_frame = df_Tilted.reindex(columns=scoreNames)
-
-    # Populate df_frame with 0s
-    for col in df_frame.columns:
-        df_frame[col] = 0
+    df_frame.fillna(0, inplace=True)
         
     for idx, (comp, featureList) in enumerate(zip(df_frame.columns, featureListDicts)):
         for regionName in featureList.keys():
