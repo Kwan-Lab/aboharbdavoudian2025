@@ -562,18 +562,16 @@ def modelStrPathGen(clf, dirDict, n_splits, fit):
 
     modelParamStr = modelParamStr + f"_CV{n_splits}"
 
-    tempModelStr = os.path.join(dirDict['tempDir_data'], modelParamStr)
-    outModelStr = os.path.join(dirDict['outDir_data'], modelParamStr)
+    tmpDict = dict()
+    tmpDict['tempDir_model'] = os.path.join(dirDict['tempDir_data'], modelParamStr)
+    tmpDict['outDir_model'] = os.path.join(dirDict['outDir_data'], modelParamStr)
 
-    if not os.path.exists(tempModelStr):
-        os.mkdir(tempModelStr)
+    for key, path in tmpDict.items():
+        if not os.path.isdir(path):
+            os.makedirs(path)
 
-    if not os.path.exists(outModelStr):
-        os.mkdir(outModelStr)
-
-    dirDict['tempDir_model'] = tempModelStr
-    dirDict['outDir_model'] = outModelStr
-    dirDict['tempDir_outdata'] = os.path.join(tempModelStr, f"{fit}_outdata.pkl")
+    dirDict.update(tmpDict)    
+    dirDict['tempDir_outdata'] = os.path.join(tmpDict['tempDir_model'], f"{fit}_outdata.pkl")
 
     return modelStr, figSaveStr, dirDict
 

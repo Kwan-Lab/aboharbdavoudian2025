@@ -155,7 +155,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
     for fit in fits:
         if fit == 'Shuffle':
-            y = shuffle(y)
+            y = shuffle(y, random_state=classifyDict['seed'])
 
         cvFxn.get_n_splits(X, y) 
 
@@ -238,24 +238,25 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
                     # SHAP Related code
                     X_test_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
-                    if n_classes == 2:
-                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=classifyDict['featurePert'])
-                    else:
-                        # Multiclass explainer must use interventional perturbation
-                        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='interventional')
-                        
-                    explainers.append(explainer)
-                    explain_shap_vals = explainer.shap_values(X_test_trans)
+                    if fit != 'Shuffle':
+                        if n_classes == 2:
+                            explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=classifyDict['featurePert'])
+                        else:
+                            # Multiclass explainer must use interventional perturbation
+                            explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='interventional')
+                
+                        explainers.append(explainer)
+                        explain_shap_vals = explainer.shap_values(X_test_trans)
 
-                    if n_classes == 2:
-                        shap_values_test = pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)
-                        shap_values_list.append(shap_values_test.reset_index())
-                        baseline_val.append(explainer.expected_value)
-                    else:
-                        shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
-                        for idx, shap_val in enumerate(shap_values_test):
-                            shap_values_list[idx].append(shap_val.reset_index(drop=True))
-                            baseline_val[idx].append(explainer.expected_value)
+                        if n_classes == 2:
+                            shap_values_test = pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)
+                            shap_values_list.append(shap_values_test.reset_index())
+                            baseline_val.append(explainer.expected_value)
+                        else:
+                            shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
+                            for idx, shap_val in enumerate(shap_values_test):
+                                shap_values_list[idx].append(shap_val.reset_index(drop=True))
+                                baseline_val[idx].append(explainer.expected_value)
 
                     # Store the results
                     X_test_trans_list.append(X_test_trans.reset_index())
@@ -325,8 +326,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
                 if classifyDict['saveLoadswitch']:
                     # save all the products
-                    saveList = [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_test_trans_list,
-                                scores, selected_features_list, selected_features_params, baseline_val, shap_values_list]
+                    saveList = [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real, y_prob, conf_matrix_list_of_arrays, X_test_trans_list, scores, selected_features_list, selected_features_params, baseline_val, shap_values_list]
                     with open(saveFilePath, 'wb') as f:
                         pkl.dump(saveList, f)
 
@@ -466,7 +466,7 @@ def build_pipeline(classifyDict):
     # Select Feature selection model
     match classifyDict['model_featureSel']:
         case 'Boruta':
-            featureSelMod = BorutaFeatureSelector(feature_sel='all') # Can swap for 'feature_sel'='strong' to only include strong rec's from Boruta.
+            featureSelMod = BorutaFeatureSelector(feature_sel='all', random_state=classifyDict['seed']) # Can swap for 'feature_sel'='strong' to only include strong rec's from Boruta.
         case 'MRMR':
             # featureSelMod = FunctionTransformer(MRMRFeatureSelector, kw_args={'n_features_to_select': 10, 'pass_y': True, 'featureSel__feature_names_out': True}, )
             featureSelMod = MRMRFeatureSelector(n_features_to_select=30)
@@ -535,7 +535,7 @@ def build_pipeline(classifyDict):
     if classifyDict['CVstrat'] == 'StratKFold':
         cvFxn = StratifiedKFold(n_splits=classifyDict['CV_count'])  # 8 examples of each label
     elif classifyDict['CVstrat'] == 'ShuffleSplit':
-        cvFxn = StratifiedShuffleSplit(n_splits=classifyDict['CV_count'], test_size=classifyDict['test_size'])
+        cvFxn = StratifiedShuffleSplit(n_splits=classifyDict['CV_count'], test_size=classifyDict['test_size'], random_state=classifyDict['seed'])
     
     return modelList, cvFxn, paramGrid
 
@@ -661,12 +661,13 @@ class MRMRFeatureSelector(BaseEstimator, TransformerMixin):
         return X_fit
 
 class BorutaFeatureSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, feature_sel='all'):
+    def __init__(self, feature_sel='all', random_state=None):
         self.feature_sel = feature_sel
+        self.random_state = random_state
     
     def fit(self, X, y=None):
 
-        boruta = BorutaPy(estimator = RandomForestClassifier(), n_estimators = 'auto', max_iter = 100, perc=95, verbose=0)
+        boruta = BorutaPy(estimator = RandomForestClassifier(), n_estimators = 'auto', max_iter = 100, perc=95, verbose=0, random_state=self.random_state)
         # Perc - percentile for real feature importance compared to distribution of shadow features. 100 believed to be too strict.
         
         ### fit Boruta (it accepts np.array, not pd.DataFrame)

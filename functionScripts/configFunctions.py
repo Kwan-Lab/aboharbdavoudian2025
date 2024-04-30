@@ -14,10 +14,11 @@ def return_heatmapDict():
     return heatmapDict
 
 def return_classifyDict_default():
-    
-    np.random.seed(seed = 31415)
-
     classifyDict = dict()
+
+    np.random.seed(seed = 31415)
+    classifyDict['seed'] = 31415
+
     classifyDict['featurefilt'] = False # True, False
     classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
 
@@ -80,10 +81,11 @@ def return_classifyDict_default():
 
 def return_classifyDict_testing():
     # For rapid testing of classifier code - key diff is feature selection via Univar, only 10 CV splits, and 'interventional' style SHAP explanations.
+    classifyDict = dict()
 
     np.random.seed(seed = 31415)
+    classifyDict['seed'] = 31415
 
-    classifyDict = dict()
     classifyDict['featurefilt'] = False # True, False
     classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
 
