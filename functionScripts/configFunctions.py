@@ -16,8 +16,8 @@ def return_heatmapDict():
 def return_classifyDict_default():
     classifyDict = dict()
 
-    np.random.seed(seed = 31415)
     classifyDict['seed'] = 31415
+    np.random.seed(seed = classifyDict['seed'])
 
     classifyDict['featurefilt'] = False # True, False
     classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
