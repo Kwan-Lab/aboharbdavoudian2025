@@ -69,9 +69,11 @@ def return_classifyDict_default():
     classifyDict['test_size'] = 1/4
     classifyDict['innerFold'] = 4
     if classifyDict['CVstrat'] == 'ShuffleSplit':
-        classifyDict['CV_count'] = 100 # Number of folds for cross-validation
+        classifyDict['CV_count'] = 1000 # Number of folds for cross-validation
     elif classifyDict['CVstrat'] == 'StratKFold':
         classifyDict['CV_count'] = 8 # Number of folds for cross-validation
+    classifyDict['balance'] = True
+
 
     classifyDict['featurePert'] = 'correlation_dependent' # 'interventional' or 'correlation_dependent'
 
@@ -82,9 +84,9 @@ def return_classifyDict_default():
 def return_classifyDict_testing():
     # For rapid testing of classifier code - key diff is feature selection via Univar, only 10 CV splits, and 'interventional' style SHAP explanations.
     classifyDict = dict()
-
-    np.random.seed(seed = 31415)
+    
     classifyDict['seed'] = 31415
+    np.random.seed(seed = classifyDict['seed'])
 
     classifyDict['featurefilt'] = False # True, False
     classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
@@ -93,7 +95,7 @@ def return_classifyDict_testing():
     classifyDict['data'] = 'count_norm' #cell_density, count, count_norm, density_norm
     classifyDict['feature'] = 'abbreviation'
     classifyDict['label'] = 'drug' # Defined in hf.create_drugClass_dict()
-    # hf.create_drugClass_dict(classifyDict)
+    # check hf.create_drugClass_dict() for options
 
     # Parameters for feature scaling and aggregation
     classifyDict['featurefilt'] = False # True, False
@@ -139,6 +141,8 @@ def return_classifyDict_testing():
         classifyDict['CV_count'] = 10 # Number of folds for cross-validation
     elif classifyDict['CVstrat'] == 'StratKFold':
         classifyDict['CV_count'] = 8 # Number of folds for cross-validation
+    classifyDict['balance'] = True
+
 
     classifyDict['featurePert'] = 'interventional' # 'interventional' or 'correlation_dependent'
 

@@ -906,7 +906,7 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     plt.savefig(join(dirDict['outDir_model'], f"ConfusionMatrix_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
     plt.show()
 
-def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, plotSwitch, fit, dirDict):
+def plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, Yticklabs, daObjstr, plotSwitch, fit, dirDict):
     # n_classes = int, number of classes
     # y_real, y_prob = test set labels and probabilities assigned to test set samples.
     # y_real, y_prob are in a [n_splits, n_samples, n_classes] format
@@ -915,17 +915,26 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, plotSwitch, fit,
     import matplotlib.pyplot as plt
     from matplotlib.patches import Patch
     from matplotlib.font_manager import FontProperties
+    from sklearn.preprocessing import label_binarize
+    
+    # Convert the labels to a binary format
+    y_real_lab = [label_binarize(x, classes=Yticklabs) for x in y_real_lab]
+    y_real_lab = np.array(y_real_lab)
+    if n_classes == 2:
+        # y_real_lab = np.concatenate([y_real_lab, 1 - y_real_lab], axis=2)
+        y_real_lab = np.concatenate([1 - y_real_lab, y_real_lab], axis=2)
+    y_real = y_real_lab
 
     # Convert the arrays
-    y_real = np.array(y_real)
+    # y_real = np.array(y_real)
     y_prob = np.array(y_prob)
 
     y_real_all, y_prob_all = [], []
 
-    figSizeMat = np.array((n_classes, n_classes))/2.2
-
     if plotSwitch:
-        f = plt.figure(figsize=figSizeMat)
+        # figSizeMat = np.array((n_classes, n_classes))/2.2
+        # f = plt.figure(figsize=figSizeMat)
+        f = plt.figure()
         axes = plt.axes()
 
     # Depending on feature list y passed, determine if the classes are numbers or strings
@@ -940,8 +949,8 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, plotSwitch, fit,
         label_per_split = y_real[:, :, i]
         prob_per_split = y_prob[:, :, i]
 
-        label_per_split_reshape = label_per_split.reshape(prob_per_split.shape[0]*prob_per_split.shape[1], 1)
-        prob_per_split_reshape = prob_per_split.reshape(prob_per_split.shape[0]*prob_per_split.shape[1], 1)
+        label_per_split_reshape = label_per_split.reshape(prob_per_split.size, 1)
+        prob_per_split_reshape = prob_per_split.reshape(prob_per_split.size, 1)
 
         y_real_all.append(label_per_split_reshape)
         y_prob_all.append(prob_per_split_reshape)
@@ -969,12 +978,12 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, plotSwitch, fit,
         axes.set_ylabel('Precision')
 
         if n_classes == 2:
-            legend = axes.legend(loc='lower left', fontsize='xx-large')
+            legend = axes.legend(loc='lower left', fontsize='large')
             # Adjust the size for purposes of the paper
-            for label in legend.get_texts():
-                label.set_fontproperties(FontProperties(size=30, weight='bold'))
-            for label in legend.get_lines():
-                label.set_linewidth(15)
+            # for label in legend.get_texts():
+            #     label.set_fontproperties(FontProperties(size=10, weight='bold'))
+            # for label in legend.get_lines():
+            #     label.set_linewidth(15)
         else:
             legend = axes.legend(loc='lower left', fontsize='large')
             for label in legend.get_lines():
@@ -989,16 +998,13 @@ def plotPRcurve(n_classes, y_real, y_prob, labelDict, daObjstr, plotSwitch, fit,
 def plot_shap_summary(X_train_trans_list, shap_values_list, y_vec, n_classes, plotDict, classifyDict, dirDict):
     
     n_splits = len(X_train_trans_list)
+    test_count = shap_values_list[0][0].shape[0]
     shap_threshold = np.ceil(n_splits * plotDict['shapSummaryThres']/100)
 
     X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
     shap_values_nonmean = []
-    if n_classes == 2:
-        shap_values_nonmean.append(pd.concat(shap_values_list, axis=0))
-        test_count = shap_values_list[0].shape[0]
-    else:
-        test_count = shap_values_list[0][0].shape[0]
-        for shap_x_df in shap_values_list:
+    for shap_x_df in shap_values_list:
+        if shap_x_df:
             shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
 
     # Plot the SHAP values for each class
@@ -1025,7 +1031,7 @@ def plot_shap_summary(X_train_trans_list, shap_values_list, y_vec, n_classes, pl
         X_train_trans_sorted = X_train_trans_nonmean[sortingIdx]
         shap_vals = shap_vals[sortingIdx]
 
-        # if there are 2 classes, sort by the median difference
+        # if there are 2 classes, sort by the median difference, by use of the index which determines the true label
         if n_classes == 2:
             # Map the index column to a new 'drug' column using y_vec
             shap_vals['drug'] = y_vec[shap_vals['index']]
@@ -1047,6 +1053,10 @@ def plot_shap_summary(X_train_trans_list, shap_values_list, y_vec, n_classes, pl
             # Resort data by the drug median
             shap_vals = shap_vals[drugMedians_sort.index]
             X_train_trans_sorted = X_train_trans_sorted[drugMedians_sort.index]
+        else:
+            # Discard the index column. No such sorting implemented atm.
+            shap_vals = shap_vals.drop('index', axis=1)
+            X_train_trans_sorted = X_train_trans_sorted.drop('index', axis=1)
 
         sortSHAP = False
         parenVal = 'medianDiff'
@@ -1232,7 +1242,7 @@ def plot_shap_bar(explainers, X_train_trans_list, shap_values_list, y_vec, n_cla
             plt.savefig(join(dirDict['outDir_model'], f"SHAP_summary_Sym.svg"), format='svg', bbox_inches='tight') #, bbox_inches='tight'
             plt.show()
 
-def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, numYDict, plotDict, dirDict):
+def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real_lab, numYDict, plotDict, dirDict):
     import itertools
 
     if plotDict['shapForcePlotCount'] == 0:
@@ -1276,9 +1286,8 @@ def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real, 
     if class_count == 2:
 
         for cvSplit, testPoint in cvSplitTest:
-
-            y_idx = np.argmax(y_real[cvSplit], axis=1)
-            y_labels = [labelDict[x] for x in y_idx]
+            
+            y_labels = y_real_lab[cvSplit]
             idStr = f"CV{cvSplit}_Sample{testPoint}"
             titleStr = f'Test Sample of {y_labels[testPoint]}, {idStr}'
 

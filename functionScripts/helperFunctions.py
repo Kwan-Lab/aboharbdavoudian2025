@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.cluster.hierarchy as sch
-import os, sys
+import os, sys, shap
 import pickle as pkl
 from collections import defaultdict, Counter
 
@@ -611,6 +611,9 @@ def dataStrPathGen(classifyDict, dirDict):
     tmpDir['tempDir_data'] = tempDataStr
     tmpDir['outDir_data'] = outDataStr
 
+    # Add a caching directory for the pipeline to speed up fitting
+    classifyDict['tempDir_cacheDir'] = tmpDir['tempDir_data']
+
     # Cycle through the dict, and make sure each path exists
     for key, path in tmpDir.items():
         if not os.path.isdir(path):
@@ -618,7 +621,7 @@ def dataStrPathGen(classifyDict, dirDict):
 
     dirDict.update(tmpDir)
 
-    return dirDict
+    return classifyDict, dirDict
 
 def save_string_dict():
     # Create a dictionary to allow for compressing of model and data names
@@ -631,6 +634,7 @@ def save_string_dict():
     saveStringDict['featureSel_linkage=average-featureSel_distance=correlation'] = 'avgCorrClus'
     saveStringDict['cluster_thres='] = 'clusThres'
 
+    saveStringDict['n_jobs=-1'] = ''
     saveStringDict['gridCV=True'] = 'gridCV'
     saveStringDict['featureTrans_PowerTransformer(standardize=False)'] = 'PowerTrans'
     saveStringDict['featureSel'] = 'fSel'
@@ -665,10 +669,11 @@ def stringReportOut(selected_features_list, selected_features_params, YtickLabs,
     featurePerModelStr = str(featurePerModel)
     paramStr = ''
 
-    keyList = selected_features_params[0][0].keys()
-    for key in list(keyList):
-        keyVals = [x[key] for x in selected_features_params[0]]
-        paramStr += f"{key}: {str(keyVals)} \n"
+    if selected_features_params[0]:
+        keyList = selected_features_params[0].keys()
+        for key in list(keyList):
+            keyVals = [x[key] for x in selected_features_params]
+            paramStr += f"{key}: {str(keyVals)} \n"
 
     if np.sum(featurePerModel) == 0:
         return
@@ -864,3 +869,44 @@ def weighted_jaccard_similarity(u, v, filt):
     similarity = intersection / union if union != 0 else 0
 
     return similarity
+
+def feature_selection_info_gather(idx_o, clf, featureNames, penaltyStr, selected_features_list):
+    # if featureSel done as module, final_estimator will only have info on selected features.
+    if 'featureSel' in clf.named_steps.keys():
+        featureNamesSub = featureNames[clf['featureSel'].get_support(indices=True)]
+    else:
+        featureNamesSub = featureNames
+
+    # If featureSel done as part of estimator, this can be determined based on coefs.
+    if penaltyStr not in ('l2', None):
+        bool_array = clf['classif'].coef_ != 0
+        featureNamesSub = featureNamesSub[bool_array.flatten()]
+
+    # Append the selected features across splits. - Consider removing, as features are the same across classes
+    selected_features_list[idx_o] = featureNamesSub
+
+    return selected_features_list
+
+def collect_shap_values(idx_o, explainers, shap_values_list, baseline_val, n_classes, clf, X_test_trans, feature_selected, test_index, featurePert): #classifyDict['featurePert']
+
+    # Select the correct explainer
+    if n_classes == 2:
+        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=featurePert)
+    else:
+        # Multiclass explainer must use interventional perturbation
+        explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='interventional')
+
+    explain_shap_vals = explainer.shap_values(X_test_trans)
+    if n_classes == 2:
+        shap_values_test = [pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)]
+    else:
+        shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]
+
+    # Save output structures
+    explainers[idx_o] = explainer
+    for idx, shap_val in enumerate(shap_values_test):
+        shap_values_list[idx].append(shap_val.reset_index())
+        baseline_val[idx].append(explainer.expected_value)
+
+    return explainers, shap_values_list, baseline_val
+
