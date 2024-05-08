@@ -292,6 +292,17 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
             ## Plotting code for the fit model and compiled data
             # ================== Plotting ==================
+            
+            # none_indices = [(i, j) for i, sublist in enumerate(tmpVar) for j, value in enumerate(sublist) if value is None]
+            remove_Idx = [x is not None for x in y_real_lab]
+            y_real_lab = [elem for elem, flag in zip(y_real_lab, remove_Idx) if flag]
+            y_prob = [elem for elem, flag in zip(y_prob, remove_Idx) if flag]
+            scores = [elem for elem, flag in zip(scores, remove_Idx) if flag]
+            conf_matrix_list_of_arrays = [elem for elem, flag in zip(conf_matrix_list_of_arrays, remove_Idx) if flag]
+            # Use remove_idx to filter y_real_lab
+
+            
+
             # PR Curve - save the results in a dict for compiling into a bar plot.
             auc_dict = pf.plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, YtickLabs, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
 

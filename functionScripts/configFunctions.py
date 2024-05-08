@@ -77,7 +77,7 @@ def return_classifyDict_default():
 
     classifyDict['featurePert'] = 'correlation_dependent' # 'interventional' or 'correlation_dependent'
 
-    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", 'PowerTrans_RobScal_fSel_BorFS_clf_LogReg(multinom)_CV100']
+    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", f"PowerTrans_RobScal_fSel_BorFS_clf_LogReg(multinom)_CV{classifyDict['CV_count']}"]
 
     return classifyDict
 
