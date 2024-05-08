@@ -16,7 +16,7 @@ def return_heatmapDict():
 def return_classifyDict_default():
     classifyDict = dict()
 
-    classifyDict['seed'] = 31415
+    classifyDict['seed'] = 82590
     np.random.seed(seed = classifyDict['seed'])
 
     classifyDict['featurefilt'] = False # True, False
@@ -85,7 +85,7 @@ def return_classifyDict_testing():
     # For rapid testing of classifier code - key diff is feature selection via Univar, only 10 CV splits, and 'interventional' style SHAP explanations.
     classifyDict = dict()
     
-    classifyDict['seed'] = 31415
+    classifyDict['seed'] = 82590
     np.random.seed(seed = classifyDict['seed'])
 
     classifyDict['featurefilt'] = False # True, False
