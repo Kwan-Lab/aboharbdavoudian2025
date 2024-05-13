@@ -1345,7 +1345,7 @@ def plot_histogram(data, dirDict):
     plt.savefig(os.sep.join([dirDict['outDir_model'], "featureCountHist.svg"]), format='svg', bbox_inches='tight')          
     plt.show()
 
-def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, saveDir):
+def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, dirDict):
 
     plt.figure(figsize=(5, 5))  # Adjust the width and height as needed
     plt.barh(scoreNames, aucScores, label='Data', color=colorsList[0])
@@ -1367,7 +1367,7 @@ def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, s
         plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
 
     # Display the plot
-    plt.savefig(os.sep.join([saveDir ,"MeanAUC_barplot.svg"]), format='svg', bbox_inches='tight')          
+    plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"MeanAUC_barplot.svg"]), dpi=300, format='svg', bbox_inches='tight')
     plt.show()
 
 def plot_cross_model_Accuracy(scoreNames, meanScores, meanScrambleScores, colorsList, saveDir):

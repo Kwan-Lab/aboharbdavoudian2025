@@ -803,7 +803,9 @@ def retrieve_dict_data(dirDict, classifyDict):
     # Each directory name will be used to generate a label, based on the sequence between the strings in the directory name below
     startStr = tagList[0]
     endStr = '\PowerTrans'
+    aucScores, meanScores, aucScrambleScores, meanScrambleScores = [], [], [], []
     featureLists, countNames  = [], []
+
 
     # Print the result
     print(f"Found 'scoreDict.pkl' files in directories containing {tagList}:")
@@ -813,11 +815,21 @@ def retrieve_dict_data(dirDict, classifyDict):
         with open(path, 'rb') as f:                 
             featureDict = pkl.load(f)
             featureLists.append(featureDict['featuresPerModel'])
+            meanScores.append(np.mean(featureDict['scores']))
+            aucScores.append(featureDict['auc']['Mean'])
 
         # Extract the label for the entry
         countNames.append(featureDict['compLabel'])
 
-    return featureLists, countNames
+        # Load the scrambled dicts
+        scramblePath = path.replace('_Real', '_Shuffle')
+        with open(scramblePath, 'rb') as f:                 
+            featureDict = pkl.load(f)
+
+            meanScrambleScores.append(np.mean(featureDict['scores']))
+            aucScrambleScores.append(featureDict['auc']['Mean'])
+
+    return featureLists, countNames, aucScores, meanScores, aucScrambleScores, meanScrambleScores
 
 def listToCounterFilt(listArray, filterByFreq=0):
 
