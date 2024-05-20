@@ -3,7 +3,7 @@ import numpy as np
 def return_heatmapDict():
 
     heatmapDict = dict()
-    heatmapDict['data'] = 'cell_density' #cell_density, count, count_norm, density_norm
+    heatmapDict['data'] = 'density_norm' #cell_density, count, count_norm, density_norm
     heatmapDict['feature'] = 'abbreviation'
     heatmapDict['blockCount'] = 2
     heatmapDict['logChangeSal'] = False
@@ -16,8 +16,9 @@ def return_heatmapDict():
 def return_classifyDict_default():
     classifyDict = dict()
 
-    classifyDict['seed'] = 82590
-    np.random.seed(seed = classifyDict['seed'])
+    # Random state related items for reproducibility
+    classifyDict['randSeed'] = 82590    # Used by the CV splitter, per scikit learn 'Best practices'
+    classifyDict['randState'] = np.random.RandomState(classifyDict['randSeed'])   # Used for all other random state related items
 
     classifyDict['featurefilt'] = False # True, False
     classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
@@ -46,7 +47,7 @@ def return_classifyDict_default():
     # If Fdr/Fwe/None are not used for feature selection, the number of k feature must be preset
     classifyDict['model_featureSel_mode'] = 'modelPer' # 'gridCV', 'modelPer'
     # classifyDict['model_featureSel_k'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    classifyDict['model_featureSel_k'] = [30]
+    classifyDict['model_featureSel_k'] = [30]   
 
     # Parameters for classification
     classifyDict['model'] = 'LogRegL2' #'LogRegL2', 'LogRegL1', 'LogRegElastic', 'svm'
@@ -69,11 +70,12 @@ def return_classifyDict_default():
     classifyDict['test_size'] = 1/4
     classifyDict['innerFold'] = 4
     if classifyDict['CVstrat'] == 'ShuffleSplit':
-        classifyDict['CV_count'] = 1000 # Number of folds for cross-validation
+        classifyDict['CV_count'] = 100 # Number of folds for cross-validation
     elif classifyDict['CVstrat'] == 'StratKFold':
         classifyDict['CV_count'] = 8 # Number of folds for cross-validation
-    classifyDict['balance'] = True
 
+    # Balance cases by under or over sampling
+    classifyDict['balance'] = True
 
     classifyDict['featurePert'] = 'correlation_dependent' # 'interventional' or 'correlation_dependent'
 
@@ -85,8 +87,8 @@ def return_classifyDict_testing():
     # For rapid testing of classifier code - key diff is feature selection via Univar, only 10 CV splits, and 'interventional' style SHAP explanations.
     classifyDict = dict()
     
-    classifyDict['seed'] = 82590
-    np.random.seed(seed = classifyDict['seed'])
+    classifyDict['randSeed'] = 82590    # Used by the CV splitter, per scikit learn 'Best practices'
+    classifyDict['randState'] = np.random.RandomState(classifyDict['randSeed'])   # Used for all other random state related items
 
     classifyDict['featurefilt'] = False # True, False
     classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
@@ -146,7 +148,7 @@ def return_classifyDict_testing():
 
     classifyDict['featurePert'] = 'interventional' # 'interventional' or 'correlation_dependent'
 
-    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", 'PowerTrans_RobScal_fSel_SelectKBest(k=30)_clf_LogReg(multinom)_CV10']
+    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", 'PowTrans_RobScal_fSel_SelectKBest(k=30)_clf_LogReg(multinom)_CV10']
 
     return classifyDict
 

@@ -20,7 +20,7 @@ def loadLightSheetData(dirDict, switchDict):
     # Create a path for the intermediate to be saved. If it is present, load it. If not, create it.
     intFile = os.sep.join([dirDict['tempDir'], 'lightsheet_all.pkl'])
 
-    if 1: #not os.path.exists(intFile):
+    if not os.path.exists(intFile):
 
         # Load batch 1        
         lightSheet_B1 = load_lightsheet_batchCSV(dirDict, switchDict, 'B1')

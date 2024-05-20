@@ -143,10 +143,10 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
     classifyDict, dirDict = hf.dataStrPathGen(classifyDict, dirDict)
 
     # Reformat the data into a format which can be used by the classifiers.
-    X, y, y_dataset, featureNames, labelDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
+    X_orig, y_orig, y_dataset, featureNames, labelDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
 
     # Use the classify dict to specify all the models to be tested.
-    modelList, cvFxn, randUndSamp, paramGrid = build_pipeline(classifyDict)
+    modelList, cvFxn, rsFxn, paramGrid = build_pipeline(classifyDict)
 
     # ================== Classification ==================
 
@@ -159,16 +159,19 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
     for fit in fits:
 
-        # If you want balanced classes, randomly undersample the majority class
-        if classifyDict['balance']:
-            X, y = randUndSamp.fit_resample(X, y)
-
-        if fit == 'Shuffle':
-            y = shuffle(y, random_state=classifyDict['seed'])
-
-        cvFxn.get_n_splits(X, y)
-
         for clf in modelList:
+
+            # # Set seed related content
+            # if fit == 'Shuffle':
+            #     y = shuffle(y_orig, random_state=classifyDict['randState'])
+            # else:
+            y = y_orig
+
+            # If you want balanced classes, randomly undersample the majority class
+            if rsFxn is not None:
+                X, y = rsFxn.fit_resample(X_orig, y)
+            else:
+                X = X_orig
 
             # Create a strings to represent the model
             modelStr, saveStr, dirDict = hf.modelStrPathGen(clf, dirDict, cvFxn.n_splits, fit)
@@ -194,8 +197,9 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     featureSelSwitch = True
 
                 # Initialize vectors for storing the features used to make the classification for each fold.
-                empty_list = [None]*cvFxn.n_splits, [None]*cvFxn.n_splits, [None]*cvFxn.n_splits, [None]*cvFxn.n_splits
-                empty_list2 = [None]*cvFxn.n_splits, [None]*cvFxn.n_splits, [None]*cvFxn.n_splits, [None]*cvFxn.n_splits
+                cv_count = cvFxn.n_splits
+                empty_list = [None]*cv_count, [None]*cv_count, [None]*cv_count, [None]*cv_count
+                empty_list2 = [None]*cv_count, [None]*cv_count, [None]*cv_count, [None]*cv_count
                 y_real_lab, y_prob, conf_matrix_list_of_arrays, X_test_trans_list = empty_list
                 selected_features_list, selected_features_params, explainers, scores = empty_list2
                 best_params = dict()
@@ -209,6 +213,10 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     # Grab training data and test data
                     X_train, X_test = X[train_index], X[test_index]
                     y_train, y_test = y[train_index], y[test_index]
+
+                    if fit == 'Shuffle':
+                        y_test = shuffle(y_test, random_state=classifyDict['randState'])
+                        y_train = shuffle(y_train, random_state=classifyDict['randState'])
 
                     X_train = pd.DataFrame(X_train,columns=featureNames)
                     X_test = pd.DataFrame(X_test,columns=featureNames)
@@ -301,8 +309,6 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             conf_matrix_list_of_arrays = [elem for elem, flag in zip(conf_matrix_list_of_arrays, remove_Idx) if flag]
             # Use remove_idx to filter y_real_lab
 
-            
-
             # PR Curve - save the results in a dict for compiling into a bar plot.
             auc_dict = pf.plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, YtickLabs, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
 
@@ -327,8 +333,10 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             # SHAP
             if fit != 'Shuffle':
                 if plotDict['plot_SHAPforce']:
-                    pf.plot_shap_force(X_test_trans_list, shap_values_list, baseline_val, y_real_lab, labelDict, plotDict, dirDict)
-
+                    if n_classes == 2:
+                        pf.plot_shap_force(X_test_trans_list, shap_values_list[0], baseline_val[0], y_real_lab, labelDict, plotDict, dirDict)
+                    else:
+                        print("SHAP Force Plot only available for binary classification.")
                 if plotDict['plot_SHAPsummary']:
 
                     pf.plot_shap_summary(X_test_trans_list, shap_values_list, y, n_classes, plotDict, classifyDict, dirDict)
@@ -344,111 +352,6 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
             # if fit != 'Shuffle' and len(labelDict) != 2:
             #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, 8, fit=fit)
-
-def classifySamples_parallel(pandasdf, classifyDict, plotDict, dirDict):
-
-    # ================== Data and Pipeline Building ==================
-
-    # Generate a directory for the data upon formating. 
-    dirDict = hf.dataStrPathGen(classifyDict, dirDict)
-
-    # global X
-    # global y
-    # global gridCV
-    # global paramGrid
-    # global gridCV_innerFold
-    # global featureNames
-
-    # gridCV_innerFold=classifyDict['innerFold']
-    # gridCV = classifyDict['gridCV']
-
-    if classifyDict['gridCV'] and paramGrid:
-        # Do a grid search for the relevant parameters
-        grid_search = GridSearchCV(clf, paramGrid, cv=classifyDict['innerFold'], scoring='neg_log_loss', n_jobs=-1)
-
-    # Reformat the data into a format which can be used by the classifiers.
-    X, y, y_dataset, featureNames, labelDict = reformat_pandasdf(pandasdf, classifyDict, dirDict)
-
-    # Use the classify dict to specify all the models to be tested.
-    modelList, cvFxn, randUndSamp, paramGrid = build_pipeline(classifyDict)
-
-    # ================== Classification ==================
-
-    fits = ['Real']
-    if classifyDict['shuffle']:
-        fits = fits + ['Shuffle']
-
-    YtickLabs = list(labelDict.keys())
-    n_classes = len(YtickLabs)
-
-    for fit in fits:
-
-        # If you want balanced classes, randomly undersample the majority class
-        if classifyDict['balance']:
-            X, y = randUndSamp.fit_resample(X, y)
-
-        if fit == 'Shuffle':
-            y = shuffle(y)
-
-        cvFxn.get_n_splits(X, y)
-
-        cv_index = [(i, j) for i, j in cvFxn.split(X, y)]
-
-        for clf in modelList:
-            
-            # Create a strings to represent the model
-            modelStr, saveStr, dirDict = hf.modelStrPathGen(clf, dirDict, cvFxn.n_splits, fit)
-            saveFilePath = dirDict['tempDir_outdata']
-
-            # Check if data is already there
-            # if classifyDict['saveLoadswitch'] & os.path.exists(saveFilePath):
-            #     print(f"loading model: {modelStr}")
-            #     with open(saveFilePath, 'rb') as f:                 # Unpickle the data:
-            #         [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real_lab, y_prob, conf_matrix_list_of_arrays, X_test_trans_list, scores, selected_features_list, selected_features_params, baseline_val, shap_values_list] = pkl.load(f)
-                
-            # else:
-            if 1:
-                print(f"evaluating model: {modelStr}")
-
-                if hasattr(clf['classif'], 'penalty'):
-                    penaltyStr = clf['classif'].penalty
-                else:
-                    penaltyStr = None
-                    
-                # Create a switch to determine if some type of featureSelection is taking place.
-                featureSelSwitch = False
-                if fit != 'Shuffle' and ('featureSel' in clf.named_steps.keys() or penaltyStr not in ('l2', None)):
-                    featureSelSwitch = True
-
-                # Initialize vectors for storing the features used to make the classification for each fold.
-                y_real_lab, y_prob, conf_matrix_list_of_arrays, X_test_trans_list = [], [], [], []
-                selected_features_list, selected_features_params, explainers, scores = [], [], [], []
-                best_params = dict()
-                
-                baseline_val, shap_values_list = [[] for _ in range(n_classes)], [[] for _ in range(n_classes)]
-
-                print(f"Performing CV split ", end='')
-                params = list(itertools.product(cv_index, [clf]))
-                
-                # End of CV Split
-                p = Pool(processes = 4)
-                start = time.time()
-                # outList = []
-                # for idx, param_set in enumerate(params):
-                #     outList.append(cv_test_parallel(param_set))
-                res = p.map(cv_test_parallel, params)
-                # p.close()
-                # p.join()
-                print('The cross-validation with stratified sampling on 8 cores took time (s): {}'.format(time.time() - start))
-
-                for idx, (clf) in enumerate(res):
-                    print(f"{idx + 1} Model: {clf}")
-
-                # if classifyDict['saveLoadswitch']:
-                #     # save all the products
-                #     saveList = [classifyDict, modelList, modelStr, saveStr, featureSelSwitch, y_real_lab, y_prob, conf_matrix_list_of_arrays, X_test_trans_list, scores, selected_features_list, selected_features_params, baseline_val, shap_values_list]
-                #     with open(saveFilePath, 'wb') as f:
-                #         pkl.dump(saveList, f)
 
 def cv_test_parallel(params): #, fit, penaltyStr, YtickLabs, X_test_trans_list
     print('Inside function')
@@ -625,14 +528,13 @@ def build_pipeline(classifyDict):
     # Select Feature selection model
     match classifyDict['model_featureSel']:
         case 'Boruta':
-            featureSelMod = BorutaFeatureSelector(feature_sel='all', random_state=classifyDict['seed'], n_workers=-1) # Can swap for 'feature_sel'='strong' to only include strong rec's from Boruta.
+            featureSelMod = BorutaFeatureSelector(feature_sel='all', random_state=classifyDict['randState'], random_seed=classifyDict['randSeed'], n_workers=-1)
         case 'MRMR':
-            # featureSelMod = FunctionTransformer(MRMRFeatureSelector, kw_args={'n_features_to_select': 10, 'pass_y': True, 'featureSel__feature_names_out': True}, )
             featureSelMod = MRMRFeatureSelector(n_features_to_select=30)
-            modVar = 'n_features_to_select'
+            fsVar = 'n_features_to_select'
         case 'Univar':
             featureSelMod = SelectKBest(score_func=f_classif, k='all')
-            modVar = 'k'
+            fsVar = 'k'
         case 'Fdr':
             featureSelMod = SelectFdr(alpha=classifyDict['model_featureSel_alpha'])
         case 'Fwe':
@@ -641,10 +543,10 @@ def build_pipeline(classifyDict):
             featureSelMod = SelectFwe_Holms(alpha=classifyDict['model_featureSel_alpha'])
         case 'mutInfo':
             featureSelMod = SelectKBest(score_func=mutual_info_classif, k='all')
-            modVar = 'k'
+            fsVar = 'k'
         case 'RFE':
             featureSelMod = SequentialFeatureSelector(classif, n_features_to_select=10, direction="forward")
-            modVar = 'n_features_to_select'
+            fsVar = 'n_features_to_select'
 
     # Select Classifying model
     match classifyDict['model']:
@@ -680,26 +582,29 @@ def build_pipeline(classifyDict):
     if classifyDict.get('model_featureSel') not in ('None', 'Fdr', 'Fwe', 'Fwe_BH') and classifyDict['model_featureSel_mode'] == 'gridCV':
         paramGrid['featureSel__k'] = classifyDict['model_featureSel_k']
 
-    modelList = []
-    # Iterate over the desired feature counts
-    if classifyDict.get('model_featureSel') not in ('None', 'Fdr', 'Fwe', 'Fwe_BH', 'Boruta') and classifyDict['model_featureSel_mode'] == 'modelPer':
-        for k in classifyDict['model_featureSel_k']:
-            clf_copy = deepcopy(clf)
-            modelList.append(clf_copy.set_params(**{f"featureSel__{modVar}": k}))
-    else:
-        modelList.append(clf)  
-
-    # ================== Generate and pass cross validation module ==================
-
+    # Create functions for cross validation and random undersampling
     if classifyDict['CVstrat'] == 'StratKFold':
-        cvFxn = StratifiedKFold(n_splits=classifyDict['CV_count'])  # 8 examples of each label
+        cvFxn = StratifiedKFold(n_splits=classifyDict['CV_count'], random_state=classifyDict['randSeed'])  # 8 examples of each label
     elif classifyDict['CVstrat'] == 'ShuffleSplit':
-        cvFxn = StratifiedShuffleSplit(n_splits=classifyDict['CV_count'], test_size=classifyDict['test_size'], random_state=classifyDict['seed'])
+        cvFxn = StratifiedShuffleSplit(n_splits=classifyDict['CV_count'], test_size=classifyDict['test_size'], random_state=classifyDict['randSeed'])
     
+    # Sampling object for unbalanced classes
     if classifyDict['balance']:
-        randUndSamp = RandomUnderSampler(random_state=classifyDict['seed'], sampling_strategy = 'majority')
+        randUndSamp = RandomUnderSampler(sampling_strategy = 'majority', random_state=classifyDict['randState'])
     else:
         randUndSamp = None
+
+    modelList = []
+    if classifyDict['model_featureSel_mode'] == 'modelPer' and 'fsVar' in locals():
+        for k_feat in classifyDict['model_featureSel_k']:
+            clf_copy = deepcopy(clf)
+            clf_copy.set_params(**{f"featureSel__{fsVar}": k_feat})
+
+        modelList.append(clf_copy)
+    else:
+        modelList.append(clf)
+
+    # ================== Generate and pass cross validation module ==================
 
     return modelList, cvFxn, randUndSamp, paramGrid
 
@@ -841,10 +746,18 @@ class MRMRFeatureSelector(BaseEstimator, TransformerMixin):
         return X_fit
 
 class BorutaFeatureSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, feature_sel='all', random_state=None, n_workers = None):
+    # Random_seed should always be the seed used to initialized 'random_state'.
+    def __init__(self, feature_sel='all', random_seed=0, random_state=None, n_workers = None):
         self.feature_sel = feature_sel
         self.random_state = random_state
         self.n_workers = n_workers
+        self.random_seed = random_seed
+
+    def __str__(self):
+        if self.random_state is int:
+            return f"BorFS(random_seed={self.random_seed})"
+        else:
+            return f"BorFS(random_state_seed={self.random_seed})"
     
     def fit(self, X, y=None):
 

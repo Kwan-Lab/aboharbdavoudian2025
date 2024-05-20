@@ -1,11 +1,66 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import scipy.cluster.hierarchy as sch
-import os, sys, shap
+import os, sys
 import pickle as pkl
 from collections import defaultdict, Counter
+
+def create_drugClass_dict(classifyDict):
+    # Create a dictionary to convert drug names to drug classes
+    conv_dict = dict()
+
+    # Drug Class vs Drug Class
+    if classifyDict['label'] == 'class_5HT2A':
+        # 5-HT2A agonist psychedelics (Psilo, 5MEO) vs entactogen (MDMA)
+        conv_dict['PSI'] = 'PSI/5MEO'
+        conv_dict['5MEO'] = 'PSI/5MEO'
+        conv_dict['MDMA'] = 'MDMA'
+    if classifyDict['label'] == 'class_5HTR':
+        # Typtamines (Psilo, 5MEO) vs non-Hallucinogenic trypamines (6-F-DET)
+        conv_dict['PSI'] = 'PSI/5MEO'
+        conv_dict['5MEO'] = 'PSI/5MEO'
+        conv_dict['6-F-DET'] = '6-F-DET'
+    if classifyDict['label'] == 'class_Psy_NMDA':
+        # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5MEO vs Ketamine)
+        conv_dict['PSI'] = 'PSI/5MEO'
+        conv_dict['5MEO'] = 'PSI/5MEO'
+        conv_dict['KET'] = 'KET'
+
+    # Drug Class vs Drug
+    if classifyDict['label'] == 'class_PsiKet':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['KET'] = 'KET'
+    if classifyDict['label'] == 'class_Psi5MEO':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['5MEO'] = '5MEO'
+    if classifyDict['label'] == 'class_PsiMDMA':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['MDMA'] = 'MDMA'
+    if classifyDict['label'] == 'class_PsiSSRI':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['A-SSRI'] = 'A-SSRI'
+    if classifyDict['label'] == 'class_Trypt':
+        # 5-HT2A favored (Psilo) vs 5-HT1A favored (5MEO)
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['5MEO'] = '5MEO'
+    if classifyDict['label'] == 'class_DT':
+        conv_dict['5MEO'] = '5MEO'
+        conv_dict['6-F-DET'] = '6-F-DET'
+    if classifyDict['label'] == 'class_PsiSSRI':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['A-SSRI'] = 'A-SSRI'
+    if classifyDict['label'] == 'class_SSRI':
+        conv_dict['A-SSRI'] = 'A-SSRI'
+        conv_dict['C-SSRI'] = 'C-SSRI'
+    if classifyDict['label'] == 'class_PsiDF':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['6-F-DET'] = '6-F-DET'
+        
+    if not bool(conv_dict) and classifyDict['label'] != 'drug':
+        raise KeyError('No dictionary found for this classification type. Check the label in classify dict is in helperFunctions.create_drugClass_dict')
+
+    return conv_dict
 
 def create_color_dict(dictType='drug', rgbSwitch=0, alpha_value=1, scaleVal=False):
     # Create a dictionary of colors for brain regions or drugs
@@ -157,6 +212,7 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     from sklearn import datasets, cluster, preprocessing, linear_model
     from scipy.spatial import distance
     from scipy.cluster import hierarchy
+    import seaborn as sns
 
     # Variables
     # dist_list = ['euclidean', 'l1', 'l2', 'manhattan', 'cosine']
@@ -324,62 +380,6 @@ def replace_strings_with_dict(input_strings, translate_dict):
 
     return replaced_strings
 
-def create_drugClass_dict(classifyDict):
-    # Create a dictionary to convert drug names to drug classes
-    conv_dict = dict()
-
-    # Drug Class vs Drug Class
-    if classifyDict['label'] == 'class_5HT2A':
-        # 5-HT2A agonist psychedelics (Psilo, 5MEO) vs entactogen (MDMA)
-        conv_dict['PSI'] = 'PSI/5MEO'
-        conv_dict['5MEO'] = 'PSI/5MEO'
-        conv_dict['MDMA'] = 'MDMA'
-    if classifyDict['label'] == 'class_5HTR':
-        # Typtamines (Psilo, 5MEO) vs non-Hallucinogenic trypamines (6-F-DET)
-        conv_dict['PSI'] = 'PSI/5MEO'
-        conv_dict['5MEO'] = 'PSI/5MEO'
-        conv_dict['6-F-DET'] = '6-F-DET'
-    if classifyDict['label'] == 'class_Psy_NMDA':
-        # Fast Psychedelic vs Fast NMDA-R Agonist (Psi, 5MEO vs Ketamine)
-        conv_dict['PSI'] = 'PSI/5MEO'
-        conv_dict['5MEO'] = 'PSI/5MEO'
-        conv_dict['KET'] = 'KET'
-
-    # Drug Class vs Drug
-    if classifyDict['label'] == 'class_PsiKet':
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['KET'] = 'KET'
-    if classifyDict['label'] == 'class_Psi5MEO':
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['5MEO'] = '5MEO'
-    if classifyDict['label'] == 'class_PsiMDMA':
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['MDMA'] = 'MDMA'
-    if classifyDict['label'] == 'class_PsiSSRI':
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['A-SSRI'] = 'A-SSRI'
-    if classifyDict['label'] == 'class_Trypt':
-        # 5-HT2A favored (Psilo) vs 5-HT1A favored (5MEO)
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['5MEO'] = '5MEO'
-    if classifyDict['label'] == 'class_DT':
-        conv_dict['5MEO'] = '5MEO'
-        conv_dict['6-F-DET'] = '6-F-DET'
-    if classifyDict['label'] == 'class_PsiSSRI':
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['A-SSRI'] = 'A-SSRI'
-    if classifyDict['label'] == 'class_SSRI':
-        conv_dict['A-SSRI'] = 'A-SSRI'
-        conv_dict['C-SSRI'] = 'C-SSRI'
-    if classifyDict['label'] == 'class_PsiDF':
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['6-F-DET'] = '6-F-DET'
-        
-    if not bool(conv_dict) and classifyDict['label'] != 'drug':
-        raise KeyError('No dictionary found for this classification type. Check the label in classify dict is in helperFunctions.create_drugClass_dict')
-
-    return conv_dict
-
 def create_feature_count_dict(shap_vals, test_count, n_splits):
     
     X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
@@ -531,6 +531,7 @@ def conciseStringReport(strings, counts):
 def modelStrPathGen(clf, dirDict, n_splits, fit):
     # Create a string to represent the model
     # Returns string for plotting and saving model to file.
+    import re
 
     from sklearn.base import BaseEstimator
 
@@ -561,6 +562,9 @@ def modelStrPathGen(clf, dirDict, n_splits, fit):
         modelParamStr = modelParamStr.replace(key, value)
 
     modelParamStr = modelParamStr + f"_CV{n_splits}"
+
+    # use re.sub to remove the random state from the model string
+    modelParamStr2 = re.sub(r', random_state=.*?\)', '', modelParamStr)
 
     tmpDict = dict()
     tmpDict['tempDir_model'] = os.path.join(dirDict['tempDir_data'], modelParamStr)
@@ -628,19 +632,20 @@ def save_string_dict():
 
     saveStringDict = dict()
     saveStringDict['label=class_'] = ''
-    saveStringDict['label=drug'] = 'Drug'
+    saveStringDict['label=drug'] = 'drug'
     saveStringDict['featurefilt=True-filtType=min'] = 'filtMin'
     saveStringDict['featureAgg=True'] = 'featAgg'
     saveStringDict['featureSel_linkage=average-featureSel_distance=correlation'] = 'avgCorrClus'
     saveStringDict['cluster_thres='] = 'clusThres'
 
     saveStringDict['n_jobs=-1'] = ''
+    saveStringDict['n_workers=-1,  '] = ''
     saveStringDict['gridCV=True'] = 'gridCV'
-    saveStringDict['featureTrans_PowerTransformer(standardize=False)'] = 'PowerTrans'
+    saveStringDict['featureTrans_PowerTransformer(standardize=False)'] = 'PowTrans'
     saveStringDict['featureSel'] = 'fSel'
     saveStringDict['featureScale_RobustScaler()'] = 'RobScal'
     saveStringDict['classif'] = 'clf'
-    saveStringDict['BorutaFeatureSelector()'] = 'BorFS'
+    saveStringDict['BorutaFeatureSelector('] = 'BorFS('
     saveStringDict['MRMRFeatureSelector'] = 'MrmrFS'
     saveStringDict['n_features_to_select='] = ''
     saveStringDict['RobustScaler()'] = 'SelFroMod'
@@ -900,7 +905,8 @@ def feature_selection_info_gather(idx_o, clf, featureNames, penaltyStr, selected
     return selected_features_list
 
 def collect_shap_values(idx_o, explainers, shap_values_list, baseline_val, n_classes, clf, X_test_trans, feature_selected, test_index, featurePert): #classifyDict['featurePert']
-
+    import shap
+    
     # Select the correct explainer
     if n_classes == 2:
         explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=featurePert)

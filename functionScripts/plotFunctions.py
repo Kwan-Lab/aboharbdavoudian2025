@@ -606,7 +606,7 @@ def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
 
         # Change the axis of the colorbar to represent multiples of 
 
-        plt.savefig(dirDict['classifyDir'] + os.sep + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(dirDict['outDir'] + os.sep + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
         plt.show()
 
 def plot_data_heatmap_perArea(lightsheet_data, heatmapDict, dirDict):
@@ -895,12 +895,12 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     if '\n' in titleStr:
         titleStr = titleStr.replace('\n                  ', '')
 
-    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)/2.2
+    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)/3.1
     figSizeMat[0] = figSizeMat[0] + 1
     plt.figure(figsize=figSizeMat)
     ax = sns.heatmap(mean_of_conf_matrix_arrays, linewidth=0.25,cmap='Reds', annot=True, fmt=".2f", square=True, cbar_kws={"shrink": 0.8})
     ax.set(xticklabels=YtickLabs, yticklabels=YtickLabs, xlabel='Predicted Label', ylabel='True Label')
-    plt.title(fullTitleStr, fontsize=figSizeMat[0]*1.5)
+    # plt.title(fullTitleStr, fontsize=figSizeMat[0]*1.5)
 
     # Save the plot
     plt.savefig(join(dirDict['outDir_model'], f"ConfusionMatrix_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
@@ -932,9 +932,9 @@ def plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, Yticklabs, daObjstr, p
     y_real_all, y_prob_all = [], []
 
     if plotSwitch:
-        # figSizeMat = np.array((n_classes, n_classes))/2.2
-        # f = plt.figure(figsize=figSizeMat)
-        f = plt.figure()
+        figSizeMat = np.array((n_classes, n_classes))/2.2
+        f = plt.figure(figsize=figSizeMat)
+        # f = plt.figure()
         axes = plt.axes()
 
     # Depending on feature list y passed, determine if the classes are numbers or strings
@@ -1245,6 +1245,13 @@ def plot_shap_bar(explainers, X_train_trans_list, shap_values_list, y_vec, n_cla
 def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real_lab, numYDict, plotDict, dirDict):
     import itertools
 
+    # Set font to 12 pt Helvetica
+    plt.rcParams['font.family'] = 'Helvetica'
+    plt.rcParams['svg.fonttype'] = 'none'
+    plt.rcParams['font.size'] = 5
+    plt.rcParams['xtick.labelsize'] = 5
+    plt.rcParams['ytick.labelsize'] = 5
+
     if plotDict['shapForcePlotCount'] == 0:
         return
     else:
@@ -1258,7 +1265,7 @@ def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real_l
     labelDict = {value: key for key, value in numYDict.items()}
 
     regionList = True
-    regionListSet = ['VISpm', 'LH', 'MA']
+    regionListSet = ['VISpm', 'LH', 'PF']
 
     if regionList:
         cvSplit1, testPoint1, cvSplit2, testPoint2 = find_max_min_index(shap_values_list, regionListSet)
@@ -1298,10 +1305,10 @@ def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real_l
             featNames = list(shap_values_list[cvSplit].columns[1:featCount])
 
             # Plot
-            shap.plots.force(baseline_val[cvSplit], shap_values=shapVals, features=testVals, feature_names=featNames, out_names=None, link='identity', plot_cmap='RdBu', matplotlib=True, show = False)
+            shap.plots.force(baseline_val[cvSplit], shap_values=shapVals, features=testVals, feature_names=featNames, out_names=None, link='identity', plot_cmap='RdBu', matplotlib=True, figsize=(14, 2), show = False)
 
             # Modify the plot
-            plt.title(titleStr, y=1.5, fontdict={'fontsize': 20})
+            plt.title(titleStr, y=1.5)
 
             # Save the plot
             plt.savefig(join(dirDict['outDir_model'], f"SHAP_example_{idStr}.svg"), format='svg', bbox_inches='tight')
@@ -1346,13 +1353,19 @@ def plot_histogram(data, dirDict):
     plt.show()
 
 def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, dirDict):
+    import matplotlib.pyplot as plt
+    plt.rcParams['svg.fonttype'] = 'none'
 
-    plt.figure(figsize=(5, 5))  # Adjust the width and height as needed
+    plt.figure(figsize=(1.9, 1.9))  # Adjust the width and height as needed
+
+    # Replace instances of '/' with ' & ' in the score names
+    scoreNames = [score.replace('/', ' & ') for score in scoreNames]
+
     plt.barh(scoreNames, aucScores, label='Data', color=colorsList[0])
     plt.barh(scoreNames, aucScrambleScores, label='Shuffled', color=colorsList[1])
 
     # Add legend
-    plt.legend()
+    # plt.legend()
 
     # Set labels and title,
     plt.xlabel('Mean Area Under Precision-Recall Curve')
@@ -1360,11 +1373,11 @@ def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, d
 
     for index, value in enumerate(aucScores):
         percentage_text = '{:.0%}'.format(value)  # Format the value as a percentage
-        plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
+        plt.text(value-.01, index, percentage_text, ha='right', va='center', color='white')
 
     for index, value in enumerate(aucScrambleScores):
         percentage_text = '{:.0%}'.format(value)  # Format the value as a percentage
-        plt.text(value-.01, index, percentage_text, ha='right', va='center', weight='bold', fontsize=10)
+        plt.text(value-.01, index, percentage_text, ha='right', va='center')
 
     # Display the plot
     plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"MeanAUC_barplot.svg"]), dpi=300, format='svg', bbox_inches='tight')
@@ -1473,6 +1486,8 @@ def plot_featureCount_violin(scoreNames, featureLists, dirDict):
     colorsList = [[82, 211, 216], [56, 135, 190]]
     colorsList = np.array(colorsList)/256
 
+    scoreNames = [score.replace('/', ' & ') for score in scoreNames]
+
     # Your list of lists (sublists with numbers)
     data = [[len(sublist) for sublist in inner_list] for inner_list in featureLists]
 
@@ -1482,15 +1497,14 @@ def plot_featureCount_violin(scoreNames, featureLists, dirDict):
     df = pd.melt(pd.DataFrame(data, index=scoreNames).T, var_name='Category', value_name='Values')
 
     # Create horizontally oriented violin plot
-    plt.figure(figsize=(5, 5))  # Adjust the width and height as needed
+    plt.figure(figsize=(2, 2))  # Adjust the width and height as needed
 
-    ax = sns.violinplot(x='Values', y='Category', bw_adjust=.5, data=df, orient='h', color=colorsList[0])  #, palette=colors)  # Remove inner bars and set color
+    ax = sns.violinplot(x='Values', y='Category', data=df, orient='h', color=colorsList[0], linewidth=0.5)  #, palette=colors)  # Remove inner bars and set color
     # for violin in ax.collections:
     #     violin.set_alpha(1)
 
     # Set plot labels and title
-    plt.xlabel('Number of Regions in Classifier')
-    plt.ylabel('Classifier')
+    plt.xlabel('Brain Regions used by Classifier')
 
     plt.savefig(os.sep.join([dirDict['crossComp_figDir'], "RegionCountPerSplit_violin.svg"]), format='svg', bbox_inches='tight')     
 
@@ -1595,13 +1609,12 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
     # Current Mode: Create plot with colorbar, then without, and grab the svg item and place it in the second plot to ensure even spacing
     # Creates the heatmap for the data
 
-    plt.rcParams['font.family'] = 'Helvetica'
-    plt.rcParams['font.size'] = 9
-    plt.rcParams['svg.fonttype'] = 'none'
-
     # Set variables
     dataFeature = 'abbreviation'
     blockCount = 2
+    plt.rcParams['font.size'] = 6
+    plt.rcParams['xtick.labelsize'] = 6
+    plt.rcParams['ytick.labelsize'] = 6
 
     sys.path.append('../dependencies/')
 
@@ -1616,7 +1629,6 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
 
     featureListFlat = [[element for item in subList for element in item] for subList in featureLists]
 
-
     # Process the data from above
     featureListDicts = [hf.listToCounterFilt(x, filterByFreq=0) for x in featureListFlat]
     featureListArray = [list(x.keys()) for x in featureListDicts]
@@ -1628,8 +1640,6 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
     for idx, (comp, featureList) in enumerate(zip(df_frame.columns, featureListDicts)):
         for regionName in featureList.keys():
             df_frame.loc[regionName, comp] = featureList[regionName]
-        # df_frame[comp] = df_frame.index.isin(featureListArray[idx])
-        # print(f"{comp}: {df_frame[comp].sum()}")
             
     # Remove any rows which are not above threshold
     df_plot = df_frame[df_frame.sum(axis=1) >= filterByFreq]
@@ -1651,8 +1661,8 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
         row_idx_set[block_idx][1] = indices[block_idx+1]
 
     # Hand change to make Cortex 1st block, Thal 2nd
-    row_idx_set[0,1] = 25
-    row_idx_set[1,0] = 25
+    row_idx_set[0,1] = 20
+    row_idx_set[1,0] = 20
 
     # merge df_plot and regionArea, moving the Brain_Area_Idx and Brain_Area columns to df_plot
     df_plot_combo = df_plot.merge(regionArea, left_index=True, right_on=dataFeature)
@@ -1688,16 +1698,12 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
     formatter.set_scientific(False)
     formatter.set_powerlimits((-2, 2))
 
-    scalefactor = 12
-    figH = (scalefactor*2.5)/blockCount
-    figW = blockCount * 2.5
-
     colorbar = [False, True]
+    axes = []
 
     for cbs in colorbar:
 
-        fig, axes = plt.subplots(1, blockCount, figsize=(figW, figH))  # Adjust figsize as needed
-        # figsize=(scalefactor*2.4, len(df_plot)/len(row_idx_set) * scalefactor * 0.0125)
+        # fig, axes = plt.subplots(1, blockCount, figsize=(figW, figH))  # Adjust figsize as needed
 
         if blockCount == 1:
             axes = [axes]
@@ -1709,19 +1715,27 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
             regionArea_local = regionArea[regionArea[dataFeature].isin(df_plot_seg.index)]
             region_idx = regionArea_local.Brain_Area_Idx  # Extract for horizontal lines in plot later.
 
+            # Sort by highest sum of row
+            df_plot_seg = df_plot_seg.loc[df_plot_seg.sum(axis=1).sort_values(ascending=False).index]
+
             matrix = df_plot_seg.values
 
             xticklabels = df_plot_seg.columns.values.tolist()
             yticklabels = df_plot_seg.index.values.tolist()
 
-            heatmap = sns.heatmap(matrix, cmap='crest', ax=axes[idx] , fmt='.2f', cbar = False, square=True, yticklabels=yticklabels, xticklabels=xticklabels, cbar_kws={"format": formatter}, center=0)
+            figwidth = len(xticklabels)*0.1433
+            figheight = len(yticklabels)*0.1433
+
+            f = plt.figure(figsize=(figwidth, figheight))  # Adjust the width and height as needed
+            ax = f.add_subplot(111)
+            axes.append(ax)
+
+            heatmap = sns.heatmap(matrix, cmap='crest', ax=axes[idx] , fmt='.2f', cbar = False, square=True, yticklabels=yticklabels, xticklabels=xticklabels, cbar_kws={"format": formatter}, center=0, linewidths=0.5, linecolor='black')
             horzLineColor = 'black'
+            axes[idx].tick_params(left=True, bottom=True, width=0.5, length=2)
 
             # Rotate the xticklabels 45 degrees
             axes[idx].set_xticklabels(axes[idx].get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
-
-            # Add a colorbar
-            # Change the colorbar labels to be in non-scientific notation
 
             if cbs:
                 cbar = heatmap.figure.colorbar(heatmap.collections[0], ax=axes[idx], location='right', use_gridspec=True, pad=0.05)
@@ -1732,22 +1746,12 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
             line_break_num, line_break_ind = np.unique(region_idx, return_index=True)
             for l_idx in line_break_ind[1:]:
                 axes[idx].axhline(y=l_idx, color=horzLineColor, linewidth=1)
-                
-            # Set the yl abel on the first subplot.
-            # if idx == 0:
-            #     axes[idx].set_ylabel("Region Names", fontsize=20)
 
-            # if idx == 2:
-            #     cbar = heatmap.collections[0].colorbar
-            #     cbar.set_label('Colorbar Label', rotation=270, labelpad=5)
+            titleStr = f"FeatureCountHeatmap"  
+            # plt.tight_layout(h_pad = 0, w_pad = .5)
 
-        titleStr = f"FeatureCountHeatmap"  
-        # fig.suptitle(titleStr, fontsize=20, y=1)
-        # fig.text(0.5, -.02, "Samples Per Group", ha='center', fontsize=20)
-        plt.tight_layout(h_pad = 0, w_pad = .5)
-
-        plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"{titleStr}_cb_{cbs}.svg"]), dpi=300, format='svg', bbox_inches='tight')
-        plt.show()
+            plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"{titleStr}_cb_{cbs}_{idx}.svg"]), dpi=300, format='svg', bbox_inches='tight')
+            plt.show()
 
 def sortShap(shap_values_list, regionSet):
     max_value = 0  # Initialize max_value to store the maximum value
