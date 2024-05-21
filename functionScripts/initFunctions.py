@@ -118,7 +118,6 @@ def setPath_createDirs():
 
     # Set Paths to Atlas, Data, and Output
     dirDict = dict()
-    dirDict['outputFormat'] = 'svg'
 
     rootDir = os.getcwd()
     dirDict['atlasDir'] =   os.sep.join([rootDir, 'Atlas'])

@@ -66,14 +66,14 @@ def plot_headTwitchTotal(dirDict):
     plt.xlabel('', fontsize=8)
 
     savePath = os.path.join(dirDict['outDir'], 'HTR_total.svg')
-    plt.savefig(savePath, dpi=300, format='svg', bbox_inches='tight')
+    plt.savefig(savePath, format='svg', bbox_inches='tight')
     plt.show()
 
-def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
+def plotTotalPerDrug(pandasdf, column2Plot, dirDict):
+    # Select a random region to collect 'total_cells' from
     totalCellCountData = pandasdf[pandasdf.Region_ID == 88]
 
-    # plotting
-    # sns.set(font_scale=3)
+    totalCellCountData['sex'] = totalCellCountData['sex'].replace({'M': 'Male', 'F': 'Female'})
 
     # Shift the color codes to RGB and add alpha
     colorDict = hf.create_color_dict('drug', 0)
@@ -82,36 +82,40 @@ def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
     figSize = (3.2*scaleFactor, 1.278*scaleFactor)
 
     plt.figure(figsize=figSize)
-    ax = sns.boxplot(x="drug", y=column2Plot, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.33, hue='drug', palette=colorDict)
+    ax = sns.boxplot(x="drug", y=column2Plot, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.5, hue='drug', palette=colorDict)
 
     for patch in ax.patches:
         r, g, b, a = patch.get_facecolor()
         patch.set_facecolor((r, g, b, .7))
 
-    ax.spines['left'].set_linewidth(0.5)
-    ax.spines['bottom'].set_linewidth(0.5)
-    ax.xaxis.set_tick_params(length=3, width=0.66)
-    ax.yaxis.set_tick_params(length=1, width=0.2)
+    # Cylce through x-axis labels and change their color to match the boxplot
+    for idx, label in enumerate(ax.get_xticklabels()):
+        label.set_color(colorDict[label.get_text()])
     
-    ax2 = sns.scatterplot(x="drug", y=column2Plot, data=totalCellCountData, hue='drug', linewidth=0, style='sex', markers=True, s=10, palette=colorDict, ax=ax, edgecolor='black')
+    ax2 = sns.scatterplot(x="drug", y=column2Plot, data=totalCellCountData, hue='drug', linewidth=0, style='sex', markers=True, s=5, palette=colorDict, ax=ax, edgecolor='black')
 
     # remove legend
-    plt.legend([], [], frameon=False)
+    # plt.legend([], [], frameon=False)
+    # Delete all but the final 2 legend entries
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles=handles[-2:], labels=labels[-2:], loc='upper right')
 
     # cleanup
     ax2.spines['left'].set_linewidth(0.5)
     ax2.spines['bottom'].set_linewidth(0.5)
-    ax2.xaxis.set_tick_params(length=3, width=0.66)
-    ax2.yaxis.set_tick_params(length=1, width=0.2)
+    ax2.yaxis.set_tick_params(which = 'both', length=1.5, width=1)
+    ax2.xaxis.set_tick_params(which = 'both', length=1, width=1)
+    # ax2.yaxis.set_tick_params(which = 'both', length=1, width=0.5)
+    # ax2.yaxis.set_tick_params(length=1, width=0.2)
 
     ax.set_yscale('log')
-    ax.set(ylim=(8e5, 1e7))
+    ax.set(ylim=(7.9e5, 1e7))
     ax.set(xlabel='')
-    ax.set(ylabel='c-Fos+ cell count')
+    ax.set_ylabel('c-Fos+ cell count', fontsize=7)
     # ax.set_ylabel()
     sns.despine()
 
-    plt.savefig(dirDict['outDir'] + os.sep + 'totalCells.' + outputFormat,  format=outputFormat, bbox_inches='tight')
+    plt.savefig(dirDict['outDir'] + os.sep + 'totalCells', bbox_inches='tight')
 
     sns.set_theme()
 
@@ -194,7 +198,7 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
         plt.yticks(fontsize=15)
 
         # Save
-        plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{filtTag}_{col1} x {col2}.{dirDict['outputFormat']}", format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{filtTag}_{col1} x {col2}", bbox_inches='tight')
 
         plt.show()
     
@@ -262,7 +266,7 @@ def histPrePostScale(pandasdf, dataPerPlot, dirDict):
         axes[3].title.set_text(f"Robust Scaled yj norm: {feat}")
         axes[3].grid(False)
 
-        plt.savefig(os.sep.join([outDirPath, f"scaleChain_{feat}.{dirDict['outputFormat']}"]), format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(os.sep.join([outDirPath, f"scaleChain_{feat}"]), bbox_inches='tight')
 
 def distance_matrix(lightsheet_data, classifyDict, dirDict):
     import matplotlib.patheffects as PathEffects
@@ -369,7 +373,7 @@ def correlation_plot(lightsheet_data, classifyDict, dirDict):
         plt.tick_params(axis='x', which='both', length=0)
         plt.title(titleStr, fontsize=65)
         
-        plt.savefig(dirDict['classifyDir'] + os.sep + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
+        plt.savefig(dirDict['classifyDir'] + os.sep + titleStr + '.png', format='png', bbox_inches='tight')
         plt.show()
 
 def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
@@ -419,7 +423,7 @@ def correlation_plot_hier(lightsheet_data, classifyDict, dirDict):
     plt.tick_params(axis='x', which='both', length=0)
     plt.title(titleStr)
     
-    plt.savefig(dirDict['classifyDir'] + os.sep + titleStr + '.png', dpi=300, format='png', bbox_inches='tight')
+    plt.savefig(dirDict['classifyDir'] + os.sep + titleStr + '.png', format='png', bbox_inches='tight')
     plt.show()
 
 def correlation_subset(processed_data, lightsheet_data, modelCountDict, threshold, classifyDict, dirDict):
@@ -467,7 +471,7 @@ def correlation_subset(processed_data, lightsheet_data, modelCountDict, threshol
     plt.tick_params(axis='x', which='both', length=0)
     plt.title(titleStr, fontsize=10)
     
-    plt.savefig(os.sep.join([dirDict['outDir_model'], titleStr + '.svg']), dpi=300, format='svg', bbox_inches='tight')
+    plt.savefig(os.sep.join([dirDict['outDir_model'], titleStr + '.svg']), format='svg', bbox_inches='tight')
     plt.show()
 
 def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
@@ -595,6 +599,14 @@ def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
                     axes[idx].axvline(x=l_idx, color='white', linewidth=1)
                 horzLineColor = 'white'
 
+            # Change
+            # Shift the color codes to RGB and add alpha
+            colorDict = hf.create_color_dict('drug', 0)
+            # Cylce through x-axis labels and change their color to match the boxplot
+            for _, label in enumerate(heatmap.get_xticklabels()):
+                if label.get_text():
+                    label.set_color(colorDict[label.get_text()])
+
             # Add in horizontal lines breaking up brain regions types.
             line_break_num, line_break_ind = np.unique(region_idx, return_index=True)
             for l_idx in line_break_ind[1:]:
@@ -615,7 +627,7 @@ def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
 
         # Change the axis of the colorbar to represent multiples of 
 
-        plt.savefig(dirDict['outDir'] + os.sep + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(dirDict['outDir'] + os.sep + f"{titleStr}", bbox_inches='tight')
         plt.show()
 
 def plot_data_heatmap_perArea(lightsheet_data, heatmapDict, dirDict):
@@ -755,7 +767,7 @@ def plot_data_heatmap_perArea(lightsheet_data, heatmapDict, dirDict):
 
         # Change the axis of the colorbar to represent multiples of 
 
-        plt.savefig(dirDict['classifyDir'] + os.sep + f"{titleStr}.{dirDict['outputFormat']}", dpi=300, format=dirDict['outputFormat'], bbox_inches='tight')
+        plt.savefig(dirDict['classifyDir'] + os.sep + f"{titleStr}", bbox_inches='tight')
         plt.show()
 
 def create_heatmaps_allC(matrix, dim_to_loop=0, titleStatic='Heatmap', titleLoop=[], dirDict=[]):
@@ -794,8 +806,7 @@ def create_heatmaps_allC(matrix, dim_to_loop=0, titleStatic='Heatmap', titleLoop
         else:
             axes[i].tick_params(left=False, labelleft=False)
 
-    plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + dirDict['outputFormat'], dpi=300,
-                format=dirDict['outputFormat'], bbox_inches='tight')
+    plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr, bbox_inches='tight')
 
     # Add a colorbar on the far right plot
     vmin = np.min(matrix)
@@ -876,7 +887,7 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     sm.set_array([])
 
     # Not working
-    # plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + '.png', dpi=300,
+    # plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + '.png',
     #             format='png', bbox_inches='tight')
 
     # [left, bottom, width, height] of the colorbar axis
@@ -884,7 +895,7 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     cbar = fig.colorbar(sm, cax=cbar_ax)
 
     plt.tight_layout()
-    plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + '.png', dpi=300, format='png', bbox_inches='tight')
+    plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + '.png', format='png', bbox_inches='tight')
     plt.show()
 
 ### Classification based plots
@@ -912,7 +923,7 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     # plt.title(fullTitleStr, fontsize=figSizeMat[0]*1.5)
 
     # Save the plot
-    plt.savefig(join(dirDict['outDir_model'], f"ConfusionMatrix_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
+    plt.savefig(join(dirDict['outDir_model'], f"ConfusionMatrix_{fit}"), bbox_inches='tight')     
     plt.show()
 
 def plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, Yticklabs, daObjstr, plotSwitch, fit, dirDict):
@@ -999,7 +1010,7 @@ def plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, Yticklabs, daObjstr, p
                 label.set_linewidth(.5)
 
 
-        plt.savefig(join(dirDict['outDir_model'], f"PRcurve_{fit}.{dirDict['outputFormat']}"), format=dirDict['outputFormat'], bbox_inches='tight')     
+        plt.savefig(join(dirDict['outDir_model'], f"PRcurve_{fit}"), bbox_inches='tight')     
         plt.show()
 
     return auc_dict
@@ -1389,7 +1400,7 @@ def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, d
         plt.text(value-.01, index, percentage_text, ha='right', va='center')
 
     # Display the plot
-    plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"MeanAUC_barplot.svg"]), dpi=300, format='svg', bbox_inches='tight')
+    plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"MeanAUC_barplot.svg"]), format='svg', bbox_inches='tight')
     plt.show()
 
 def plot_cross_model_Accuracy(scoreNames, meanScores, meanScrambleScores, colorsList, saveDir):
@@ -1766,7 +1777,7 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
             titleStr = f"FeatureCountHeatmap"  
             # plt.tight_layout(h_pad = 0, w_pad = .5)
 
-            plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"{titleStr}_cb_{cbs}_{idx}.svg"]), dpi=300, format='svg', bbox_inches='tight')
+            plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"{titleStr}_cb_{cbs}_{idx}.svg"]), format='svg', bbox_inches='tight')
             plt.show()
 
 def sortShap(shap_values_list, regionSet):

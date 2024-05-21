@@ -14,29 +14,40 @@ def return_heatmapDict():
     return heatmapDict
 
 def setup_figure_settings():
+    """
+    Set up matplotlib and seaborn figure settings to improve readability and consistency.
+    """
     import matplotlib as plt
     import seaborn as sns
 
-    # Other settings
+    # Set global font size
+    plt.rcParams['font.size'] = 6
+
+    # Set seaborn style and remove axis spines
     sns.set_style('ticks')
     sns.despine()
 
-    # Set font to 12 pt Helvetica
-    plt.rcParams['font.family'] = 'Helvetica'
-    plt.rcParams['font.size'] = 6
-    plt.rcParams['svg.fonttype'] = 'none'
+    # Set matplotlib settings
+    plt.rcParams.update({
+        'font.family': 'Helvetica',
+        'svg.fonttype': 'none',
+        'savefig.dpi': 300,
+        'figure.dpi': 300,
+        'xtick.major.pad': 2,
+        'ytick.major.pad': 0.5,
+        'axes.labelpad': 0,
+        'legend.frameon': False,
+        'legend.loc': 'upper right',
+        'figure.frameon': False,
+        'axes.linewidth': 0.75,
+        'legend.markerscale': 1,
+        'savefig.format': 'svg',
+    })
 
     # Set all the font sizes
-    plt.rcParams['font.family'] = 'Helvetica'
-    plt.rcParams['font.size'] = 6
-    plt.rcParams['svg.fonttype'] = 'none'
-    plt.rcParams['xtick.labelsize'] = 6
-    plt.rcParams['ytick.labelsize'] = 6
-    plt.rcParams['axes.titlesize'] = 6
-    plt.rcParams['axes.labelsize'] = 6
+    plt.rcParams['xtick.labelsize'] = plt.rcParams['ytick.labelsize'] = plt.rcParams['axes.titlesize'] = plt.rcParams['axes.labelsize'] = plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
 
-
-    return ()
+    return
 
 def return_classifyDict_default():
     classifyDict = dict()
