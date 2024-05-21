@@ -1,8 +1,7 @@
-import sys, os, shap
+import os
 import pandas as pd
 import numpy as np
 import pickle as pkl
-import time
 
 # from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -12,7 +11,7 @@ import plotFunctions as pf
 
 from copy import deepcopy
 
-from sklearn import preprocessing, linear_model, svm
+from sklearn import linear_model, svm
 from sklearn.ensemble import RandomForestClassifier
 # Used to create a consistent processing pipeline prior to training/testing.
 from sklearn.pipeline import Pipeline
@@ -33,10 +32,6 @@ from sklearn.utils.validation import check_is_fitted
 from mrmr import mrmr_classif
 from boruta import BorutaPy
 from imblearn.under_sampling import RandomUnderSampler
-import itertools
-import multiprocessing
-from multiprocessing import Pool
-from joblib import parallel_backend
 
 def correlationMatrixPlot(X_data, col_names):
 
@@ -352,89 +347,6 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
             # if fit != 'Shuffle' and len(labelDict) != 2:
             #     findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, 8, fit=fit)
-
-def cv_test_parallel(params): #, fit, penaltyStr, YtickLabs, X_test_trans_list
-    print('Inside function')
-    global X
-    global y
-    train_index, test_index = params[0][0], params[0][1]
-    clf = params[1]
-
-    # Grab training data and test data
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = y[train_index], y[test_index]
-
-    X_train = pd.DataFrame(X_train,columns=featureNames)
-    X_test = pd.DataFrame(X_test,columns=featureNames)
-
-    if gridCV and paramGrid:
-        # Do a grid search for the relevant parameters
-        grid_search = GridSearchCV(clf, paramGrid, cv=gridCV_innerFold, scoring='neg_log_loss', n_jobs=-1)
-        grid_search.fit(X_train, y_train)
-        best_params = grid_search.best_params_
-        clf.set_params(**best_params)
-
-        # Report out on those models
-        print({k: v for k, v in grid_search.best_params_.items()})
-
-    # Fit the model
-    try:
-        clf.fit(X_train, y_train)
-    except:
-        print(f"\n Failed to fit CV")
-        print(f"\n Next Idx")
-
-    return clf
-    
-    # # Filtered features by what ends up actually being used.
-    # if 'featureSel' in clf.named_steps.keys():
-    #     feature_selected = featureNames[clf['featureSel'].get_support()]
-    # else:
-    #     feature_selected = featureNames
-
-    # # SHAP Related code
-    # if fit != 'Shuffle':
-    #     X_test_trans = pd.DataFrame(clf[:-1].transform(X_test), columns=feature_selected, index=test_index)
-
-    #     explainers, shap_values_list, baseline_val = hf.collect_shap_values(explainers, shap_values_list, baseline_val, n_classes, clf, X_test_trans, feature_selected, test_index, classifyDict['featurePert'])
-
-    #     # Store the results
-    #     X_test_trans_list.append(X_test_trans.reset_index())
-
-    # # Predict answers for the X_test set
-    # x_test_predict = clf.predict(X_test)
-
-    # # Extract the confusion matrix for the split
-    # conf_matrix = confusion_matrix(y_test, x_test_predict, labels=YtickLabs) #, labels=YtickLabs
-
-    # # In cases where test set has more than 1 instance of a class, normalize reach row.
-    # if np.max(np.sum(conf_matrix, axis=1)) != 1:
-    #     sums = np.sum(conf_matrix, axis=1)
-    #     conf_matrix = conf_matrix / sums[:, np.newaxis]
-
-    # # Calculate probabilities for PR Curve - Prior to storing, resort (clf class order can't be changed)
-    # y_scores = clf.predict_proba(X_test)
-
-    # if not np.all(clf.classes_ == YtickLabs):
-    #     original_list = YtickLabs
-    #     target_list = clf.classes_
-    #     mapping = {element: i for i, element in enumerate(target_list)}
-    #     y_prob_index = [mapping[element] for element in original_list]
-    #     y_prob_vec = y_scores[:, y_prob_index]
-    # else:
-    #     y_prob_vec = y_scores
-        
-
-    # if featureSelSwitch:
-    #     selected_features_list = hf.feature_selection_info_gather(clf, featureNames, penaltyStr, selected_features_list)
-    #     if classifyDict['gridCV']:
-    #         selected_features_params.append(best_params)
-
-    # # Append the confusion matrix to the larger stack
-    # conf_matrix_list_of_arrays.append(conf_matrix)
-    # scores.append(np.mean(np.diag(conf_matrix)))
-    # y_real_lab.append(y_test)
-    # y_prob.append(y_prob_vec)
 
 def findConfusionMatrix_LeaveOut(daObj, clf, X, y, labelDict, KfoldNum, fit):
 

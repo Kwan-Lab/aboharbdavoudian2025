@@ -904,7 +904,7 @@ def feature_selection_info_gather(idx_o, clf, featureNames, penaltyStr, selected
 
     return selected_features_list
 
-def collect_shap_values(idx_o, explainers, shap_values_list, baseline_val, n_classes, clf, X_test_trans, feature_selected, test_index, featurePert): #classifyDict['featurePert']
+def collect_shap_values(idx_o, explainers, shap_values_list, baseline_val, n_classes, clf, X_test_trans, feature_selected, test_index, featurePert):
     import shap
     
     # Select the correct explainer
@@ -927,4 +927,3 @@ def collect_shap_values(idx_o, explainers, shap_values_list, baseline_val, n_cla
         baseline_val[idx].append(explainer.expected_value)
 
     return explainers, shap_values_list, baseline_val
-

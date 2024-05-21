@@ -13,6 +13,31 @@ def return_heatmapDict():
 
     return heatmapDict
 
+def setup_figure_settings():
+    import matplotlib as plt
+    import seaborn as sns
+
+    # Other settings
+    sns.set_style('ticks')
+    sns.despine()
+
+    # Set font to 12 pt Helvetica
+    plt.rcParams['font.family'] = 'Helvetica'
+    plt.rcParams['font.size'] = 6
+    plt.rcParams['svg.fonttype'] = 'none'
+
+    # Set all the font sizes
+    plt.rcParams['font.family'] = 'Helvetica'
+    plt.rcParams['font.size'] = 6
+    plt.rcParams['svg.fonttype'] = 'none'
+    plt.rcParams['xtick.labelsize'] = 6
+    plt.rcParams['ytick.labelsize'] = 6
+    plt.rcParams['axes.titlesize'] = 6
+    plt.rcParams['axes.labelsize'] = 6
+
+
+    return ()
+
 def return_classifyDict_default():
     classifyDict = dict()
 

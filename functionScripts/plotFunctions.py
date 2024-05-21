@@ -74,32 +74,41 @@ def plotTotalPerDrug(pandasdf, column2Plot, dirDict, outputFormat):
 
     # plotting
     # sns.set(font_scale=3)
-    sns.set_style('ticks')
-    sns.despine()
 
     # Shift the color codes to RGB and add alpha
     colorDict = hf.create_color_dict('drug', 0)
-    # boxprops = dict(alpha=0.7)
-    boxprops = dict()
 
-    plt.figure(figsize=(9.5, 3.5))
-    ax = sns.boxplot(x="drug", y=column2Plot, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.5, hue='drug', palette=colorDict, boxprops=boxprops)
-    sns.scatterplot(x="drug", y=column2Plot, data=totalCellCountData, hue='drug', linewidth=0, style='sex', markers=True, s=50, palette=colorDict, ax=ax, edgecolor='black')
+    scaleFactor = 1
+    figSize = (3.2*scaleFactor, 1.278*scaleFactor)
+
+    plt.figure(figsize=figSize)
+    ax = sns.boxplot(x="drug", y=column2Plot, data=totalCellCountData, whis=0, dodge=False, showfliers=False, linewidth=.33, hue='drug', palette=colorDict)
+
+    for patch in ax.patches:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .7))
+
+    ax.spines['left'].set_linewidth(0.5)
+    ax.spines['bottom'].set_linewidth(0.5)
+    ax.xaxis.set_tick_params(length=3, width=0.66)
+    ax.yaxis.set_tick_params(length=1, width=0.2)
+    
+    ax2 = sns.scatterplot(x="drug", y=column2Plot, data=totalCellCountData, hue='drug', linewidth=0, style='sex', markers=True, s=10, palette=colorDict, ax=ax, edgecolor='black')
 
     # remove legend
     plt.legend([], [], frameon=False)
 
     # cleanup
-    ax.spines['left'].set_linewidth(0.5)
-    ax.spines['bottom'].set_linewidth(0.5)
-    ax.xaxis.set_tick_params(length=2, width=1)
-    ax.yaxis.set_tick_params(length=2, width=1)
-    ax.set_xlabel('Drug', fontdict={'fontsize':15})
-    ax.set_ylabel('Total Cells (Count)', fontdict={'fontsize':20})
-    ax.set_xticklabels(ax.get_xticklabels(), fontsize=15)
+    ax2.spines['left'].set_linewidth(0.5)
+    ax2.spines['bottom'].set_linewidth(0.5)
+    ax2.xaxis.set_tick_params(length=3, width=0.66)
+    ax2.yaxis.set_tick_params(length=1, width=0.2)
 
     ax.set_yscale('log')
-    # ax.set(ylim=(8e5, 1e7))
+    ax.set(ylim=(8e5, 1e7))
+    ax.set(xlabel='')
+    ax.set(ylabel='c-Fos+ cell count')
+    # ax.set_ylabel()
     sns.despine()
 
     plt.savefig(dirDict['outDir'] + os.sep + 'totalCells.' + outputFormat,  format=outputFormat, bbox_inches='tight')
@@ -895,7 +904,7 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     if '\n' in titleStr:
         titleStr = titleStr.replace('\n                  ', '')
 
-    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)/3.1
+    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)/2
     figSizeMat[0] = figSizeMat[0] + 1
     plt.figure(figsize=figSizeMat)
     ax = sns.heatmap(mean_of_conf_matrix_arrays, linewidth=0.25,cmap='Reds', annot=True, fmt=".2f", square=True, cbar_kws={"shrink": 0.8})
@@ -978,14 +987,14 @@ def plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, Yticklabs, daObjstr, p
         axes.set_ylabel('Precision')
 
         if n_classes == 2:
-            legend = axes.legend(loc='lower left', fontsize='large')
+            legend = axes.legend(loc='lower left')
             # Adjust the size for purposes of the paper
             # for label in legend.get_texts():
             #     label.set_fontproperties(FontProperties(size=10, weight='bold'))
             # for label in legend.get_lines():
             #     label.set_linewidth(15)
         else:
-            legend = axes.legend(loc='lower left', fontsize='large')
+            legend = axes.legend(loc='lower left')
             for label in legend.get_lines():
                 label.set_linewidth(.5)
 
@@ -1487,24 +1496,31 @@ def plot_featureCount_violin(scoreNames, featureLists, dirDict):
     colorsList = np.array(colorsList)/256
 
     scoreNames = [score.replace('/', ' & ') for score in scoreNames]
+    for idx, scoreName in enumerate(scoreNames):
+        strParts = scoreName.split()
+        scoreNames[idx] = strParts[2] + ' vs ' + strParts[0]
+        if idx == 4:
+            break
 
     # Your list of lists (sublists with numbers)
     data = [[len(sublist) for sublist in inner_list] for inner_list in featureLists]
 
-    # Create a data frame with melted data
-    flat_data = [item for sublist in data for item in sublist]
-
     df = pd.melt(pd.DataFrame(data, index=scoreNames).T, var_name='Category', value_name='Values')
 
     # Create horizontally oriented violin plot
-    plt.figure(figsize=(2, 2))  # Adjust the width and height as needed
+    plt.figure(figsize=(2, 1.95))  # Adjust the width and height as needed
 
-    ax = sns.violinplot(x='Values', y='Category', data=df, orient='h', color=colorsList[0], linewidth=0.5)  #, palette=colors)  # Remove inner bars and set color
-    # for violin in ax.collections:
-    #     violin.set_alpha(1)
+    ax = sns.violinplot(x='Values', y='Category', data=df, orient='h', color=colorsList[0], linewidth=0.5)
+    ax.spines['right'].set_linewidth(0)
+    ax.spines['top'].set_linewidth(0)
+    ax.spines['left'].set_linewidth(0.75)
+    ax.spines['bottom'].set_linewidth(0.75)
+    ax.xaxis.set_tick_params(length=2, width=1)
+    ax.yaxis.set_tick_params(length=3, width=1)
 
     # Set plot labels and title
-    plt.xlabel('Brain Regions used by Classifier')
+    plt.xlabel('Brain regions used by classifier')
+    plt.ylabel('')
 
     plt.savefig(os.sep.join([dirDict['crossComp_figDir'], "RegionCountPerSplit_violin.svg"]), format='svg', bbox_inches='tight')     
 
