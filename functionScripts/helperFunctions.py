@@ -380,24 +380,6 @@ def replace_strings_with_dict(input_strings, translate_dict):
 
     return replaced_strings
 
-def create_feature_count_dict(shap_vals, test_count, n_splits):
-    
-    X_train_trans_nonmean = pd.concat(X_train_trans_list, axis=0)
-    shap_values_nonmean = []
-    if n_classes == 2:
-        shap_values_nonmean.append(pd.concat(shap_values_list, axis=0))
-        test_count = shap_values_list[0].shape[0]
-    else:
-        test_count = shap_values_list[0][0].shape[0]
-        for shap_x_df in shap_values_list:
-            shap_values_nonmean.append(pd.concat(shap_x_df, axis=0))
-
-    shapValueCount = shap_vals.agg(np.isnan).sum()
-    feature_model_count = n_splits - shapValueCount/test_count
-    shapValFeature_sorted = feature_model_count.sort_values(ascending=False)
-
-    return sortingIdx
-
 def filter_features(pandasdf, classifyDict):
     # Takes in a pandas dataframe, returns a version where features are filtered and the remainder are aggregated.
     import re
