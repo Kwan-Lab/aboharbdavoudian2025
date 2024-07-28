@@ -160,7 +160,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             # if fit == 'Shuffle':
             #     y = shuffle(y_orig, random_state=classifyDict['randState'])
             # else:
-            y = y_orig
+            y = y_orig.copy()
 
             # If you want balanced classes, randomly undersample the majority class
             if rsFxn is not None:

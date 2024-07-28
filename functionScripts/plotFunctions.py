@@ -1,4 +1,4 @@
-import os, sys, shap
+import os, sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -1016,6 +1016,7 @@ def plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, Yticklabs, daObjstr, p
     return auc_dict
 
 def plot_shap_summary(X_train_trans_list, shap_values_list, y_vec, n_classes, plotDict, classifyDict, dirDict):
+    import shap
     
     n_splits = len(X_train_trans_list)
     test_count = shap_values_list[0][0].shape[0]
@@ -1132,7 +1133,8 @@ def plot_shap_summary(X_train_trans_list, shap_values_list, y_vec, n_classes, pl
             plt.show()
 
 def plot_shap_bar(explainers, X_train_trans_list, shap_values_list, y_vec, n_classes, plotDict, classifyDict, dirDict):
-    
+    import shap
+
     n_splits = len(X_train_trans_list)
     shap_threshold = np.ceil(n_splits * plotDict['shapSummaryThres']/100)
 
@@ -1264,6 +1266,7 @@ def plot_shap_bar(explainers, X_train_trans_list, shap_values_list, y_vec, n_cla
 
 def plot_shap_force(X_train_trans_list, shap_values_list, baseline_val, y_real_lab, numYDict, plotDict, dirDict):
     import itertools
+    import shap
 
     # Set font to 12 pt Helvetica
     plt.rcParams['font.family'] = 'Helvetica'
