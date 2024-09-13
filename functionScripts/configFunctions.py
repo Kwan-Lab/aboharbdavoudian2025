@@ -21,7 +21,7 @@ def setup_figure_settings():
     import seaborn as sns
 
     # Set global font size
-    plt.rcParams['font.size'] = 6
+    plt.rcParams['font.size'] = 4
 
     # Set seaborn style and remove axis spines
     sns.set_style('ticks')
@@ -43,6 +43,21 @@ def setup_figure_settings():
         'legend.markerscale': 1,
         'savefig.format': 'svg',
     })
+
+    # Set all the font sizes
+    plt.rcParams['xtick.labelsize'] = plt.rcParams['ytick.labelsize'] = plt.rcParams['axes.titlesize'] = plt.rcParams['axes.labelsize'] = plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
+
+    return
+
+def setup_figure_changeFonts(fontSize):
+    """
+    Set up matplotlib and seaborn figure settings to improve readability and consistency.
+    """
+    import matplotlib as plt
+    import seaborn as sns
+
+    # Set global font size
+    plt.rcParams['font.size'] = fontSize
 
     # Set all the font sizes
     plt.rcParams['xtick.labelsize'] = plt.rcParams['ytick.labelsize'] = plt.rcParams['axes.titlesize'] = plt.rcParams['axes.labelsize'] = plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
@@ -91,6 +106,9 @@ def return_classifyDict_default():
     classifyDict['max_iter'] = 100
     classifyDict['CVstrat'] = 'ShuffleSplit' #'StratKFold', 'ShuffleSplit'
 
+    # Parameters for LO Analyses
+    classifyDict['LO_drug'] = ['6-F-DET']
+
     # ParamGrid Features - in instances where gridCV is set to true, these are the parameters that will be tested.
     paramGrid = dict()
     # paramGrid['classif__l1_ratio'] = [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1]          # used for ElasticNet
@@ -120,71 +138,13 @@ def return_classifyDict_default():
     return classifyDict
 
 def return_classifyDict_testing():
-    # For rapid testing of classifier code - key diff is feature selection via Univar, only 10 CV splits, and 'interventional' style SHAP explanations.
-    classifyDict = dict()
+    classifyDict = return_classifyDict_default()
     
-    classifyDict['randSeed'] = 82590    # Used by the CV splitter, per scikit learn 'Best practices'
-    classifyDict['randState'] = np.random.RandomState(classifyDict['randSeed'])   # Used for all other random state related items
-
-    classifyDict['featurefilt'] = False # True, False
-    classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
-
-    # Parameters for pivoting the data
-    classifyDict['data'] = 'count_norm' #cell_density, count, count_norm, density_norm
-    classifyDict['feature'] = 'abbreviation'
-    classifyDict['label'] = 'drug' # Defined in hf.create_drugClass_dict()
-    # check hf.create_drugClass_dict() for options
-
-    # Parameters for feature scaling and aggregation
-    classifyDict['featurefilt'] = False # True, False
-    classifyDict['filtType'] = 'min' # Min removes the bottom 1%, Max removes the top 99th percentile.
-    classifyDict['featureAgg'] = False
-    classifyDict['featureSel_linkage'] = 'average'  # 'average', 'complete', 'single', 'ward' (if euclidean)
-    classifyDict['featureSel_distance'] = 'correlation' # 'correlation, 'cosine', 'euclidean'
-    classifyDict['cluster_count'] = 100 # Number of clusters to generate. Not used at the moment.
-    classifyDict['cluster_thres'] = 0.2 # Anything closer than this is merged into a cluster
-    
-    # Parameters for Preprocessing and feature selection
-    classifyDict['model_featureTransform'] = True # True, False
-    classifyDict['model_featureScale'] = True # True, False
+    # For rapid testing of classifier code
     classifyDict['model_featureSel'] = 'Univar' # 'Univar', 'mutInfo', 'RFE', 'MRMR', 'Fdr', 'Fwe_BH', 'Fwe', 'Boruta', 'None'
-    classifyDict['model_featureSel_alpha'] = 0.05 # Used for Fdr, Fwe, and Fwe_BH
-
-    # If Fdr/Fwe/None are not used for feature selection, the number of k feature must be preset
-    classifyDict['model_featureSel_mode'] = 'modelPer' # 'gridCV', 'modelPer'
-    # classifyDict['model_featureSel_k'] = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    classifyDict['model_featureSel_k'] = [30]
-
-    # Parameters for classification
-    classifyDict['model'] = 'LogRegL2' #'LogRegL2', 'LogRegL1', 'LogRegElastic', 'svm'
-    classifyDict['multiclass'] = 'multinomial' # 'ovr', 'multinomial'
-    classifyDict['max_iter'] = 100
-    classifyDict['CVstrat'] = 'ShuffleSplit' #'StratKFold', 'ShuffleSplit'
-
-    # ParamGrid Features - in instances where gridCV is set to true, these are the parameters that will be tested.
-    paramGrid = dict()
-    # paramGrid['classif__l1_ratio'] = [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1]          # used for ElasticNet
-    # paramGrid['classif__C'] = [0.001, 0.01, 0.1, 1, 10]                    # used for LogisticRegression
-    paramGrid['classif__C'] = [1]                    # used for LogisticRegression
-    classifyDict['pGrid'] = paramGrid
-
-    classifyDict['shuffle'] = True
-    classifyDict['gridCV'] = False
-
-    classifyDict['saveLoadswitch'] = True
-
-    classifyDict['test_size'] = 1/4
-    classifyDict['innerFold'] = 4
-    if classifyDict['CVstrat'] == 'ShuffleSplit':
-        classifyDict['CV_count'] = 10 # Number of folds for cross-validation
-    elif classifyDict['CVstrat'] == 'StratKFold':
-        classifyDict['CV_count'] = 8 # Number of folds for cross-validation
-    classifyDict['balance'] = True
-
-
+    classifyDict['CV_count'] = 10 # Number of folds for cross-validation
     classifyDict['featurePert'] = 'interventional' # 'interventional' or 'correlation_dependent'
-
-    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", 'PowTrans_RobScal_fSel_SelectKBest(k=30)_clf_LogReg(multinom)_CV10']
+    classifyDict['saveLoadswitch'] = True
 
     return classifyDict
 

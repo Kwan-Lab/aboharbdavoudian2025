@@ -8,6 +8,7 @@ from collections import defaultdict, Counter
 
 def create_drugClass_dict(classifyDict):
     # Create a dictionary to convert drug names to drug classes
+    # Ideally switch this to a match case, but if statements here for a bit more backwards compatability.
     conv_dict = dict()
 
     # Drug Class vs Drug Class
@@ -55,6 +56,30 @@ def create_drugClass_dict(classifyDict):
         conv_dict['C-SSRI'] = 'C-SSRI'
     if classifyDict['label'] == 'class_PsiDF':
         conv_dict['PSI'] = 'PSI'
+        conv_dict['6-F-DET'] = '6-F-DET'
+
+    # Leave Out analyses - training/testing set disparities.
+    # Include all relevant classes here
+    # the classes left out of the training data are defined in classifyDict['LO_drug']
+    if classifyDict['label'] == 'LO_all':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['KET'] = 'KET'
+        conv_dict['5MEO'] = '5MEO'
+        conv_dict['MDMA'] = 'MDMA'
+        conv_dict['A-SSRI'] = 'A-SSRI'
+        conv_dict['C-SSRI'] = 'C-SSRI'
+        conv_dict['SAL'] = 'SAL'
+        conv_dict['6-F-DET'] = '6-F-DET'
+    if classifyDict['label'] == 'LO_PSI_5MEO':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['5MEO'] = '5MEO'
+        conv_dict['6-F-DET'] = '6-F-DET'
+    if classifyDict['label'] == 'LO_all_nSSRI':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['KET'] = 'KET'
+        conv_dict['5MEO'] = '5MEO'
+        conv_dict['MDMA'] = 'MDMA'
+        conv_dict['SAL'] = 'SAL'
         conv_dict['6-F-DET'] = '6-F-DET'
         
     if not bool(conv_dict) and classifyDict['label'] != 'drug':
@@ -890,14 +915,14 @@ def collect_shap_values(idx_o, explainers, shap_values_list, baseline_val, n_cla
     import shap
     
     # Select the correct explainer
-    if n_classes == 2:
+    if len(clf._final_estimator.classes_) == 2:
         explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation=featurePert)
     else:
         # Multiclass explainer must use interventional perturbation
         explainer = shap.LinearExplainer(clf._final_estimator, X_test_trans, feature_perturbation='interventional')
 
     explain_shap_vals = explainer.shap_values(X_test_trans)
-    if n_classes == 2:
+    if len(clf._final_estimator.classes_) == 2:
         shap_values_test = [pd.DataFrame(explain_shap_vals, columns=feature_selected, index=test_index)]
     else:
         shap_values_test = [pd.DataFrame(x, columns=feature_selected, index=test_index) for x in explain_shap_vals]

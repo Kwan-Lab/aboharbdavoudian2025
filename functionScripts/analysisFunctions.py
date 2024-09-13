@@ -93,7 +93,6 @@ def compareAnimals(lightsheetDB, drugA, drugB, compColumn, dirDict):
                 format='png', bbox_inches='tight')
     plt.show()
 
-
 def drug_stats_and_changes(databaseFrame, drugList):
     # Function for detecting changes in activation density across 2 drug conditions.
     # Returns a table containing a column representing 'cell_density_change' across conditions per region((X - Y)/Y * 100).

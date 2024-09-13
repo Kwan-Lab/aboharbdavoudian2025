@@ -199,7 +199,14 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                 selected_features_list, selected_features_params, explainers, scores = empty_list2
                 best_params = dict()
                 
-                baseline_val, shap_values_list = [[] for _ in range(n_classes)], [[] for _ in range(n_classes)]
+                # Modify to accomodate instances where test set and training set are distinct sizes
+                # Subsequent vectors are loaded with values dictated by the size of the test set
+                if 'LO_' in classifyDict['label']:
+                    vecSize = range(n_classes- len(classifyDict['LO_drug']))
+                else:
+                    vecSize = range(n_classes)
+
+                baseline_val, shap_values_list = [[] for _ in vecSize], [[] for _ in vecSize]
 
                 print(f"Performing CV split ", end='')
                 for idx, (train_index, test_index) in enumerate(cvFxn.split(X, y)):
@@ -208,6 +215,17 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     # Grab training data and test data
                     X_train, X_test = X[train_index], X[test_index]
                     y_train, y_test = y[train_index], y[test_index]
+
+                    if 'LO_' in classifyDict['label']:
+                        # Identify the X_train, y_train examples which are within the LO_drug 
+                        bool_vec = np.array([element not in classifyDict['LO_drug'] for element in y_train])
+                        bool_lab_vec = np.array([element not in classifyDict['LO_drug'] for element in YtickLabs])
+                        YtickLabs_train = np.array(YtickLabs.copy())
+
+                        # X_train, y_train
+                        X_train = X_train[bool_vec]
+                        y_train = y_train[bool_vec]
+                        YtickLabs_train = YtickLabs_train[bool_lab_vec]
 
                     if fit == 'Shuffle':
                         y_test = shuffle(y_test, random_state=classifyDict['randState'])
@@ -269,7 +287,15 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                     # Calculate probabilities for PR Curve - Prior to storing, resort (clf class order can't be changed)
                     y_scores = clf.predict_proba(X_test)
 
-                    if not np.all(clf.classes_ == YtickLabs):
+                    if len(clf.classes_) != len(YtickLabs):
+                        # In instances where the training set doesn't match the testing set, this takes place
+                        # Add the appropriate row of 0s to the y_scores. 
+                        # original_list = YtickLabs
+                        # target_list = clf.classes_
+                        # mapping = {element: i for i, element in enumerate(target_list)}
+                        y_prob[idx] = y_scores
+                    elif not np.all(clf.classes_ == YtickLabs):
+                        # Where classes in the classifier object and label vector don't align, resort
                         original_list = YtickLabs
                         target_list = clf.classes_
                         mapping = {element: i for i, element in enumerate(target_list)}
@@ -305,19 +331,19 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             # Use remove_idx to filter y_real_lab
 
             # PR Curve - save the results in a dict for compiling into a bar plot.
-            auc_dict = pf.plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, YtickLabs, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
+            # auc_dict = pf.plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, YtickLabs, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
 
             # Create a structure which saves results for plotting elsewhere.
-            score_dict = dict()
-            score_dict['auc'] = auc_dict
-            score_dict['scores'] = scores
-            score_dict['featuresPerModel'] = selected_features_list
-            score_dict['compLabel'] = ' vs '.join(labelDict.keys())
+            # score_dict = dict()
+            # score_dict['auc'] = auc_dict
+            # score_dict['scores'] = scores
+            # score_dict['featuresPerModel'] = selected_features_list
+            # score_dict['compLabel'] = ' vs '.join(labelDict.keys())
 
-            # Save
-            dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
-            with open(dictPath, 'wb') as f:
-                pkl.dump(score_dict, f)
+            # # Save
+            # dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
+            # with open(dictPath, 'wb') as f:
+            #     pkl.dump(score_dict, f)
 
             # # Shape data into a table for correlation
             if plotDict['featureCorralogram']:

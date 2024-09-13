@@ -119,7 +119,7 @@ def plotTotalPerDrug(pandasdf, column2Plot, dirDict):
 
     sns.set_theme()
 
-def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
+def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict, ldaDict):
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import RobustScaler, PowerTransformer
@@ -127,7 +127,11 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     from sklearn.pipeline import Pipeline
 
     colorHex = hf.create_color_dict(dictType='drug')
-
+    # Plot
+    sns.set(font_scale=2)
+    sns.set_style('ticks')
+    sns.despine()
+    
     # If some filtering is desired, do so here
     if classifyDict['featurefilt']:
         pandasdf = hf.filter_features(pandasdf, classifyDict)
@@ -146,6 +150,7 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     transMod = PowerTransformer(method='yeo-johnson', standardize=False)
     scaleMod = RobustScaler()
 
+    compName = dimRedMeth[0:2]
     if dimRedMeth == 'PCA':
         dimRedMod = PCA(n_components=n_comp)
     elif dimRedMeth == 'LDA':
@@ -157,51 +162,92 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict):
     # pipelineList = [('scaleMod', scaleMod), ('dimRedMod', dimRedMod)]
     pipelineObj = Pipeline(pipelineList)
 
-    # Scale the data
-    df_Tilted_transformed = pipelineObj.fit_transform(df_Tilted.iloc[:, :-1], df_Tilted.iloc[:, -1])
+    ### Identify sets of training/testing data to loop through
+
+    if not ldaDict:
+        # Full set is used for training and testing
+        analysisNames = 'All'
+        trainSets = [df_Tilted.y_vec.unique()]
+        testSets = [df_Tilted.y_vec.unique()]
+    else:
+        # Create a paired list of training sets and testing sets. 
+        analysisNames = list(ldaDict.keys())
+        trainSets = [ldaDict[aName][0] for aName in analysisNames]
+        testSets = [ldaDict[aName][1] for aName in analysisNames]
+
     customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
 
-    # Create average cases for each drug.
-    compName = dimRedMeth[0:2]
-    colNames = [f"{compName}{x}" for x in range(1, n_comp+1)]
+    for aName, trainSet, testSet in zip(analysisNames, trainSets, testSets):
 
-    dimRedData = pd.DataFrame(data=df_Tilted_transformed, index=df_Tilted.index, columns=colNames)
-    dimRedData.loc[:, 'drug'] = pd.Categorical(y, categories=customOrder, ordered=True)
-    dimRedDrugMean = dimRedData.groupby(by='drug').mean()
+        df_train = df_Tilted[df_Tilted.y_vec.isin(trainSet)]
+        df_plot = df_Tilted[df_Tilted.y_vec.isin(testSet)]
 
-    # Means aren't sorted like the centers. Problems here are clear when the mean dot isn't the same color.
-    resortIdx = [1, 2, 3, 0, 4, 5, 6, 7]
-    dimRedDrugMean = dimRedDrugMean.iloc[resortIdx]
+        if len(trainSet) == 2 and dimRedMeth == 'LDA':
+            pipelineList[2][1].n_components = 1
+            colNames = [compName]
+        else:
+            pipelineList[2][1].n_components = n_comp
+            colNames = [f"{compName}{x}" for x in range(1, n_comp+1)]
 
-    # Plot
-    sns.set(font_scale=2)
-    sns.set_style('ticks')
-    sns.despine()
+        # Fit on train data, then transform plot data
+        pipelineObj.fit(df_train.iloc[:, :-1], df_train.iloc[:, -1])
+        df_plot_data_transformed = pipelineObj.transform(df_plot.iloc[:, :-1])
 
-    pairs = list(combinations(range(n_comp), 2))
+        # Create average cases for each drug.
+        dimRedData = pd.DataFrame(data=df_plot_data_transformed, index=df_plot.index, columns=colNames)
+        if df_plot_data_transformed.shape[1] == 1:
+            # dimRedData['null'] = np.zeros(dimRedData.shape[0])
+            dimRedData['null'] = np.random.rand(dimRedData.shape[0])
 
-    for comp_pair in pairs:
-        col1 = colNames[comp_pair[0]]
-        col2 = colNames[comp_pair[1]]
+        dimRedData.loc[:, 'drug'] = pd.Categorical(y, categories=customOrder, ordered=True)
+        dimRedDrugMean = dimRedData.groupby(by='drug').mean()
 
-        plt.figure(figsize=(6, 6))  # Adjust the figure size as needed
-        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData, s=50, alpha=0.75, palette=colorHex)
-        sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean, s=100, legend=False, edgecolor='black', palette=colorHex)
-        plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
+        # Means aren't sorted like the centers. Problems here are clear when the mean dot isn't the same color.
+        if aName == 'All':
+            resortIdx = [1, 2, 3, 0, 4, 5, 6, 7]
+            dimRedDrugMean = dimRedDrugMean.iloc[resortIdx]
 
-        # Customize the plot
-        # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
-        plt.title(f"Linear Discrimants of Normalized counts", fontsize=20)
-        plt.xlabel(col1, fontsize=20)
-        plt.xticks(fontsize=15)
-        plt.ylabel(col2, fontsize=20)
-        plt.yticks(fontsize=15)
+        if pipelineList[2][1].n_components > 1:
+            pairs = list(combinations(range(n_comp), 2))
+            for comp_pair in pairs:
+                col1 = colNames[comp_pair[0]]
+                col2 = colNames[comp_pair[1]]
 
-        # Save
-        plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{filtTag}_{col1} x {col2}", bbox_inches='tight')
+                plt.figure(figsize=(6, 6))  # Adjust the figure size as needed
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData, s=50, alpha=0.75, palette=colorHex)
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean, s=100, legend=False, edgecolor='black', palette=colorHex)
+                plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
 
-        plt.show()
-    
+                # Customize the plot
+                # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
+                plt.title(f"Linear Discrimants of {aName}", fontsize=20)
+                plt.xlabel(col1, fontsize=20)
+                plt.xticks(fontsize=15)
+                plt.ylabel(col2, fontsize=20)
+                plt.yticks(fontsize=15)
+
+                # Save
+                plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{aName}_{col1} x {col2}", bbox_inches='tight')
+
+                plt.show()
+        else:
+            plt.figure(figsize=(6, 6))  # Adjust the figure size as needed
+            sns.scatterplot(x=compName, y='null', hue='drug', data=dimRedData, s=50, alpha=0.75, palette=colorHex)
+            sns.scatterplot(x=compName, y='null', hue='drug', data=dimRedDrugMean, s=100, legend=False, edgecolor='black', palette=colorHex)
+            plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
+
+            # Customize the plot
+            # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
+            plt.title(f"Linear Discrimants of {aName}", fontsize=20)
+            plt.xlabel(compName, fontsize=20)
+            plt.xticks(fontsize=15)
+            plt.ylabel('null', fontsize=20)
+            plt.yticks(fontsize=15)
+
+            # Save
+            plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{aName}_{filtTag}_{compName} x null", bbox_inches='tight')
+
+            plt.show()
     # Reset changes made
     sns.set_theme()
 
@@ -897,6 +943,36 @@ def create_heatmaps_perDrug(matrix, titleStatic='Heatmap', titleLoop=[], xLab = 
     plt.tight_layout()
     plt.savefig(dirDict['classifyDir'] + os.sep + fullTitleStr + '.png', format='png', bbox_inches='tight')
     plt.show()
+
+def plot_cFos_delta(cfos_diff, drugList, fileOutName):
+    plt.figure(figsize=(20,50))
+    drugPairList = [(a + '-'+ b) for idx, a in enumerate(drugList) for b in drugList[idx + 1:]]
+    palette = sns.color_palette(n_colors=len(drugList))
+
+    for drug_comp_i in range(0, len(cfos_diff)):
+        #melt data for plotting and specify color
+        data = pd.melt(cfos_diff[drug_comp_i], id_vars=['Region_Name'], value_vars=drugPairList[drug_comp_i],
+                        var_name='Drug', value_name='Change')
+        if drug_comp_i == 0:
+            data_melted = data
+        else:
+            data_melted = pd.concat([data_melted, data], ignore_index=True, sort=False)
+
+    # Focus on the comparisons involving SAL condition
+    drugDataMelt = data_melted[data_melted.Drug.str.contains('SAL')]
+
+    #point plot
+    ax = sns.pointplot(y='Region_Name', x='Change', data = drugDataMelt, errorbar=('ci', 95), join=False, units=16, errwidth = 0.5,
+                    hue='Drug', palette = palette, dodge=0.4, scale=0.5)
+
+    #cleanup
+    sns.despine()
+    plt.xlabel('cFos density change (%)')
+    plt.ylabel('')
+
+    plt.axvline(x=0, color='grey', linestyle='--', lw=0.5)
+
+    fig = plt.savefig(fileOutName, bbox_inches='tight')
 
 ### Classification based plots
 def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titleStr, dirDict):
