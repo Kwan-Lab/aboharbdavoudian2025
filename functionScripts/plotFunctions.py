@@ -18,6 +18,7 @@ from matplotlib_venn import venn2
 import textwrap
 import matplotlib.ticker as tkr
 from statannotations.Annotator import Annotator
+import configFunctions as config    
 
 sys.path.append('dependencies')
 
@@ -150,11 +151,12 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict, ld
     transMod = PowerTransformer(method='yeo-johnson', standardize=False)
     scaleMod = RobustScaler()
 
-    compName = dimRedMeth[0:2]
     if dimRedMeth == 'PCA':
         dimRedMod = PCA(n_components=n_comp)
+        compName = 'Principal Component '
     elif dimRedMeth == 'LDA':
         dimRedMod = LDA(n_components=n_comp)
+        compName = 'Linear discriminant '
     else:
         KeyError('dimRedMethod not recognized, pick LDA or PCA')
 
@@ -177,10 +179,13 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict, ld
 
     customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
 
+    config.setup_LDA_settings()
+
     for aName, trainSet, testSet in zip(analysisNames, trainSets, testSets):
 
         df_train = df_Tilted[df_Tilted.y_vec.isin(trainSet)]
         df_plot = df_Tilted[df_Tilted.y_vec.isin(testSet)]
+        testOnly = [item for item in testSet if item not in trainSet]
 
         if len(trainSet) == 2 and dimRedMeth == 'LDA':
             pipelineList[2][1].n_components = 1
@@ -207,47 +212,63 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict, ld
             resortIdx = [1, 2, 3, 0, 4, 5, 6, 7]
             dimRedDrugMean = dimRedDrugMean.iloc[resortIdx]
 
-        if pipelineList[2][1].n_components > 1:
+        # if pipelineList[2][1].n_components > 1:
+        if testSet == trainSet:
             pairs = list(combinations(range(n_comp), 2))
             for comp_pair in pairs:
                 col1 = colNames[comp_pair[0]]
                 col2 = colNames[comp_pair[1]]
 
-                plt.figure(figsize=(6, 6))  # Adjust the figure size as needed
-                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData, s=50, alpha=0.75, palette=colorHex)
-                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean, s=100, legend=False, edgecolor='black', palette=colorHex)
-                plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
+                plt.figure(figsize=(2.25, 2.25))  # Adjust the figure size as needed
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData, s=10, alpha=0.75, palette=colorHex)
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean, s=20, legend=False, edgecolor='black', palette=colorHex)
+                plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=6)
 
                 # Customize the plot
                 # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
-                plt.title(f"Linear Discrimants of {aName}", fontsize=20)
-                plt.xlabel(col1, fontsize=20)
-                plt.xticks(fontsize=15)
-                plt.ylabel(col2, fontsize=20)
-                plt.yticks(fontsize=15)
+                # plt.title(f"Linear Discrimants of {aName}", fontsize=20)
 
                 # Save
                 plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{aName}_{col1} x {col2}", bbox_inches='tight')
 
                 plt.show()
         else:
-            plt.figure(figsize=(6, 6))  # Adjust the figure size as needed
-            sns.scatterplot(x=compName, y='null', hue='drug', data=dimRedData, s=50, alpha=0.75, palette=colorHex)
-            sns.scatterplot(x=compName, y='null', hue='drug', data=dimRedDrugMean, s=100, legend=False, edgecolor='black', palette=colorHex)
-            plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=12)
+            pairs = list(combinations(range(n_comp), 2))
+            for comp_pair in pairs:
+                col1 = colNames[comp_pair[0]]
+                col2 = colNames[comp_pair[1]]
 
-            # Customize the plot
-            # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
-            plt.title(f"Linear Discrimants of {aName}", fontsize=20)
-            plt.xlabel(compName, fontsize=20)
-            plt.xticks(fontsize=15)
-            plt.ylabel('null', fontsize=20)
-            plt.yticks(fontsize=15)
+                # Plot the training set, slightly lighter
+                plt.figure(figsize=(2.25, 2.25))  # Adjust the figure size as needed
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData[dimRedData.drug.isin(trainSet)], s=10, alpha=0.5, legend=False, palette=colorHex)
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean[dimRedDrugMean.index.isin(trainSet)], s=20, alpha=0.5, legend=False, edgecolor='black', palette=colorHex)
 
-            # Save
-            plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{aName}_{filtTag}_{compName} x null", bbox_inches='tight')
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedData[dimRedData.drug.isin(testOnly)], s=12, edgecolor='black', palette=colorHex, marker="D")
+                sns.scatterplot(x=col1, y=col2, hue='drug', data=dimRedDrugMean[dimRedDrugMean.index.isin(testOnly)], s=25, legend=False, edgecolor='black', palette=colorHex, marker="D")
+                plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=6)
 
-            plt.show()
+                # Customize the plot
+                # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
+                # plt.title(f"Linear Discrimants of {aName}", fontsize=20)
+
+                # Save
+                plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{aName}_{col1} x {col2}", bbox_inches='tight')
+
+                plt.show()            
+        # else:
+        #     plt.figure(figsize=(2.25, 2.25))  # Adjust the figure size as needed
+        #     sns.scatterplot(x=compName, y='null', hue='drug', data=dimRedData, s=10, alpha=0.75, palette=colorHex)
+        #     sns.scatterplot(x=compName, y='null', hue='drug', data=dimRedDrugMean, s=20, legend=False, edgecolor='black', palette=colorHex)
+        #     plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=6)
+
+        #     # # Customize the plot
+        #     # # plt.title(f"{dimRedMeth} of {column2Plot}", fontsize=20)
+        #     # # plt.title(f"Linear Discrimants of {aName}", fontsize=7)
+
+        #     # Save
+        #     plt.savefig(dirDict['outDir'] + os.sep + f"dimRed_{aName}_{filtTag}_{compName} x null", bbox_inches='tight')
+
+        #     plt.show()
     # Reset changes made
     sns.set_theme()
 
@@ -991,10 +1012,12 @@ def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titl
     if '\n' in titleStr:
         titleStr = titleStr.replace('\n                  ', '')
 
-    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)/2
+    config.setup_Confmatrix_settings()
+
+    figSizeMat = np.array(mean_of_conf_matrix_arrays.shape)/3.33
     figSizeMat[0] = figSizeMat[0] + 1
     plt.figure(figsize=figSizeMat)
-    ax = sns.heatmap(mean_of_conf_matrix_arrays, linewidth=0.25,cmap='Reds', annot=True, fmt=".2f", square=True, cbar_kws={"shrink": 0.8})
+    ax = sns.heatmap(mean_of_conf_matrix_arrays,cmap='Reds', annot=True, fmt=".2f", square=True, cbar_kws={"shrink": 0.8})
     ax.set(xticklabels=YtickLabs, yticklabels=YtickLabs, xlabel='Predicted Label', ylabel='True Label')
     # plt.title(fullTitleStr, fontsize=figSizeMat[0]*1.5)
 
@@ -1903,3 +1926,101 @@ def sortShap(shap_values_list, regionSet):
     max_index = idxList[-1]
 
     return databaseIdx
+
+def genereate_cFos_gene_corr_plots(geneDict, geneColorDict, setNames, regionSet, plotNameDict, dirDict):
+
+    unique_genes = list(set(hf.flatten(geneDict.values())))
+    genePlotColorPalette = sns.color_palette("Spectral", as_cmap=True, n_colors=len(unique_genes))
+
+    rows = len(geneDict)
+    cols = np.max(list({key: len(value) for key, value in geneDict.items()}.values()))
+
+    for set_i, set_name in enumerate(regionSet):
+
+        fig, axs = plt.subplots(rows, cols, figsize=(10, len(geneDict.keys())*1.67))
+
+        for drug_i, drug in enumerate(geneDict.keys()):
+
+            genePlotList = geneDict[drug]
+            
+            for geneSet_i, genePlotList_data in enumerate(genePlotList):
+            
+                #plot the distribution for all the gene correlations
+                plt.figure(figsize=(2,1))
+                sns.set(style="ticks")
+                drug_data = pd.read_pickle(os.path.join(dirDict['geneCorrDir'], f'{drug}_{set_name}_corr_db.h5'))
+                axHand = axs[drug_i, geneSet_i]
+
+                ax = sns.histplot(data=drug_data , x = drug + " correlation", element = 'step', fill = False, color='grey', ax=axHand) #, lw=7
+                sns.despine()
+
+                trans = ax.get_xaxis_transform()
+
+                # Plot the individual
+                genes_of_interest = drug_data[drug_data['gene'].isin(genePlotList_data)]
+                corrData = list(genes_of_interest[drug + ' correlation'])
+
+                genes_of_interest['colorInd'] = [geneColorDict[drug] for drug in genes_of_interest.gene]
+                genes_of_interest = genes_of_interest.sort_values(drug + ' correlation')
+
+                # Generate spots for the text above the plots to go. Move text over if it is overlapping with text to the left
+            
+                textXVals = np.array(genes_of_interest[drug + ' correlation'])
+                minDist = .03
+
+                xLimits = ax.get_xlim()
+                xLimLeftLabel = textXVals[0] 
+                xLimLeftLabel = xLimits[0]
+                if abs(textXVals[0]-textXVals[-1]) < 0.2:
+                    xLimRightLabel = textXVals[-1] + .2
+                else:
+                    xLimRightLabel = textXVals[-1] #xLimits[0]+(xLimits[1]*.7)
+
+                geneCount = len(genePlotList_data)
+                textXAxes = np.linspace(xLimLeftLabel, xLimLeftLabel+(geneCount*0.1), num:=geneCount)
+                # textXAxes = np.linspace(xLimLeftLabel, xLimLeftLabel+(geneCount*0.05), num:=geneCount)
+
+                plt.sca(axHand)
+                plt.xlim(-0.85, 0.85)
+                plt.ylim(0, 1050)
+                y_pos = 0.90
+
+                # For plotting, flip the order of genes.
+                genes_of_interest = genes_of_interest.sort_values('percentile', ascending=False)
+
+                config.setup_mRNA_corr_settings()
+
+                # Iterate across genes of interest to plot lines and text
+                for gene_i, gene in enumerate(genes_of_interest.gene):
+                    
+                    geneData = genes_of_interest[genes_of_interest.gene == gene]
+                    corrVal = float(geneData[drug + ' correlation'])
+                    prcVal = round(float(geneData['percentile'])*100)
+                    lineCol = genePlotColorPalette(geneData.colorInd)[0]
+
+                    # Draw lines and text
+                    plt.axvline(x=corrVal, color=lineCol, linestyle='--') #, lw=10
+                    plt.text(-0.83, y_pos, f'{gene} ({str(prcVal)}%)', transform=trans, color=lineCol, fontsize=8) #, rotation=45
+                    
+                    y_pos -= 0.15
+
+                # plotLineWidth = 5
+
+                if drug_i == len(geneDict.keys())-1:
+                    plt.xlabel('Correlation', labelpad=1)
+                else:
+                    plt.xlabel('')
+
+                if geneSet_i == 0:
+                    plt.ylabel('Number of genes', labelpad=.5)
+                else:
+                    plt.ylabel('')
+
+                plotTitle = f'{plotNameDict[drug]} vs {setNames[geneSet_i]} ({set_name})'
+                plt.title(plotTitle, loc='center', fontsize=8, pad=10) #pad=300
+                plt.subplots_adjust(hspace=0.6, wspace=0.2) 
+
+        plt.savefig(os.path.join(dirDict['outDir'], f'{set_name}_Drug_vs_Receptors.svg'), bbox_inches='tight')
+
+        plt.show()
+        plt.clf()

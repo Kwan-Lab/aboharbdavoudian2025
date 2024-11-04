@@ -60,8 +60,9 @@ def create_drugClass_dict(classifyDict):
 
     # Leave Out analyses - training/testing set disparities.
     # Include all relevant classes here
-    # the classes left out of the training data are defined in classifyDict['LO_drug']
-    if classifyDict['label'] == 'LO_all':
+    # Classes below represent All the data passed forward - Testing Set
+    # the classes left out of the training data are defined in classifyDict['LO_drug'] (Training Set = Below Labels - classifyDict['LO_drug'])
+    if classifyDict['label'] == 'LO_6FDET':
         conv_dict['PSI'] = 'PSI'
         conv_dict['KET'] = 'KET'
         conv_dict['5MEO'] = '5MEO'
@@ -70,17 +71,31 @@ def create_drugClass_dict(classifyDict):
         conv_dict['C-SSRI'] = 'C-SSRI'
         conv_dict['SAL'] = 'SAL'
         conv_dict['6-F-DET'] = '6-F-DET'
-    if classifyDict['label'] == 'LO_PSI_5MEO':
-        conv_dict['PSI'] = 'PSI'
-        conv_dict['5MEO'] = '5MEO'
-        conv_dict['6-F-DET'] = '6-F-DET'
-    if classifyDict['label'] == 'LO_all_nSSRI':
+    if classifyDict['label'] == 'LO_6FDET_SSRI':
         conv_dict['PSI'] = 'PSI'
         conv_dict['KET'] = 'KET'
         conv_dict['5MEO'] = '5MEO'
         conv_dict['MDMA'] = 'MDMA'
+        conv_dict['A-SSRI'] = 'A-SSRI'
+        conv_dict['C-SSRI'] = 'C-SSRI'
         conv_dict['SAL'] = 'SAL'
         conv_dict['6-F-DET'] = '6-F-DET'
+    if classifyDict['label'] == 'LO_SSRI':
+        conv_dict['PSI'] = 'PSI'
+        conv_dict['KET'] = 'KET'
+        conv_dict['5MEO'] = '5MEO'
+        conv_dict['MDMA'] = 'MDMA'
+        conv_dict['A-SSRI'] = 'A-SSRI'
+        conv_dict['C-SSRI'] = 'C-SSRI'
+        conv_dict['SAL'] = 'SAL'
+        conv_dict['6-F-DET'] = '6-F-DET'
+    # if classifyDict['label'] == 'LO_all_nSSRI':
+    #     conv_dict['PSI'] = 'PSI'
+    #     conv_dict['KET'] = 'KET'
+    #     conv_dict['5MEO'] = '5MEO'
+    #     conv_dict['MDMA'] = 'MDMA'
+    #     conv_dict['SAL'] = 'SAL'
+    #     conv_dict['6-F-DET'] = '6-F-DET'
         
     if not bool(conv_dict) and classifyDict['label'] != 'drug':
         raise KeyError('No dictionary found for this classification type. Check the label in classify dict is in helperFunctions.create_drugClass_dict')
@@ -143,10 +158,13 @@ def create_translation_dict(dictType='brainArea'):
     if dictType == 'drug':
 
         translation_dict['PSI'] = 'Psilocybin'
+        translation_dict['aPSI'] = 'Psilocybin (B1)'
         translation_dict['KET'] = 'Ketamine'
-        translation_dict['5MEO'] = '5-MeO-DMT'
-        translation_dict['6-F-DET'] = '6-Fluoro-DET'
-        translation_dict['MDMA'] = 'MDMA'
+        translation_dict['aKET'] = 'Ketamine (B1)'
+        translation_dict['cKET'] = 'Ketamine (B3)'
+        translation_dict['5MEO'] = '5-MeO-DMT' #5-MeO-Dimethyltryptamine (5MEO)
+        translation_dict['6-F-DET'] = '6-Fluoro-DET' #6-Flouro-Diethyltryptamine (6-F-DET)
+        translation_dict['MDMA'] = '3,4-MDMA' 
         translation_dict['A-SSRI'] = 'Acute SSRI'
         translation_dict['C-SSRI'] = 'Chronic SSRI'
         translation_dict['SAL'] = 'Saline'
@@ -214,25 +232,12 @@ def agg_cluster(lightsheet_data, classifyDict, dirDict):
     Returns:
     - df_agged: A DataFrame containing the aggregated data.
 
-    This function aggregates the clustered data based on the provided parameters. It takes in the lightsheet_data, which is the input data containing the lightsheet information. The classifyDict parameter is a dictionary that contains the classification parameters. The dirDict parameter is a dictionary that contains the directory information.
+    This function aggregates the clustered data based on the provided parameters. It takes in the lightsheet_data, which is the input data containing the lightsheet information. 
+    The classifyDict parameter is a dictionary that contains the classification parameters. The dirDict parameter is a dictionary that contains the directory information.
 
-    The function performs the following steps:
-    - Imports the required libraries.
-    - Sets up variables for color coding output plots.
-    - Extracts data from the pandas DataFrame.
-    - Plots the original data.
+    The aggregation can be according to 
     - Clusters the data using scipy methods for distance calculations and linkage.
     - Color codes the dendrogram labels based on brain region.
-    - Adds a string below the middle leaf.
-    - Saves the dendrogram plot.
-    - Shows the cluster map.
-    - Generates new features based on clustering.
-    - Assigns new names to features which are clustered.
-    - Saves the new names to a text file.
-    - Plots the aggregated data.
-    - Saves the aggregated data plot.
-    - Checks for multicollinearity.
-    - Returns the aggregated data.
     """
     from sklearn import datasets, cluster, preprocessing, linear_model
     from scipy.spatial import distance
@@ -535,11 +540,10 @@ def conciseStringReport(strings, counts):
 
     return result_string
 
-def modelStrPathGen(clf, dirDict, n_splits, fit):
+def modelStrPathGen(clf, dirDict, n_splits, fit, randSeed):
     # Create a string to represent the model
     # Returns string for plotting and saving model to file.
     import re
-
     from sklearn.base import BaseEstimator
 
     # Create a string to represent the model in figure titles
@@ -570,8 +574,12 @@ def modelStrPathGen(clf, dirDict, n_splits, fit):
 
     modelParamStr = modelParamStr + f"_CV{n_splits}"
 
+    modelParamStr = re.sub(r'\n\s+', '', modelParamStr)
+    modelStr = re.sub(r'\n\s+', '', modelStr)
+
     # use re.sub to remove the random state from the model string
-    modelParamStr2 = re.sub(r', random_state=.*?\)', '', modelParamStr)
+    modelParamStr = re.sub(r',random_state=[^,]*,', f',randStateSeed={randSeed},', modelParamStr)
+    modelStr = re.sub(r',random_state=[^,]*,', f',randStateSeed={randSeed},', modelStr)
 
     tmpDict = dict()
     tmpDict['tempDir_model'] = os.path.join(dirDict['tempDir_data'], modelParamStr)
@@ -659,7 +667,7 @@ def save_string_dict():
     saveStringDict['LogisticRegression('] = 'LogReg('
     saveStringDict["multi_class='multinomial'"] = 'multinom'
     saveStringDict[", solver='saga'"] = ''
-    saveStringDict["\n                   "] = ''
+    saveStringDict["\n\s+"] = ''
 
     return saveStringDict
 
@@ -934,3 +942,67 @@ def collect_shap_values(idx_o, explainers, shap_values_list, baseline_val, n_cla
         baseline_val[idx].append(explainer.expected_value)
 
     return explainers, shap_values_list, baseline_val
+
+def flatten(lst):
+    flattened = []
+    for item in lst:
+        if isinstance(item, list):
+            flattened.extend(flatten(item))  # Recursively flatten if it's a list
+        else:
+            flattened.append(item)
+    return flattened
+
+def generate_region_csv(lightSheetData, dirDict):
+
+    # Save a list of the region_ids to a csv in atlasDir
+    regionList = lightSheetData['Region_ID'].unique()
+
+    # save the regionList to a csv
+    regionList = pd.DataFrame(regionList, columns=['Region_ID'])
+    regionList.to_csv(os.path.join(dirDict['atlasDir'], 'dataRegions.csv'), index=False)
+
+    # Filter to brain region 'cortex'
+    cortexData = lightSheetData[lightSheetData['Brain_Area'] == 'Cortex']
+    regionList = pd.DataFrame(cortexData['Region_ID'].unique(), columns=['Region_ID'])
+    # regionList.to_csv(os.path.join(dirDict['atlasDir'], 'dataRegions_Cortex.csv'), index=False)
+
+def generate_ZscoreStructure(hierarchy_meso_ids, dirDict):
+    #load data
+    all_gene_data = pd.read_csv(os.sep.join([dirDict['atlasDir'], "allGeneStructureInfo_allgenes_summary_struct.csv"]))
+
+    #getting structure averages
+    all_gene_data_clean = all_gene_data.drop(columns=['Unnamed: 0', 'data_set_id', 'plane_of_section_id'])
+    StructureAverages = all_gene_data_clean.groupby(['structure_id','gene_acronym']).mean().reset_index()
+    # StructureAverageDensity = StructureAverage.groupby(['structure_id', 'gene_acronym']).mean().reset_index() # Two tables were identical, double check if done correctly FAQ
+    # StructureAverages = pd.merge(StructureAverageEnergy, StructureAverageDensity)
+
+    #averaging across whole brain
+    all_gene_data_clean = all_gene_data_clean.drop(columns=['structure_id'])
+    GeneAverageEnergy = all_gene_data_clean.groupby('gene_acronym').agg({'expression_energy': ['mean', 'std']}).reset_index()
+    GeneAverageDensity = all_gene_data_clean.groupby('gene_acronym').agg({'expression_density': ['mean', 'std']}).reset_index()
+    GeneAverages = pd.merge(GeneAverageEnergy, GeneAverageDensity)
+
+    #calculate zscore for each brain structure
+    #fresh copy of structure data
+    ZscoreStructure = StructureAverages.copy()
+    ZscoreStructure = ZscoreStructure.merge(GeneAverages, how='left', left_on='gene_acronym', right_on='gene_acronym')
+
+    #rename columns for clarity
+    column_indices = [4,5,6,7]
+    new_names = ['brain_expression_energy_mean','brain_expression_energy_std','brain_expression_density_mean','brain_expression_density_std']
+    old_names = ZscoreStructure.columns[column_indices]
+    ZscoreStructure = ZscoreStructure.rename(columns=dict(zip(old_names, new_names)))
+
+    #calculate zscore with structure/gene average and brain wide gene average/std
+    ZscoreStructure['zscore'] = (ZscoreStructure['expression_energy'] - ZscoreStructure['brain_expression_energy_mean']) / (ZscoreStructure['brain_expression_energy_std'])
+
+    #rename/clean for matching
+    ZscoreStructure = ZscoreStructure.rename(columns={'structure_id':'Region_ID'})
+    # ZscoreStructure = ZscoreStructure.drop(columns=['expression_energy','expression_density','brain_expression_energy_mean','brain_expression_energy_std','brain_expression_density_mean', 'brain_expression_density_std'])
+    ZscoreStructure = ZscoreStructure.drop(columns=['expression_energy','expression_density','brain_expression_energy_mean','brain_expression_energy_std','brain_expression_density_mean', 'brain_expression_density_std'])
+
+    #merge
+    ZscoreStructure = ZscoreStructure.merge(hierarchy_meso_ids, on='Region_ID', how='inner', suffixes=('', '_x'))
+    ZscoreStructure = ZscoreStructure.drop(ZscoreStructure.filter(regex='_x$').columns.tolist(),axis=1)
+
+    return ZscoreStructure

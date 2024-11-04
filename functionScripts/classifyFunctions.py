@@ -156,10 +156,6 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
         for clf in modelList:
 
-            # # Set seed related content
-            # if fit == 'Shuffle':
-            #     y = shuffle(y_orig, random_state=classifyDict['randState'])
-            # else:
             y = y_orig.copy()
 
             # If you want balanced classes, randomly undersample the majority class
@@ -169,7 +165,7 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                 X = X_orig
 
             # Create a strings to represent the model
-            modelStr, saveStr, dirDict = hf.modelStrPathGen(clf, dirDict, cvFxn.n_splits, fit)
+            modelStr, saveStr, dirDict = hf.modelStrPathGen(clf, dirDict, cvFxn.n_splits, fit, classifyDict['randSeed'])
             saveFilePath = dirDict['tempDir_outdata']
 
             # Check if data is already there
@@ -198,11 +194,22 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
                 y_real_lab, y_prob, conf_matrix_list_of_arrays, X_test_trans_list = empty_list
                 selected_features_list, selected_features_params, explainers, scores = empty_list2
                 best_params = dict()
+
+                # Define LO_drug per the classifyDict
+                if 'LO_' in classifyDict['label']:
+                    if classifyDict['label'] == 'LO_6FDET':
+                        LO_drug = ['6-F-DET']
+                    elif classifyDict['label'] == 'LO_6FDET_SSRI':
+                        LO_drug = ['6-F-DET', 'A-SSRI', 'C-SSRI']
+                    elif classifyDict['label'] == 'LO_SSRI':
+                        LO_drug = ['A-SSRI', 'C-SSRI']
+                    else:
+                        raise ValueError(f"{classifyDict['label']} has no LO_drug defined for exclusion. Revise in classifyFunctions.")
                 
                 # Modify to accomodate instances where test set and training set are distinct sizes
                 # Subsequent vectors are loaded with values dictated by the size of the test set
                 if 'LO_' in classifyDict['label']:
-                    vecSize = range(n_classes- len(classifyDict['LO_drug']))
+                    vecSize = range(n_classes- len(LO_drug))
                 else:
                     vecSize = range(n_classes)
 
@@ -218,8 +225,8 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
 
                     if 'LO_' in classifyDict['label']:
                         # Identify the X_train, y_train examples which are within the LO_drug 
-                        bool_vec = np.array([element not in classifyDict['LO_drug'] for element in y_train])
-                        bool_lab_vec = np.array([element not in classifyDict['LO_drug'] for element in YtickLabs])
+                        bool_vec = np.array([element not in LO_drug for element in y_train])
+                        bool_lab_vec = np.array([element not in LO_drug for element in YtickLabs])
                         YtickLabs_train = np.array(YtickLabs.copy())
 
                         # X_train, y_train
@@ -490,11 +497,11 @@ def build_pipeline(classifyDict):
     match classifyDict['model']:
         # Logistic Regression Models
         case 'LogRegL2':
-            classif = linear_model.LogisticRegression(penalty='l2', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter, dual=False)
+            classif = linear_model.LogisticRegression(penalty='l2', random_state=classifyDict['randState'], multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter, dual=False)
         case 'LogRegL1':
-            classif = linear_model.LogisticRegression(penalty='l1', multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter)
+            classif = linear_model.LogisticRegression(penalty='l1', random_state=classifyDict['randState'], multi_class=classifyDict['multiclass'], solver='saga', max_iter=max_iter)
         case 'LogRegElastic':
-            classif = linear_model.LogisticRegression(penalty='elasticnet', multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
+            classif = linear_model.LogisticRegression(penalty='elasticnet', random_state=classifyDict['randState'], multi_class=classifyDict['multiclass'], solver='saga', l1_ratio=0.5, max_iter=max_iter)
             paramGrid['classif__l1_ratio'] = classifyDict['pGrid']['classif__l1_ratio']
         case 'svm': # Does not play well with current SHAP implementation. Would require shap.KernelExplainer instead, which has a different formatting for outputs.
             classif = svm.SVC(C=1, kernel='linear', max_iter=max_iter, probability=True)
@@ -597,7 +604,7 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
         plt.show()
         
     # ================== Sort the data for classification ==================
-    if classifyDict['label'] == 'drug':
+    if classifyDict['label'] in ['drug', 'LO_6FDET'] :
         datasetNames = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
         new_list = [f'{item}{i}' for item in datasetNames for i in range(1, 9)]
         ls_data_agg = ls_data_agg.reindex(new_list)
@@ -617,7 +624,9 @@ def reformat_pandasdf(pandasdf, classifyDict, dirDict):
     if bool(conv_dict):
         # Use the conv_dict to convert the labels, filter the data
         y = np.array([conv_dict.get(item, np.nan) for item in y])
-        labels = np.unique(y)
+        # Extract unique labels from y and preserve the order of their first appearance
+        labels = [s for i, s in enumerate(y) if s not in y[:i]]
+        # labels = np.unique(y)
     else:
         customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
         y = pd.Categorical(y, categories=customOrder, ordered=True)

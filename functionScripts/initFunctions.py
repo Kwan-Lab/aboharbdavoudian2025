@@ -130,6 +130,7 @@ def setPath_createDirs():
     outDirDict = dict()
     outDirDict['debugDir'] = os.sep.join([rootDir, 'Debug'])
     outDirDict['tempDir'] = os.sep.join([rootDir, 'Temp'])
+    outDirDict['geneCorrDir'] = os.sep.join([outDirDict['tempDir'], 'geneCorr'])
     outDirDict['outDir'] = os.sep.join([rootDir, 'Output'])
     outDirDict['classifyDir'] = os.sep.join([outDirDict['outDir'], 'classif'])
     outDirDict['crossComp_figDir'] = os.sep.join([outDirDict['outDir'], 'crossComp'])
