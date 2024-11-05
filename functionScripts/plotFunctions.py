@@ -169,8 +169,8 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict, ld
     if not ldaDict:
         # Full set is used for training and testing
         analysisNames = 'All'
-        trainSets = [df_Tilted.y_vec.unique()]
-        testSets = [df_Tilted.y_vec.unique()]
+        trainSets = [set(df_Tilted.y_vec.unique())]
+        testSets = [set(df_Tilted.y_vec.unique())]
     else:
         # Create a paired list of training sets and testing sets. 
         analysisNames = list(ldaDict.keys())
@@ -212,8 +212,7 @@ def plotLowDimEmbed(pandasdf, column2Plot, dirDict, dimRedMeth, classifyDict, ld
             resortIdx = [1, 2, 3, 0, 4, 5, 6, 7]
             dimRedDrugMean = dimRedDrugMean.iloc[resortIdx]
 
-        # if pipelineList[2][1].n_components > 1:
-        if testSet == trainSet:
+        if trainSet == testSet:
             pairs = list(combinations(range(n_comp), 2))
             for comp_pair in pairs:
                 col1 = colNames[comp_pair[0]]
@@ -1474,24 +1473,21 @@ def plot_histogram(data, dirDict):
     plt.savefig(os.sep.join([dirDict['outDir_model'], "featureCountHist.svg"]), format='svg', bbox_inches='tight')          
     plt.show()
 
-def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, colorsList, dirDict):
+def plot_cross_model_AUC(scoreNames, aucScores, aucScrambleScores, dirDict):
     import matplotlib.pyplot as plt
     plt.rcParams['svg.fonttype'] = 'none'
 
-    plt.figure(figsize=(1.9, 1.9))  # Adjust the width and height as needed
+    # Color palette
+    colorsList = [[100, 100, 100], [180, 180, 180]]
+    colorsList = np.array(colorsList)/256
 
-    # Replace instances of '/' with ' & ' in the score names
-    scoreNames = [score.replace('/', ' & ') for score in scoreNames]
+    plt.figure(figsize=(1.9, 1.9))  # Adjust the width and height as needed
 
     plt.barh(scoreNames, aucScores, label='Data', color=colorsList[0])
     plt.barh(scoreNames, aucScrambleScores, label='Shuffled', color=colorsList[1])
 
-    # Add legend
-    # plt.legend()
-
     # Set labels and title,
-    plt.xlabel('Mean Area Under Precision-Recall Curve')
-    plt.ylabel('Classifier')
+    plt.xlabel('Mean Precision-Recall AUC')
 
     for index, value in enumerate(aucScores):
         percentage_text = '{:.0%}'.format(value)  # Format the value as a percentage
@@ -1608,15 +1604,18 @@ def plot_featureCount_violin(scoreNames, featureLists, dirDict):
     colorsList = [[82, 211, 216], [56, 135, 190]]
     colorsList = np.array(colorsList)/256
 
-    scoreNames = [score.replace('/', ' & ') for score in scoreNames]
-    for idx, scoreName in enumerate(scoreNames):
-        strParts = scoreName.split()
-        scoreNames[idx] = strParts[2] + ' vs ' + strParts[0]
-        if idx == 4:
-            break
+    # for idx, scoreName in enumerate(scoreNames):
+    #     strParts = scoreName.split()
+    #     scoreNames[idx] = strParts[2] + ' vs ' + strParts[0]
+    #     if idx == 4:
+    #         break
 
     # Your list of lists (sublists with numbers)
     data = [[len(sublist) for sublist in inner_list] for inner_list in featureLists]
+
+    # Reverse the order of the data and scoreNames
+    data = data[::-1]
+    scoreNames = scoreNames[::-1]
 
     df = pd.melt(pd.DataFrame(data, index=scoreNames).T, var_name='Category', value_name='Values')
 
@@ -1738,9 +1737,11 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
     # Current Mode: Create plot with colorbar, then without, and grab the svg item and place it in the second plot to ensure even spacing
     # Creates the heatmap for the data
 
+    scoreNames = scoreNames[::-1]
+    featureLists = featureLists[::-1]
+
     # Set variables
     dataFeature = 'abbreviation'
-    blockCount = 2
     plt.rcParams['font.size'] = 6
     plt.rcParams['xtick.labelsize'] = 6
     plt.rcParams['ytick.labelsize'] = 6
@@ -1749,7 +1750,6 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
 
     # Create a sorted structure from the data for scaffolding the desired heatmap
     brainAreaColorDict = hf.create_color_dict(dictType='brainArea', rgbSwitch=0)
-    brainAreaPlotDict = hf.create_brainArea_dict('short')
     regionArea = hf.create_region_to_area_dict(df_raw, 'abbreviation')
     regionArea['Region_Color'] = regionArea['Brain_Area'].map(brainAreaColorDict)
 
@@ -1782,17 +1782,6 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
     df_plot = df_plot.loc[regionArea[dataFeature]]
     modelCount = len(df_plot.columns)
 
-    # Create indicies for dividing the data into the correct number of sections regardless of the size
-    row_idx_set = np.zeros((blockCount, 2), dtype=int)
-    indices = np.linspace(0, len(df_plot), num=blockCount+1, dtype=int)
-    for block_idx in range(blockCount):
-        row_idx_set[block_idx][0] = indices[block_idx]
-        row_idx_set[block_idx][1] = indices[block_idx+1]
-
-    # Hand change to make Cortex 1st block, Thal 2nd
-    row_idx_set[0,1] = 20
-    row_idx_set[1,0] = 20
-
     # merge df_plot and regionArea, moving the Brain_Area_Idx and Brain_Area columns to df_plot
     df_plot_combo = df_plot.merge(regionArea, left_index=True, right_on=dataFeature)
 
@@ -1809,18 +1798,10 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
     # Resort the data
     df_plot = df_plot_combo.reindex(newIdx, axis=0)
     df_plot = df_plot.set_index('abbreviation')
-    df_plot = df_plot.drop(columns=['Brain_Area_Idx', 'Brain_Area'])
+    df_plot = df_plot.drop(columns=['Brain_Area_Idx'])
 
     # Drop the columns which do not include the string 'PSI'
-    df_plot = df_plot.loc[:, df_plot.columns.str.contains('PSI')]
-
-    # Update the column names to have 'PSI' in front.
-    origcolNames = df_plot.columns
-    colNames = [x.split(' vs ') for x in df_plot.columns]
-    newColNames = [f'{x[1]} vs {x[0]}' for x in colNames]
-    newColNames[-1], newColNames[-2] = origcolNames[-1], origcolNames[-2]
-    newColNames = [x.replace('/', ' & ') for x in newColNames]
-    df_plot.columns = newColNames
+    df_plot = df_plot.loc[:, df_plot.columns.str.contains('PSI') | (df_plot.columns == 'Brain_Area')]
 
     # Plotting variables
     formatter = tkr.ScalarFormatter(useMathText=True)
@@ -1829,70 +1810,46 @@ def plot_featureHeatMap(df_raw, scoreNames, featureLists, filterByFreq, dirDict)
 
     colorbar = [False, True]
     axes = []
+    regionSet = ['Cortex', 'Thalamus']
 
-    for cbs in colorbar:
+    for idx, regionName in enumerate(regionSet):
 
-        # fig, axes = plt.subplots(1, blockCount, figsize=(figW, figH))  # Adjust figsize as needed
+        # Slice and modify previous structures to create segment
+        df_plot_seg = df_plot[df_plot.Brain_Area == regionName].drop(columns=['Brain_Area'])
 
-        if blockCount == 1:
-            axes = [axes]
+        # Sort by highest sum of row
+        df_plot_seg = df_plot_seg.loc[df_plot_seg.sum(axis=1).sort_values(ascending=False).index]
 
-        for idx, row_set in enumerate(row_idx_set):
+        matrix = df_plot_seg.values
 
-            # Slice and modify previous structures to create segment
-            df_plot_seg = df_plot.iloc[row_set[0]: row_set[1], :]
-            regionArea_local = regionArea[regionArea[dataFeature].isin(df_plot_seg.index)]
-            region_idx = regionArea_local.Brain_Area_Idx  # Extract for horizontal lines in plot later.
+        xticklabels = df_plot_seg.columns.values.tolist()
+        yticklabels = df_plot_seg.index.values.tolist()
 
-            # Sort by highest sum of row
-            df_plot_seg = df_plot_seg.loc[df_plot_seg.sum(axis=1).sort_values(ascending=False).index]
+        figwidth = len(xticklabels)*0.1433
+        figheight = len(yticklabels)*0.1433
 
-            matrix = df_plot_seg.values
+        f = plt.figure(figsize=(figwidth, figheight))  # Adjust the width and height as needed
+        ax = f.add_subplot(111)
+        axes.append(ax)
 
-            xticklabels = df_plot_seg.columns.values.tolist()
-            yticklabels = df_plot_seg.index.values.tolist()
+        heatmap = sns.heatmap(matrix, cmap='crest', ax=axes[idx] , fmt='.2f', cbar = False, square=True, yticklabels=yticklabels, xticklabels=xticklabels, cbar_kws={"format": formatter}, center=0, linewidths=0.5, linecolor='black')
+        axes[idx].tick_params(left=True, bottom=True, width=0.5, length=2)
 
-            figwidth = len(xticklabels)*0.1433
-            figheight = len(yticklabels)*0.1433
+        # Rotate the xticklabels 45 degrees
+        axes[idx].set_xticklabels(axes[idx].get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
 
-            f = plt.figure(figsize=(figwidth, figheight))  # Adjust the width and height as needed
-            ax = f.add_subplot(111)
-            axes.append(ax)
+        # if cbs:
+        #     cbar = heatmap.figure.colorbar(heatmap.collections[0], ax=axes[idx], location='right', use_gridspec=True, pad=0.05)
+        #     cbar.set_label('Feature Count', rotation=270, labelpad=5)
+        #     cbar.ax.yaxis.set_major_formatter(formatter)
 
-            heatmap = sns.heatmap(matrix, cmap='crest', ax=axes[idx] , fmt='.2f', cbar = False, square=True, yticklabels=yticklabels, xticklabels=xticklabels, cbar_kws={"format": formatter}, center=0, linewidths=0.5, linecolor='black')
-            horzLineColor = 'black'
-            axes[idx].tick_params(left=True, bottom=True, width=0.5, length=2)
-
-            # Rotate the xticklabels 45 degrees
-            axes[idx].set_xticklabels(axes[idx].get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
-
-            if cbs:
-                cbar = heatmap.figure.colorbar(heatmap.collections[0], ax=axes[idx], location='right', use_gridspec=True, pad=0.05)
-                cbar.set_label('Feature Count', rotation=270, labelpad=5)
-                cbar.ax.yaxis.set_major_formatter(formatter)
-
-            # Add in horizontal lines breaking up brain regions types.
-            line_break_num, line_break_ind = np.unique(region_idx, return_index=True)
-            for l_idx in line_break_ind[1:]:
-                axes[idx].axhline(y=l_idx, color=horzLineColor, linewidth=1)
-
-            titleStr = f"FeatureCountHeatmap"  
-            # plt.tight_layout(h_pad = 0, w_pad = .5)
-
-            plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"{titleStr}_cb_{cbs}_{idx}.svg"]), format='svg', bbox_inches='tight')
-            plt.show()
+        plt.savefig(os.sep.join([dirDict['crossComp_figDir'], f"FeatureCountHeatmap_{regionName}.svg"]), format='svg', bbox_inches='tight')
+        plt.show()
 
 def sortShap(shap_values_list, regionSet):
     max_value = 0  # Initialize max_value to store the maximum value
     min_value = float('inf')  # Initialize min_value to store the minimum value
-    max_index = None  # Initialize max_index to store the corresponding index in shap_values_list
-    min_index = None  # Initialize min_index to store the corresponding index in shap_values_list
-    max_row_index = None  # Initialize max_row_index to store the index of the row with the maximum values
-    min_row_index = None  # Initialize min_row_index to store the index of the row with the minimum values
-
     idxList = []
-
-    normalizedVals = []
     databaseIdx = pd.DataFrame(index=np.arange(0, len(shap_values_list)), columns=['normVal'])
 
     for idx, shap_val_tab in enumerate(shap_values_list):
@@ -1920,10 +1877,6 @@ def sortShap(shap_values_list, regionSet):
         current_min_value = row_sums.min()
         if current_min_value < min_value:
             min_value = current_min_value
-            min_index = idx
-            min_row_index = row_sums.idxmin()
-
-    max_index = idxList[-1]
 
     return databaseIdx
 

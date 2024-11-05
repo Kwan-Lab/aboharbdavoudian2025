@@ -808,6 +808,9 @@ def retrieve_dict_data(dirDict, classifyDict):
     targDir = dirDict['classifyDir']
     tagList = classifyDict['crossComp_tagList']
 
+    # Report what is being looked for
+    print(f"Looking for 'scoreDict.pkl' files in directories containing {tagList}")
+
     # Call the function and get the list of paths based on the tagList
     score_dict_paths = []
 
@@ -880,8 +883,8 @@ def sort_comparison_idx(orderedList, dataList):
     # dataList - a list representing the sequence of comparison data in data structures
     # function returns an index which resorts dataList and associated structures into the order in Ordered List
 
-    orderedList = [name for name in orderedList if name in dataList]
-    sort_indices = [dataList.index(name) for name in orderedList]
+    orderedListNew = [name for name in orderedList if name in dataList]
+    sort_indices = [dataList.index(name) for name in orderedListNew]
 
     return sort_indices
 

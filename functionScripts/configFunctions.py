@@ -138,18 +138,6 @@ def setup_LDA_settings():
 
     })
 
-    
-    # plt.rcParams['xtick.major.size'] = 10  # Length of major ticks on x-axis
-    # plt.rcParams['ytick.major.size'] = 10  # Length of major ticks on y-axis
-    # plt.rcParams['xtick.minor.size'] = 5   # Length of minor ticks on x-axis
-    # plt.rcParams['ytick.minor.size'] = 5   # Length of minor ticks on y-axis
-
-    # plt.rcParams['xtick.major.width'] = 2  # Thickness of major ticks on x-axis
-    # plt.rcParams['ytick.major.width'] = 2  # Thickness of major ticks on y-axis
-    # plt.rcParams['xtick.minor.width'] = 1  # Thickness of minor ticks on x-axis
-    # plt.rcParams['ytick.minor.width'] = 1  # Thickness of minor ticks on y-axis
-
-
     # Set all the font sizes
     plt.rcParams['xtick.labelsize'] = plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
     plt.rcParams['axes.labelsize'] = plt.rcParams['legend.fontsize'] = plt.rcParams['axes.titlesize'] = 7 
@@ -307,7 +295,7 @@ def return_classifyDict_default():
 
     classifyDict['featurePert'] = 'correlation_dependent' # 'interventional' or 'correlation_dependent'
 
-    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", f"clf_LogReg(multinom)_CV{classifyDict['CV_count']}"]
+    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", "clf_LogReg(multinom", f"_CV{classifyDict['CV_count']}"]
 
     return classifyDict
 
@@ -316,9 +304,12 @@ def return_classifyDict_testing():
     
     # For rapid testing of classifier code
     classifyDict['model_featureSel'] = 'Univar' # 'Univar', 'mutInfo', 'RFE', 'MRMR', 'Fdr', 'Fwe_BH', 'Fwe', 'Boruta', 'None'
-    classifyDict['CV_count'] = 25 # Number of folds for cross-validation
+    classifyDict['CV_count'] = 20 # Number of folds for cross-validation
     classifyDict['featurePert'] = 'interventional' # 'interventional' or 'correlation_dependent'
     classifyDict['saveLoadswitch'] = True
+
+    # Regenerate this.
+    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", "clf_LogReg(multinom", f"_CV{classifyDict['CV_count']}"]
 
     return classifyDict
 

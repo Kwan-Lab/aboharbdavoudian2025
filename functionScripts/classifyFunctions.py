@@ -338,19 +338,19 @@ def classifySamples(pandasdf, classifyDict, plotDict, dirDict):
             # Use remove_idx to filter y_real_lab
 
             # PR Curve - save the results in a dict for compiling into a bar plot.
-            # auc_dict = pf.plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, YtickLabs, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
+            auc_dict = pf.plotPRcurve(n_classes, y_real_lab, y_prob, labelDict, YtickLabs, modelStr, plotDict['plot_PRcurve'], fit, dirDict)
 
             # Create a structure which saves results for plotting elsewhere.
-            # score_dict = dict()
-            # score_dict['auc'] = auc_dict
-            # score_dict['scores'] = scores
-            # score_dict['featuresPerModel'] = selected_features_list
-            # score_dict['compLabel'] = ' vs '.join(labelDict.keys())
+            score_dict = dict()
+            score_dict['auc'] = auc_dict
+            score_dict['scores'] = scores
+            score_dict['featuresPerModel'] = selected_features_list
+            score_dict['compLabel'] = ' vs '.join(labelDict.keys())
 
-            # # Save
-            # dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
-            # with open(dictPath, 'wb') as f:
-            #     pkl.dump(score_dict, f)
+            # Save
+            dictPath = os.path.join(dirDict['outDir_model'], f'scoreDict_{fit}.pkl')
+            with open(dictPath, 'wb') as f:
+                pkl.dump(score_dict, f)
 
             # # Shape data into a table for correlation
             if plotDict['featureCorralogram']:
