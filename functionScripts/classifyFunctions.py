@@ -29,7 +29,7 @@ from numbers import Real
 from sklearn.utils._param_validation import Interval
 from sklearn.utils.validation import check_is_fitted
 
-from mrmr import mrmr_classif
+# from mrmr import mrmr_classif
 from boruta import BorutaPy
 from imblearn.under_sampling import RandomUnderSampler
 
@@ -475,8 +475,9 @@ def build_pipeline(classifyDict):
         case 'Boruta':
             featureSelMod = BorutaFeatureSelector(feature_sel='all', random_state=classifyDict['randState'], random_seed=classifyDict['randSeed'], n_workers=-1)
         case 'MRMR':
-            featureSelMod = MRMRFeatureSelector(n_features_to_select=30)
-            fsVar = 'n_features_to_select'
+            raise ValueError('MRMR not currently supported on CodeOcean.')
+            # featureSelMod = MRMRFeatureSelector(n_features_to_select=30)
+            # fsVar = 'n_features_to_select'
         case 'Univar':
             featureSelMod = SelectKBest(score_func=f_classif, k='all')
             fsVar = 'k'

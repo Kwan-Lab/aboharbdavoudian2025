@@ -1677,12 +1677,6 @@ def plot_featureCount_violin(scoreNames, featureLists, dirDict):
     colorsList = [[82, 211, 216], [56, 135, 190]]
     colorsList = np.array(colorsList)/256
 
-    # for idx, scoreName in enumerate(scoreNames):
-    #     strParts = scoreName.split()
-    #     scoreNames[idx] = strParts[2] + ' vs ' + strParts[0]
-    #     if idx == 4:
-    #         break
-
     # Your list of lists (sublists with numbers)
     data = [[len(sublist) for sublist in inner_list] for inner_list in featureLists]
 
