@@ -7,8 +7,6 @@ from math import isnan
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
-import helperFunctions as hf
-
 
 def compareAnimals(lightsheetDB, drugA, drugB, compColumn, dirDict):
     # code which will create a grid of plots comparing individual animals.
@@ -101,7 +99,6 @@ def drug_stats_and_changes(databaseFrame, drugList, salSwitch):
     # Identify drugs in the dataset
 
     drugCount = len(drugList)
-    uniquePairCt = drugCount * (drugCount - 1) // 2
 
     drugDataFrames = np.empty(drugCount, dtype=object)
     drugStatsAll = np.empty(drugCount, dtype=object)
@@ -312,66 +309,49 @@ def gen_gene_corr(cfos_x_genes, splitTag, drugListActive, regionSet, dirDict):
     # list_of_genes = list_of_genes[0:100]
 
     gene_count = len(list_of_genes)
-    gene_drug_corr = np.empty([len(drugListActive), len(regionSet)], dtype=object)
 
-    for set_i, set_name in enumerate(regionSet):
-        for drug_i, drug in enumerate(drugListActive):
+    for set_name in regionSet:
+        for drug in drugListActive:
 
             all_correlations = np.empty([gene_count])
             tempDataFilename = os.path.join(dirDict['geneCorrDir'], f'{drug}_{set_name}_corr_db.h5')
 
+            # If the file exists, skip
             if os.path.exists(tempDataFilename):
                 print(f'{set_name} {drug} already generated...')
-
-                # Load previous saved file
-                # all_correlations = pd.read_pickle(tempDataFilename)
+                continue
                 
+            print(f'Processing {set_name} {drug}...')
+            
+            if drug[0] == splitTag[0]:
+                drugCol = drug + '-' + 'aSAL'
             else:
-                print(f'Processing {set_name} {drug}...')
-                
-                if drug[0] == splitTag[0]:
-                    drugCol = drug + '-' + 'aSAL'
+                drugCol = drug + '-SAL'
+
+            # Based on the desired comparison, use different datasets
+            if set_name == 'Whole':
+                cfos_data_genes = cfos_x_genes.copy()
+            elif set_name in brainAreaList:
+                cfos_data_genes = cfos_x_genes[cfos_x_genes['Brain Area'] == set_name].copy()
+            else:
+                raise ValueError('Invalid region set name. Make sure to match case of Brain Area')
+
+            # Iterate across genes, finding correlations
+            grouped_data = cfos_data_genes.groupby('gene_acronym')
+
+            for gene_i, gene in enumerate(tqdm(list_of_genes)):
+                if gene in grouped_data.groups:  # Check if gene exists in the grouped data
+                    cfos_x_genes_of_interest = grouped_data.get_group(gene)
+                    correlation = cfos_x_genes_of_interest['zscore'].corr(cfos_x_genes_of_interest[drugCol])
+                    all_correlations[gene_i] = correlation
                 else:
-                    drugCol = drug + '-SAL'
+                    all_correlations[gene_i] = None  # If gene doesn't exist, store None or other placeholder
 
-                # Based on the desired comparison, use different datasets
-                if set_name == 'Whole':
-                    cfos_data_genes = cfos_x_genes.copy()
-                elif set_name in brainAreaList:
-                    cfos_data_genes = cfos_x_genes[cfos_x_genes['Brain Area'] == set_name].copy()
-                elif set_name == 'Top_25':
-                    cfos_data_genes = cfos_x_genes.copy()
-                elif set_name == 'Cortex_Top_25':
-                    cfos_data_genes = cfos_x_genes[cfos_x_genes['Brain Area'] == 'Cortex'].copy()
-                else:
-                    raise ValueError('Invalid region set name. Make sure to match case of Brain Area')
+            all_correlations = pd.DataFrame(np.column_stack((list_of_genes, all_correlations)), columns=['gene', drug + ' correlation'])
 
-                # Iterate across genes, finding correlations
-                grouped_data = cfos_data_genes.groupby('gene_acronym')
+            colData = all_correlations[drug + ' correlation']
+            all_correlations['percentile'] = colData.rank(pct = True)
+            all_correlations = all_correlations.sort_values(by=['percentile'], ascending=False)
 
-                for gene_i, gene in enumerate(tqdm(list_of_genes)):
-                    if gene in grouped_data.groups:  # Check if gene exists in the grouped data
-                        cfos_x_genes_of_interest = grouped_data.get_group(gene)
-                        # Vectorized correlation computation
-
-                        if 'Top_25' in set_name:
-                            zScoreThres = np.percentile(cfos_x_genes_of_interest.zscore, 75)
-                            cfos_x_genes_of_interest = cfos_x_genes_of_interest[cfos_x_genes_of_interest.zscore >= zScoreThres]
-
-                        correlation = cfos_x_genes_of_interest['zscore'].corr(cfos_x_genes_of_interest[drugCol])
-                        all_correlations[gene_i] = correlation
-                    else:
-                        all_correlations[gene_i] = None  # If gene doesn't exist, store None or other placeholder
-
-                all_correlations = pd.DataFrame(np.column_stack((list_of_genes, all_correlations)), columns=['gene', drug + ' correlation'])
-
-                colData = all_correlations[drug + ' correlation']
-                all_correlations['percentile'] = colData.rank(pct = True)
-                all_correlations = all_correlations.sort_values(by=['percentile'], ascending=False)
-
-                # Save for later use
-                all_correlations.to_pickle(tempDataFilename)  
-                
-            # gene_drug_corr[drug_i, set_i] = all_correlations
-    
-    # return gene_drug_corr
+            # Save for plotting later
+            all_correlations.to_pickle(tempDataFilename)  

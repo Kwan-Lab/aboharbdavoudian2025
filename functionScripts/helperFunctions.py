@@ -379,8 +379,8 @@ def create_region_to_area_dict(lightsheet_data, dataFeature):
     # Determines index and eventual sorting of brain areas. 
     AreaIdx = dict(zip(brainAreas, np.arange(len(brainAreas))))
 
-    colList = [dataFeature, 'Brain_Area']
-    regionArea = lightsheet_data.loc[:, colList]
+    dataFeature.append('Brain_Area')
+    regionArea = lightsheet_data.loc[:, dataFeature]
     regionArea.drop_duplicates(inplace=True)
     regionArea['Brain_Area_Idx'] = [AreaIdx[x] for x in regionArea.loc[:, 'Brain_Area']]
     regionArea.sort_values(by='Brain_Area_Idx', inplace=True)

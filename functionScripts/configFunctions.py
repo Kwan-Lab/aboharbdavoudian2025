@@ -212,6 +212,42 @@ def setup_Confmatrix_settings():
 
     return
 
+def setup_saldiff_settings():
+    """
+    Set up matplotlib and seaborn figure settings to improve readability and consistency.
+    """
+    import matplotlib as plt
+    import seaborn as sns
+
+    # Set global font size
+    plt.rcParams['font.size'] = 4
+
+    # Set seaborn style and remove axis spines
+    sns.set_style('ticks')
+    sns.despine()
+
+    # Set matplotlib settings
+    plt.rcParams.update({
+        'font.family': 'Helvetica',
+        'svg.fonttype': 'none',
+        'savefig.dpi': 300,
+        'figure.dpi': 300,
+        'xtick.major.pad': 2,
+        'ytick.major.pad': 0.5,
+        'axes.labelpad': 0,
+        'legend.frameon': False,
+        'legend.loc': 'upper right',
+        'figure.frameon': False,
+        'axes.linewidth': 0.75,
+        'legend.markerscale': 1,
+        'savefig.format': 'svg',
+    })
+
+    # Set all the font sizes
+    plt.rcParams['xtick.labelsize'] = plt.rcParams['ytick.labelsize'] = plt.rcParams['axes.titlesize'] = plt.rcParams['axes.labelsize'] = plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
+
+    return
+
 def setup_figure_changeFonts(fontSize):
     """
     Set up matplotlib and seaborn figure settings to improve readability and consistency.
@@ -328,10 +364,8 @@ def cFos_mRNA_corr_settings():
     # Create a dictionary displaying which genes are relevant to each drug in the set
     geneDict['PSI'] = [set_5HT, set_NMDA, set_Norad]
     geneDict['5MEO'] = [set_5HT, set_NMDA, set_Norad]
-    # geneDict['A-SSRI'] = set_5HT
-    # geneDict['C-SSRI'] = set_5HT
-    geneDict['6-F-DET'] = [set_5HT, set_NMDA, set_Norad]
-    # geneDict['KET'] = set_NMDA
+    geneDict['KET'] = [set_5HT, set_NMDA, set_Norad]
+    # geneDict['6-F-DET'] = [set_5HT, set_NMDA, set_Norad]
     geneDict['MDMA'] = [set_5HT, set_NMDA, set_Norad]
     setName = ['Serotonin receptors', 'Glutamate receptors', 'Transporters']
 

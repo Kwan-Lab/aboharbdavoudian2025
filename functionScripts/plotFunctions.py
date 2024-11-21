@@ -994,6 +994,79 @@ def plot_cFos_delta(cfos_diff, drugList, fileOutName):
 
     fig = plt.savefig(fileOutName, bbox_inches='tight')
 
+
+def plot_cFos_delta_new(lightsheet_data, cfos_diff, cfos_diff_labels, drugList, fileOutName):
+
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import pandas as pd
+
+    data_melted = pd.DataFrame()
+    for data, label in zip(cfos_diff, cfos_diff_labels):
+        # Melt data for plotting and specify color
+        dataMelt = pd.melt(data, id_vars=['Region_Name'], value_vars=label, var_name='Drug', value_name='Change')
+        data_melted = pd.concat([data_melted, dataMelt], ignore_index=True, sort=False)
+
+    # Focus on the comparisons involving SAL condition
+    drugDataMelt = data_melted[data_melted.Drug.str.contains('SAL')]
+    drugDataMelt['Drug'] = drugDataMelt['Drug'].str.replace('-SAL', '')
+
+    # Testing - leave only KET and PSI
+    drugDataMelt = drugDataMelt[drugDataMelt['Drug'].isin(['KET', 'PSI', '5MEO'])]
+
+    # Generate the dictionary for region_name to brain_area
+    brainAreaColorDict = hf.create_region_to_area_dict(lightsheet_data, ['Region_Name', 'Region_ID'])
+
+    # merge the brainAreaColorDict with the drugDataMelt
+    drugDataMelt = drugDataMelt.merge(brainAreaColorDict, left_on='Region_Name', right_on='Region_Name')
+
+    # Switch drugs to categorical variables
+    drugDataMelt['Drug'] = pd.Categorical(drugDataMelt['Drug'], categories=['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL'], ordered=True)
+    palette = hf.create_color_dict(dictType='drug')
+                      
+    # Cycle through brainAreas, filter drugDataMelt, and plot
+    # for brainArea in brainAreas:
+
+    # brainAreadata = drugDataMelt[drugDataMelt['Brain_Area'] == brainArea].sort_index()
+    brainAreadata = drugDataMelt.sort_index()
+    regionCount = brainAreadata.Region_Name.unique().shape[0]
+    
+    # Identify the index for the supraoptic nucleus
+    supraoptic_idx = brainAreadata[brainAreadata['Region_Name'] == 'Supraoptic nucleus'].index[0]
+    plot_idx_set = [[0, supraoptic_idx], [supraoptic_idx, len(brainAreadata)]]
+    
+    # Create a figure with two columns
+    # fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(5, regionCount*0.05), sharey=True)
+
+    for plot_idx, data_idx in enumerate(plot_idx_set):
+
+        plt.figure(figsize=(1.5, regionCount*0.03))
+
+        # Plot in the first column
+        ax = sns.pointplot(y='Region_Name', x='Change', data=brainAreadata.iloc[data_idx[0]:data_idx[1]], errorbar=('ci', 95), legend=False,
+                      join=False, units=16, errwidth=0.5, hue='Drug', palette=palette, dodge=0.4, scale=0.25)
+
+        # Limit the x axis to 500
+        lowLim = -100
+        upperLim = min(ax.get_xlim()[1], 1000)
+        ax.set_xlim(lowLim, upperLim)
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0)
+        plt.title(f'cFos Density Change', fontsize=10)
+
+        # Cleanup
+        sns.despine()
+        ax.set_xlabel('cFos density change (%)')
+        # axes[ax_idx].set_ylabel('')
+
+        ax.axvline(x=0, color='grey', linestyle='--', lw=0.5)
+        # plt.title(f'{brainArea} - cFos Density Change', fontsize=5)
+        
+
+        # plt.savefig(f'{fileOutName}_{brainArea}_Limited.png', bbox_inches='tight')
+        plt.savefig(f'{fileOutName}_{plot_idx}_Limited.png', bbox_inches='tight')
+        # plt.savefig(f'{fileOutName}_{plot_idx}.png', bbox_inches='tight')
+        plt.show()
+
 ### Classification based plots
 def plotConfusionMatrix(scores, YtickLabs, conf_matrix_list_of_arrays, fit, titleStr, dirDict):
 
