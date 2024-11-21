@@ -2,10 +2,9 @@
 import glob
 import pickle as pkl
 import numpy as np
-import os, sys, re, glob
+import os, sys, re, glob, vedo
 from brainrender import Scene
-from vedo import embedWindow, Plotter, show  # <- this will be used to render an embedded scene 
-from itkwidgets import view
+# from itkwidgets import view
 import pandas as pd
 from brainrender.video import VideoMaker
 from brainrender.camera import set_camera
@@ -13,11 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 plt.rcParams['font.family'] = 'Helvetica'
-plt.rcParams['font.size'] = 8
+plt.rcParams['font.size'] = 6
 plt.rcParams['svg.fonttype'] = 'none'
-
-# Set if you just want text
-justLabels = False
 
 # Set appropriate directories
 helpFxnPath = 'C:\\OneDrive\\KwanLab\\Lightsheet_cFos_Pipeline\\functionScripts\\'      # Folder where helper functions are
@@ -31,12 +27,16 @@ import helperFunctions as hf
 # Set parameters
 outMode = 'still' # still, vid
 labelsFlag = False # Adds Brainrender native labels. Creates seperate svgs for labels if false.
+justLabels = True # Set if you just want text
+
+# For pop up
+vedo.settings.default_backend= 'vtk'
 
 # Set camera parameters
 cameraScreenshot = {
     'pos': (4284, -2674, 26722),
     'viewup': (0, -1, 0),
-    'clippingRange': (26768, 57715),
+    'clipping_range': (26768, 57715),
     'focalPoint': (3678, 4091, -6418),
     'distance': 33828,
 }
@@ -45,7 +45,7 @@ cameraScreenshot = {
 cameraScreenshotLaptop = {
     'pos': (5084, -2583, 26726),
     'viewup': (0, -1, 0),
-    'clippingRange': (19255, 50998),
+    'clipping_range': (19255, 50998),
     'focalPoint': (4478, 4182, -6413),
     'distance': 33828,
 }
@@ -53,7 +53,7 @@ cameraScreenshotLaptop = {
 cameraVid = {
     'pos': (34302, -11155, 20007),
     'viewup': (0, -1, 0),
-    'clippingRange': (20102, 68096),
+    'clipping_range': (20102, 68096),
     'focalPoint': (5059, 3895, -6370),
     'distance': 42158,
 }
@@ -92,17 +92,12 @@ for csv_path in matching_files:
 
     if not justLabels:
 
-        embedWindow(None)  # <- this will make your scene popup
-
-        # popup_scene = Scene(title=pltTitle)
         popup_scene = Scene()
 
         if labelsFlag:
             labelTag = '_labels'
         else:
             labelTag = ''
-
-        # popup_scene.slice("sagittal")
 
         for region, regCol in zip(regionList, regionColor):
             actorObj = popup_scene.add_brain_region(region, color=regCol) #, alpha=alph, color='b'
@@ -137,11 +132,11 @@ for csv_path in matching_files:
         fig, ax = plt.subplots()
 
         for i, drugText in enumerate(drugColorDict.keys()):
-            ax.text(0, 0.3 + (i*0.1), drugText, ha='center', va='center', color=drugColorDict[drugText], fontsize=16, fontweight='bold', linespacing=1.5)
+            ax.text(0, 0.3 + (i*0.1), drugText, ha='center', va='center', color=drugColorDict[drugText], linespacing=1.5)
 
         # Iterate through the lists and plot text with color
         for i, (color, text) in enumerate(zip(regionColor, regionList)):
-            ax.text(0, 1.1 - (i*0.05), text, ha='center', va='center', color=color, fontsize=16, fontweight='bold', linespacing=1.5)
+            ax.text(0, 1.1 - (i*0.05), text, ha='center', va='center', color=color, linespacing=1.5)
 
         # Remove axes
         ax.axis('off')

@@ -8,7 +8,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import time
-
+import helperFunctions as hf
 
 def loadLightSheetData(dirDict, switchDict):
     # A function which loads lightsheet data from specifiied files.
@@ -18,29 +18,180 @@ def loadLightSheetData(dirDict, switchDict):
     startTime = time.time()
 
     # Create a path for the intermediate to be saved. If it is present, load it. If not, create it.
+    intFile = os.sep.join([dirDict['tempDir'], 'lightsheet_all.pkl'])
 
-    intFile = dirDict['tempDir'] + 'lightSheet_all.pkl'
+    if not os.path.exists(intFile):
 
-    if 1: #not os.path.exists(intFile):
+        # Load batch 1        
+        lightSheet_B1 = load_lightsheet_batchCSV(dirDict, switchDict, 'B1')
 
-        ############## Batch 1 ##############
-        # Merging first Batch of Light sheet data
+        # Load batch 2        
+        excelfilePath_B2 = os.sep.join([dirDict['B2'], 'AlexKwan_40brainproject_NeuNcFos 642 density_V2.xlsx'])
+        lightSheet_B2 = load_lightsheet_excel(excelfilePath_B2, dirDict, switchDict, 'B2')
+
+        # Load batch 3
+        excelfilePath_B3 = os.sep.join([dirDict['B3'], 'density channel 642.xlsx'])
+        lightSheet_B3 = load_lightsheet_excel(excelfilePath_B3, dirDict, switchDict, 'B3')
+
+        # Merge All the Datasets
+        lightSheet_all = merge_databases(lightSheet_B1, lightSheet_B2, lightSheet_B3, switchDict, dirDict)
+
+        ############## Merge Left and Right sides of the Datasets ##############
+
+        # Subtract 10000 from the graph order of the right side of the brain
+        lightSheet_all.loc[lightSheet_all['Region'].str.startswith('right'), 'graph_order'] -= 10000
+
+        # Merge left and right sides by summing their counts and volumes.
+        lightSheet_all = lightSheet_all.groupby(['dataset', 'graph_order', 'sex', 'drug'], as_index=False).sum().copy()
+
+        ############## convert 'graph_order' to Region_ID and Region_Name, per Atlas ##############
+        # remap IDs to match with Allen Brain Atlas structure tree
+        ABA_tree = pd.read_csv(os.sep.join([dirDict['atlasDir'], 'structure_tree_2017.csv']))
+
+        idDict = ABA_tree.set_index('graph_order')['id'].to_dict()
+        nameDict = ABA_tree.set_index('graph_order')['name'].to_dict()
+        lightSheet_all['Region ID'] = lightSheet_all.graph_order.map(idDict)         # map new atlas_id onto graph_id
+        lightSheet_all['Region Name'] = lightSheet_all.graph_order.map(nameDict)     # map new names onto graph_id
+
+        # reorder columns, drop graph_order and density (for now, will readd later)
+        lightSheet_all = lightSheet_all[['Region ID', 'Region Name', 'count', 'volume (mm^3)', 'sex', 'drug', 'dataset']]
+
+        ############## Merging Additional Atlas Data and filtering to summary structures ##############
+
+        ABA_dict = hf.create_ABA_dict(dirDict)
+        
+        ls_sum = pd.merge(lightSheet_all, ABA_dict, on=['Region ID'])
+
+        # Rename Columns and reorder them
+        ls_sum = ls_sum.rename(columns={'Region ID': 'Region_ID', 'Region Name': 'Region_Name', 'volume (mm^3)': 'volume_(mm^3)', 'Brain Area': 'Brain_Area'})[['Region_ID', 'abbreviation', 'Region_Name', 'count', 'volume_(mm^3)', 'sex', 'drug', 'dataset', 'Brain_Area']]
+
+        # Calculate the total number of cells in each dataset
+        datasetList = ls_sum.dataset.unique()
+        for dataset in datasetList:
+            ls_sum.loc[ls_sum['dataset'] == dataset, 'total_cells'] = ls_sum.loc[ls_sum['dataset'] == dataset, 'count'].sum()
+
+        ls_sum.total_cells = ls_sum.total_cells.astype(int)
+
+        if switchDict['debugOutputs']:
+            ls_sum.to_csv(os.sep.join([dirDict['debugDir'], 'lightsheet_atlas_summary.csv']))
+
+        # Scale specific datasets in batch 1
+        
+        if switchDict['scalingFactor']:
+            B1_dataset_list = lightSheet_B1.dataset.unique()
+            ls_sum = scale_datasets(ls_sum, B1_dataset_list)
+
+        ############## Expand dataset with transforms ##############
+        ls_sum.loc[:, 'cell_density'] = np.round(ls_sum['count'] / ls_sum['volume_(mm^3)'], 4)
+        ls_sum.loc[:, 'count_norm'] = ls_sum.loc[:, 'count']/ls_sum.loc[:, 'total_cells']
+        ls_sum.loc[:, 'density_norm'] = ls_sum.loc[:, 'count_norm']/ls_sum.loc[:, 'volume_(mm^3)']
+
+        # Some regions appear to have 0 volume, likely due to rounding. This creates NaNs in density.
+        ls_sum.loc[:, 'cell_density'].fillna(0, inplace=True)
+        ls_sum.loc[:, 'density_norm'].fillna(0, inplace=True)
+
+        # change drug column to categorical to allow for sequencing. Change according to dataset.
+        if np.any(ls_sum['drug'].isin(['5MEO','PSI'])):
+            customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
+            ls_sum['drug'] = pd.Categorical(ls_sum['drug'], categories=customOrder, ordered=True)
+
+        ############ Saving ################
+
+        if switchDict['debugOutputs']:
+            # debugReport(ls_sum, 'lightsheet_data', dirDict['debugDir'] + 'lightSheet_all_ROI.xlsx', 'Region_Name', 'Dorsal Raphe')
+            ls_sum.to_csv(os.sep.join([dirDict['debugDir'], 'lightsheet_final.csv']))
+
+        print('Done, Saving file...')
+        ls_sum.to_pickle(intFile)
+
+    else:
+        
+        # load and return previously prepared file
+        ls_sum = pd.read_pickle(intFile)
+
+    executionTime = (time.time() - startTime)
+    print('Execution time in seconds: ' + str(round(executionTime, 2)))
+
+    return ls_sum
+
+def setPath_createDirs():
+
+    # Set Paths to Atlas, Data, and Output
+    dirDict = dict()
+
+    rootDir = os.getcwd()
+    dirDict['atlasDir'] =   os.sep.join([rootDir, 'Atlas'])
+    dirDict['dataDir'] =    os.sep.join([rootDir, 'Data'])
+    dirDict['B1'] =         os.sep.join([dirDict['dataDir'], 'lightSheetV1'])
+    dirDict['B2'] =         os.sep.join([dirDict['dataDir'], 'lightSheetV2'])
+    dirDict['B3'] =         os.sep.join([dirDict['dataDir'], 'lightSheetV3'])
+
+    # Set Output Directories - then make sure they exist.
+    outDirDict = dict()
+    outDirDict['debugDir'] = os.sep.join([rootDir, 'Debug'])
+    outDirDict['tempDir'] = os.sep.join([rootDir, 'Temp'])
+    outDirDict['geneCorrDir'] = os.sep.join([outDirDict['tempDir'], 'geneCorr'])
+    outDirDict['outDir'] = os.sep.join([rootDir, 'Output'])
+    outDirDict['classifyDir'] = os.sep.join([outDirDict['outDir'], 'classif'])
+    outDirDict['crossComp_figDir'] = os.sep.join([outDirDict['outDir'], 'crossComp'])
+
+    # Cycle through the dirDict, and make sure each path exists
+    for key, path in outDirDict.items():
+        if not os.path.isdir(path):
+            os.makedirs(path)
+    
+    dirDict.update(outDirDict)
+
+    return dirDict
+
+def debugReport(pdDataFrame=None, sheetName=None, debugPath=None, roiColName=None, debug_ROI=None):
+
+    # Filter data to focus debugging.
+    if debug_ROI is None:
+        roiTag = ''
+        expObj = pdDataFrame
+    else:
+        roiTag = '_ROI'
+        for Roi_i, Roi in enumerate(debug_ROI):
+            tmp = pdDataFrame.loc[pdDataFrame[roiColName].str.contains(
+                debug_ROI[Roi_i])]
+            if Roi_i == 0:
+                expObj = tmp
+            else:
+                expObj = pd.concat([expObj, tmp])
+
+    # Generate the appropriate writing object
+    if os.path.exists(debugPath):
+        writeObj = pd.ExcelWriter(debugPath, mode='a', if_sheet_exists='replace')
+    else:
+        writeObj = pd.ExcelWriter(debugPath)
+
+    # Write data
+    with writeObj as writer:
+        expObj.to_excel(writer, sheetName + roiTag)
+        
+def load_lightsheet_batchCSV(dirDict, switchDict, debugTag):
+    # Merging first Batch of Light sheet data
+
+        # Hard coded elements
         csv_list = ['sal_f1', 'sal_f2', 'sal_m1', 'sal_m2', 'ket_f1', 'ket_f2', 'ket_m1', 'ket_m2', 'psi_f1', 'psi_f2', 'psi_m1', 'psi_m2']
+        B1_dataset_list = ['SAL5', 'SAL6', 'SAL7', 'SAL8', 'KET1', 'KET2', 'KET3', 'KET4', 'PSI5', 'PSI6', 'PSI7', 'PSI8']
+
+        # Extract information from the title names
         csv_drug_list = [x.split('_')[0].upper() for x in csv_list]
         sex_list = [x.split('_')[1][0].upper() for x in csv_list]
 
+        # If you want to examine batches, append a tag to the drug name.
         if switchDict['batchSplit']:
             csv_drug_list = [switchDict['splitTag'][0] + x for x in csv_drug_list]
 
-        B1_dataset_list = ['SAL5', 'SAL6', 'SAL7', 'SAL8', 'KET1', 'KET2', 'KET3', 'KET4', 'PSI5', 'PSI6', 'PSI7', 'PSI8']
-
         for csv_i, csvName in enumerate(csv_list):
-            tmpDb = pd.read_csv(dirDict['B1'] + csvName + '.csv', sep=',')
+            tmpDb = pd.read_csv(os.sep.join([dirDict['B1'], csvName + '.csv']), sep=',')
 
             tmpDb['drug'] = csv_drug_list[csv_i]
             tmpDb['sex'] = sex_list[csv_i]
             tmpDb['dataset'] = B1_dataset_list[csv_i]
-            tmpDb['total_cells'] = (tmpDb.iloc[2]['count'] + tmpDb.iloc[840]['count'])
+            tmpDb['count'] = tmpDb['count'].astype(int)
 
             if csv_i == 0:
                 lightSheet_B1 = tmpDb
@@ -57,146 +208,79 @@ def loadLightSheetData(dirDict, switchDict):
         # rename ID column correctly
         lightSheet_B1 = lightSheet_B1.rename(columns={'id': 'graph_order', 'name': 'Region'})
 
-        lightSheet_B1.to_csv(dirDict['debugDir'] + 'lightsheet_B1.csv')
-
-        ############## Batch 2 ##############
-        lightSheetRawData = pd.read_excel(dirDict['B2'] + 'AlexKwan_40brainproject_NeuNcFos 642 density_V2.xlsx', sheet_name='All Samples')
-        lightSheetRawData = lightSheetRawData.rename(columns={'name': 'Region'})
-
-        # - Pull Columns, detect drug related columns.
-        drugColumns = lightSheetRawData.columns[lightSheetRawData.columns.str.contains('AlKw') * lightSheetRawData.columns.str.contains('count')]  # Columns w/ AlKw are drug related
-
-        for drug_col_i, drug_col in enumerate(drugColumns):
-
-            densityCol = drug_col.replace(' count', ' density (cells/mm^3)')
-
-            # Pull out the counts and the region columns
-            tmpDb = pd.concat([lightSheetRawData['Region'],
-                               lightSheetRawData[drug_col], lightSheetRawData[densityCol]], axis=1)
-            tmpDb = tmpDb.applymap(
-                lambda x: x.strip() if isinstance(x, str) else x)
-
-            # Remove prefixes  if present
-            tmpString = drug_col.replace("AlKw_", "").replace("52022_", "").replace(" count", "")
-
-            # Correct the A_ and C_ to A- and C-
-            tmpString = tmpString.replace("C_SSRI", "C-SSRI").replace("A_SSRI", "A-SSRI").replace('__', '_').replace('_ ', '_')
-
-            # There is a typo in the Data sheet - 6DET should be 6FDET (only true for M2)
-            tmpString = tmpString.replace("6DET", "6FDET")
-
-            # Create the table                                                              # Table starts w/ Region and count
-            drug = tmpString.split('_')[0]
-            # drug - sal, psi, ket
-            tmpDb['drug'] = drug
-            # sex - m, f
-            tmpDb['sex'] = tmpString.split('_')[1]
-            # dataset - [drug][#]
-            tmpDb['dataset'] = drug + tmpString.split('_')[2][0]
-            # total_cells - total cells across all regions in animal.
-            tmpDb = tmpDb.rename(columns={drug_col: 'count', densityCol: 'density (cells/mm^3)'})
-            tmpDb['total_cells'] = int(tmpDb.loc[tmpDb['Region'] == 'left root', 'count']) + int(tmpDb.loc[tmpDb['Region'] == 'right root', 'count'])
-
-            if drug_col_i == 0:
-                lightSheet_B2 = tmpDb
-            else:
-                lightSheet_B2 = pd.concat([lightSheet_B2, tmpDb])
-
-            # remove, prepare data
-            background_ROIs = ['background', 'left root', 'right root']
-            lightSheet_B2 = lightSheet_B2[~lightSheet_B2['Region'].isin(
-                background_ROIs)]
-
-        if switchDict['testSplit']:
-            # A list of datasets to artifically shift to a 'new drug' for the sake of testing within drug variability.
-            drugDataSet = 'C-SSRI1', 'C-SSRI2', 'DMT1', 'DMT2'
-            newDrugName = 'C-SSRI_t', 'C-SSRI_t', 'DMT_t', 'DMT_t'
-
-            # Cycle through each drug in the list above, change it
-            for drug_i, drug in enumerate(drugDataSet):
-                swapInd = lightSheet_B2['dataset'] == drug
-                lightSheet_B2['drug'][swapInd] = newDrugName[drug_i]
+        if switchDict['debugOutputs']:
+            lightSheet_B1.to_csv(os.sep.join([dirDict['debugDir'], f'lightsheet_{debugTag}.csv']))
         
-        lightSheet_B2.to_csv(dirDict['debugDir'] + 'lightsheet_B2.csv')
+        return lightSheet_B1
 
-        ############## Batch 3 ##############
-        # MDMA Batch 3
-        lightSheetRawDataB3 = pd.read_excel(
-            dirDict['B3'] + 'AlexKwan_12brainproject_NeuNcFos 642 density.xlsx', sheet_name='All Samples')
+def load_lightsheet_excel(excelFileName, dirDict, switchDict, dbFileTag):
 
-        lightSheetRawDataB3 = lightSheetRawDataB3.rename(
-            columns={'name': 'Region'})
+    ls_Raw = pd.read_excel(excelFileName, sheet_name='All Samples')
+    ls_Raw = ls_Raw.rename(columns={'name': 'Region'})
 
-        rawColNames = lightSheetRawDataB3.columns
+    # - Pull Columns, detect drug related columns.
+    lsCol = ls_Raw.columns
+    if dbFileTag == 'B2':
+        drugCol_Orig = lsCol[lsCol.str.contains('AlKw') * lsCol.str.contains('count')]
+        drugCol = [x.replace("AlKw_", "").replace("52022_", "").replace(" count", "").replace('_NeuN_cFos', '').replace('_NeuN_cFOS', '') for x in drugCol_Orig]
+    elif dbFileTag == 'B3':
+        drugCol_Orig = lsCol[lsCol.str.contains('Kwan') * lsCol.str.contains('count')]
+        drugCol = [x.replace("Kwan_120222_", "").replace(" count", "") for x in drugCol_Orig]
 
-        # Process the Titles to be appropriate names...
-        repStrings = [
-            ("C1M2", "MDMA_M_1"),
-            ("C1M3", "MDMA_M_2"),
-            ("C2F2", "MDMA_F_8"),
-            ("C3M5", "MDMA_M_3"),
-            ("C4F5", "MDMA_F_5"),
-            ("C2F3", "MDMA_F_6"),
-            ("C3M4", "MDMA_M_4"),
-            ("C4F4", "MDMA_F_7")]
+    # Some dataset specific changes
+    if dbFileTag == 'B2':
+        # Replace some drug names
+        drugCol = [x.replace("C_SSRI", "C-SSRI").replace("A_SSRI", "A-SSRI").replace("6DET", "6FDET").replace('__', '_').replace('_ ', '_') for x in drugCol]
+
+        drugCol = [x.replace('DMT', '5MEO').replace('6FDET', '6-F-DET') for x in drugCol]
+
+    elif dbFileTag == 'B3':
 
         if switchDict['batchSplit']:
-            repStrings = repStrings + [("k1m1", "cKET_M_1"),
-                                       ("k2m2", "cKET_M_2"),
-                                       ("k3f1", "cKET_F_3"),
-                                       ("k4f2", "cKET_F_4")]
+            sTag = switchDict['splitTag'][2]
+            repStrings = [("KET_M_1", f"{sTag}KET_M_1"),
+                          ("KET_M_2", f"{sTag}KET_M_2"),
+                          ("KET_F_3", f"{sTag}KET_F_3"),
+                          ("KET_F_4", f"{sTag}KET_F_4")]
         else:
-            repStrings = repStrings + [("k1m1", "KET_M_5"),
-                                       ("k2m2", "KET_M_6"),
-                                       ("k3f1", "KET_F_7"),
-                                       ("k4f2", "KET_F_8")]
+            repStrings = [("KET_M_1", "KET_M_5"),
+                          ("KET_M_2", "KET_M_6"),
+                          ("KET_F_3", "KET_F_7"),
+                          ("KET_F_4", "KET_F_8")]
 
-        for old, new in repStrings:
-            rawColNames = rawColNames.str.replace(old, new)
+            for old, new in repStrings:
+                drugCol = [x.replace(old, new) for x in drugCol]
 
-        lightSheetRawDataB3.columns = rawColNames
+    for drug_col_i, (drug_col, dataStr) in enumerate(zip(drugCol_Orig, drugCol)):
 
-        # - Pull Columns, detect drug related columns.
-        drugColumns = lightSheetRawDataB3.columns[lightSheetRawDataB3.columns.str.contains(
-            'Kwan') * lightSheetRawDataB3.columns.str.contains('count')]
+        densityCol = drug_col.replace(' count', ' density (cells/mm^3)')
 
-        for drug_col_i, drug_col in enumerate(drugColumns):
+        # Pull out the counts and the region columns
+        tmpDb = ls_Raw[['Region', drug_col, densityCol]]
+        tmpDb = tmpDb.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
-            densityCol = drug_col.replace(' count', ' density (cells/mm^3)')
+        drug, sex, dsIdx = dataStr.split('_')
+        tmpDb['drug'] = drug
+        tmpDb['sex'] = sex
+        tmpDb['dataset'] = drug + dsIdx
+        tmpDb = tmpDb.rename(columns={drug_col: 'count', densityCol: 'density (cells/mm^3)'})
 
-            # Pull out the counts and the region columns
-            tmpDb = pd.concat([lightSheetRawDataB3['Region'],
-                              lightSheetRawDataB3[drug_col], lightSheetRawDataB3[densityCol]], axis=1)
-            tmpDb = tmpDb.applymap(
-                lambda x: x.strip() if isinstance(x, str) else x)
-
-            # Remove prefixes  if present
-            tmpString = drug_col.replace("Kwan_120222_", "").replace("52022_", "").replace(" count", "")
-
-            # Create the table                                                              # Table starts w/ Region and count
-            drug = tmpString.split('_')[0]
-            # drug - sal, psi, ket
-            tmpDb['drug'] = drug
-            # sex - m, f
-            tmpDb['sex'] = tmpString.split('_')[1]
-            # dataset - [drug][#]
-            tmpDb['dataset'] = drug + tmpString.split('_')[2]
-            # total_cells - total cells across all regions in animal.
-            tmpDb = tmpDb.rename(columns={drug_col: 'count', densityCol: 'density (cells/mm^3)'})
-            tmpDb['total_cells'] = int(tmpDb.loc[tmpDb['Region'] == 'left root', 'count']) + int(tmpDb.loc[tmpDb['Region'] == 'right root', 'count'])
-
-            if drug_col_i == 0:
-                lightSheet_B3 = tmpDb
-            else:
-                lightSheet_B3 = pd.concat([lightSheet_B3, tmpDb])
+        if drug_col_i == 0:
+            lightSheet_DB = tmpDb
+        else:
+            lightSheet_DB = pd.concat([lightSheet_DB, tmpDb])
 
         # remove, prepare data
         background_ROIs = ['background', 'left root', 'right root']
-        lightSheet_B3 = lightSheet_B3[~lightSheet_B3['Region'].isin(background_ROIs)]
-        lightSheet_B3.to_csv(dirDict['debugDir'] + 'lightsheet_B3.csv')
+        lightSheet_DB = lightSheet_DB[~lightSheet_DB['Region'].isin(background_ROIs)]
+    
+    if switchDict['debugOutputs']:
+        lightSheet_DB.to_csv(os.sep.join([dirDict['debugDir'], f'lightsheet_{dbFileTag}.csv']))
 
-        ############## Merge All the Datasets ##############
-        # Create a dict for B1's graph order to add it to the B2.
+    return lightSheet_DB
+
+def merge_databases(lightSheet_B1, lightSheet_B2, lightSheet_B3, switchDict, dirDict):
+        # Create a dict for B1's graph order to add it to the B2 and B3.
         graphOrder = list(lightSheet_B1.graph_order)
         nameOrder = list(lightSheet_B1.Region)
         graphDict = dict(zip(nameOrder, graphOrder))
@@ -218,238 +302,48 @@ def loadLightSheetData(dirDict, switchDict):
         setC = set(lightSheet_B3.Region)
 
         # Remove them from B and C
-        roi_to_remove = setA.difference(setB)
+        roi_to_remove = setB.difference(setA)
         lightSheet_B2 = lightSheet_B2[~lightSheet_B2['Region'].isin(roi_to_remove)]
-        roi_to_remove = setA.difference(setC)
+        roi_to_remove = setC.difference(setA)
         lightSheet_B3 = lightSheet_B3[~lightSheet_B3['Region'].isin(roi_to_remove)]
 
-        # Merge the two table
-        # if includeBatch3:
         lightSheet_all = pd.concat([lightSheet_B1, lightSheet_B2, lightSheet_B3])
-        # else:
-        #     lightSheet_all = pd.concat([lightSheet_B1, lightSheet_B2])
+
+        # Clean up data types and data
+        lightSheet_all['graph_order'] = lightSheet_all['graph_order'].astype(int)
+        lightSheet_all['volume (mm^3)'] = np.round(lightSheet_all['volume (mm^3)'], 4)
 
         # Debug Stop A - Post Merging of the datasets
         if switchDict['debugOutputs']:
-            debugReport(lightSheet_all, 'lightSheet_all', dirDict['debug_outPath'])
+            # debugReport(lightSheet_all, 'lightSheet_all', dirDict['debugDir'] + 'lightSheet_all_ROI.xlsx')
+            lightSheet_all.to_csv(os.sep.join([dirDict['debugDir'], 'lightSheet_postMerge.csv']))
 
-        ############## Merge Left and Right sides of the Datasets ##############
+        return lightSheet_all
 
-        # Subtract 10000 from the graph order of the right side of the brain
-        lightSheet_all.loc[lightSheet_all['Region'].str.startswith('right'), 'graph_order'] -= 10000
+def scale_datasets(lightsheet_data, datasetList):
+    # Scales drugs in datasetList by means across those same drugs not in datasetList
 
-        # Merge left and right sides by summing their counts and volumes.
-        lightSheet_all = lightSheet_all.groupby(['dataset', 'graph_order', 'sex', 'drug', 'total_cells'], as_index=False).sum().copy()
+    lightsheet_data = lightsheet_data.copy()
+    lightsheet_data['scaling_factor'] = 1
 
-        # recalculate density with left and right sides combined
-        lightSheet_all['density (cells/mm^3)'] = (lightSheet_all.loc[:, 'count'] / lightSheet_all.loc[:, 'volume (mm^3)'])
+    # Identify Batch to scale
+    scaleRows = lightsheet_data.dataset.isin(datasetList)
 
-        ############## convert 'graph_order' to Region_ID and Region_Name, per Atlas ##############
-        # remap IDs to match with ABA
-        # allen brain structure tree
-        ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'structure_tree_2017.csv')
+    # Divide by the total cells across the drug group, multiple by mean across that group in the subsequent batch.
+    drugsInGroup = list(lightsheet_data[scaleRows].drug.unique())
 
-        # map new atlas_id onto graph_id
-        lightSheet_all['Region ID'] = lightSheet_all.graph_order.map(ABA_tree.set_index('graph_order')['id'].to_dict())
-        # map new names onto graph_id
-        lightSheet_all['Region Name'] = lightSheet_all.graph_order.map(ABA_tree.set_index('graph_order')['name'].to_dict())
+    # Create the scaling factor per drug - mean_drug_NewBatch/mean_drug_Batch1
+    for drug in drugsInGroup:
+        # Identify the specific drugs rows to be modified
+        drug_scaleRows = scaleRows * lightsheet_data.dataset.str.contains(drug)
+        drug_ref_scaleRows = ~scaleRows * lightsheet_data.dataset.str.contains(drug)
 
-        # remove unneccesary ID columns to avoid confusion
-        lightSheet_all = lightSheet_all.drop(['graph_order'], axis=1)
+        # Scale these rows by [Drug Mean New Batch]/[Drug Mean Old Batch]
+        lightsheet_data.loc[drug_scaleRows, 'scaling_factor'] = np.mean(lightsheet_data.total_cells[drug_ref_scaleRows])/np.mean(lightsheet_data.total_cells[drug_scaleRows])
 
-        # reorder columns, drop graph_order
-        lightSheet_all = lightSheet_all[['Region ID', 'Region Name', 'count', 'volume (mm^3)', 'density (cells/mm^3)', 'sex', 'drug', 'dataset', 'total_cells']]
-
-        lightSheet_all.to_csv(dirDict['debugDir'] + 'lightsheet_atlas_all.csv')
-
-        ############## Scale the density/counts ##############
-
-        # #scaling factor is drug avg / animal total cell'
-        lightsheet_data = lightSheet_all.copy()
-        lightsheet_data['scaling_factor'] = 1
-
-        # lightsheet_data = lightsheet_all.merge(drug_means, how='left', left_on=['drug'], right_on=['drug'])
-        if switchDict['scalingFactor']:
-
-            # Identify Batch 1
-            scaleRows = lightsheet_data.dataset.isin(B1_dataset_list)
-
-            # Divide by the total cells across the drug group, multiple by mean across that group in the subsequent batch.
-            drugsInGroup = ['KET', 'PSI', 'SAL']
-
-            # Create the scaling factor per drug - mean_drug_NewBatch/mean_drug_Batch1
-            for drug in drugsInGroup:
-                # Identify the specific drugs rows to be modified
-                drug_scaleRows = scaleRows * lightsheet_data.dataset.str.contains(drug)
-                drug_ref_scaleRows = ~scaleRows * lightsheet_data.dataset.str.contains(drug)
-
-                # Scale these rows by [Drug Mean New Batch]/[Drug Mean Old Batch]
-                lightsheet_data.loc[drug_scaleRows, 'scaling_factor'] = np.mean(lightsheet_data.total_cells[drug_ref_scaleRows])/np.mean(lightsheet_data.total_cells[drug_scaleRows])
-
-        # Scale counts and total counts
-        lightsheet_data['count'] = np.round(lightsheet_data['count'] * lightsheet_data['scaling_factor'])
-        lightsheet_data['total_cells'] = np.round(lightsheet_data['total_cells'] * lightsheet_data['scaling_factor']) # This will lead to instances where total_cells != sum(all cells). by a few.
-        lightsheet_data['cell_density'] = np.round(lightsheet_data['count'] / lightsheet_data['volume (mm^3)'], 2)
-        
-        # Fill Nans
-        lightsheet_data = lightsheet_data.fillna(0)
-
-        # Convert some drug names to desired names in the dataset
-        lightsheet_data['drug'] = lightsheet_data['drug'].replace('DMT', '5MEO')
-        lightsheet_data['drug'] = lightsheet_data['drug'].replace('6FDET', '6-F-DET')
-
-        ############## Merging Additional Atlas Data ##############
-
-        # get Allen brain atlases
-        ABA_tree = pd.read_csv(dirDict['atlasDir'] + 'ABA_CCF.csv')
-        ABA_tree = ABA_tree.rename(columns={'structure ID': 'id', '"Summary Structure" Level for Analyses': 'summary_struct'})
-        ABA_tree = ABA_tree.drop(columns=['order', 'parent_id', 'depth in tree', 'structure_id_path', 'total_voxel_counts (10 um)',
-                                          'Structure independently delineated (not merged to form parents)'])
-
-        ABA_hier = pd.read_csv(dirDict['atlasDir'] + 'ABAHier2017_csv.csv')
-        ABA_hier = ABA_hier.loc[:, ~ABA_hier.columns.str.contains('^Unnamed')]
-        ABA_hier = ABA_hier.rename(columns={'Region ID': 'id', 'CustomRegion': 'Brain Area'})
-
-        # merge the atlases
-        ABA_tree = pd.merge(ABA_tree, ABA_hier, on=['id'])
-
-        # define hierarchy by 'summary structure' from Wang/Ding . . . Ng, Cell 2020
-        hierarchy_meso = ABA_tree[ABA_tree.summary_struct == 'Y']
-        # hierarchy_meso = ABA_tree
-        
-        # remove ventricular systems, fiber tracts
-        remove_list = ['Fibretracts', 'VentricularSystems']
-        hierarchy_meso_ids = hierarchy_meso[~hierarchy_meso['Brain Area'].isin(remove_list)]
-
-        # cleaning up and Merging with Data
-        hierarchy_meso_ids = hierarchy_meso_ids.rename(columns={'id': 'Region ID'})
-        hierarchy_meso_ids = hierarchy_meso_ids.drop(columns=['full structure name', 'Major Division', 'summary_struct'])
-
-        lightsheet_data = pd.merge(lightsheet_data, hierarchy_meso_ids, on=['Region ID'])
-        # lightsheet_data.to_pickle('testScripts//lightsheet_data_big.pkl')
-
-        # Rename Columns
-        cols2 = ['Region ID', 'abbreviation', 'Region Name', 'count',
-                 'volume (mm^3)', 'density (cells/mm^3)', 'sex', 'drug', 'dataset', 'cell_density', 'Brain Area', 'total_cells']
-        lightsheet_data = lightsheet_data[cols2]
-        lightsheet_data = lightsheet_data.rename(columns={'Region ID': 'Region_ID', 'Region Name': 'Region_Name',
-                                                 'volume (mm^3)': 'volume_(mm^3)', 'density (cells/mm^3)': 'density_(cells/mm^3)', 'Brain Area': 'Brain_Area'})
-        
-        # Drop 'density_(cells/mm^3)'
-        lightsheet_data.drop(['density_(cells/mm^3)'], axis=1, inplace=True)
-
-        # Add a normalized version of counts for later classification
-        lightsheet_data.loc[:, 'count_norm'] = lightsheet_data.loc[:, 'count']/lightsheet_data.loc[:, 'total_cells']
-        lightsheet_data.loc[:, 'density_norm'] = lightsheet_data.loc[:, 'count_norm']/lightsheet_data.loc[:, 'volume_(mm^3)']
-
-        lightsheet_data = lightsheet_data.fillna(0)
-
-        lightsheet_data.to_csv(dirDict['debugDir'] + 'lightsheet_atlas_summary.csv')
-
-        # Overwrite the dataset values with the updated drug names.
-        lightsheet_data['dataset'] = lightsheet_data['drug'] + lightsheet_data['dataset'].str[-1]
-
-        ############## Convert the drug names from strings to categorical variables in sequence ##############
-        customOrder = ['PSI', 'KET', '5MEO', '6-F-DET', 'MDMA', 'A-SSRI', 'C-SSRI', 'SAL']
-        lightsheet_data['drug'] = pd.Categorical(lightsheet_data['drug'], categories=customOrder, ordered=True)
-
-        if switchDict['debugOutputs']:
-            debug_ROI = 'Dorsal Raphe' # Replaced switchDict['debug_ROI']
-            debugReport(lightsheet_data, 'lightsheet_data', dirDict['debug_outPath'], 'Region_Name', debug_ROI)
-
-        ############## Saving ##############
-
-        print('Done, Saving file...')
-        lightsheet_data.to_pickle(intFile)
-
-    else:
-        # Just load it and return it
-        lightsheet_data = pd.read_pickle(intFile)
-
-    executionTime = (time.time() - startTime)
-    print('Execution time in seconds: ' + str(round(executionTime, 2)))
+    # Scale counts and total counts of each and drop scaling factor
+    lightsheet_data['count'] = np.round(lightsheet_data['count'] * lightsheet_data['scaling_factor']).astype(int)
+    lightsheet_data['total_cells'] = np.round(lightsheet_data['total_cells'] * lightsheet_data['scaling_factor']).astype(int)
+    lightsheet_data = lightsheet_data.drop('scaling_factor', axis=1)
 
     return lightsheet_data
-
-
-def createDirs(rootDir, switchDict, dirDict):
-
-    if switchDict['testSplit'] or switchDict['batchSplit'] or switchDict['scalingFactor'] or switchDict['oldBatch2']:
-        # tsplitTag = dsplitTag = b3tag = scaleTag = ''
-        tsplitTag = dsplitTag = scaleTag = batch2Tag = ''
-
-        if switchDict['testSplit']:
-            tsplitTag = 'testSplit'
-
-        if switchDict['batchSplit']:
-            dsplitTag = 'split'
-
-        if switchDict['scalingFactor']:
-            scaleTag = 'scaled'
-
-        if switchDict['oldBatch2']:
-            batch2Tag = 'oldB2'
-
-        # if includeBatch3:
-        #     b3tag = 'B3'
-
-        # stringVar = (tsplitTag, dsplitTag, tsplitTag, b3tag)
-        stringVar = (scaleTag, dsplitTag, tsplitTag, batch2Tag)
-        stringVar = [i for i in stringVar if i]
-        dirString = str(len(stringVar)) + '.' + '_'.join(stringVar) + '_'
-
-    else:
-        dirString = '0._'
-
-    tempDir = rootDir + dirString + 'Temp\\'
-    outDir = rootDir + dirString + 'Output\\'
-    classifyDir = join(outDir, 'classif\\')
-    debugDir = rootDir + dirString + 'Debug\\'  # Debugging paths and setup
-    debug_outPath = debugDir + 'lightSheet_all_ROI.xlsx'
-
-    # Make directories if they don't exist
-    if not os.path.exists(tempDir):
-        os.mkdir(tempDir)
-
-    if not os.path.exists(outDir):
-        os.mkdir(outDir)
-
-    if not os.path.exists(debugDir):
-        os.mkdir(debugDir)
-
-    if not os.path.exists(classifyDir):
-        os.mkdir(classifyDir)
-
-    dirDict['debugDir'] = debugDir
-    dirDict['tempDir'] = tempDir
-    dirDict['outDir'] = outDir
-    dirDict['classifyDir'] = classifyDir
-    dirDict['debug_outPath'] = debug_outPath
-
-    return dirDict
-
-def debugReport(pdDataFrame, sheetName, debug_outPath, roiColName, debug_ROI):
-    if len(debug_ROI) == 0:
-        if os.path.exists(debug_outPath):
-            with pd.ExcelWriter(debug_outPath, mode='a', if_sheet_exists='replace') as writer:
-                pdDataFrame.to_excel(writer, sheetName)
-        else:
-            with pd.ExcelWriter(debug_outPath) as writer:
-                pdDataFrame.to_excel(writer, sheetName)
-    else:
-
-        for Roi_i, Roi in enumerate(debug_ROI):
-            tmp = pdDataFrame.loc[pdDataFrame[roiColName].str.contains(
-                debug_ROI[Roi_i])]
-            if Roi_i == 0:
-                tmp_out = tmp
-            else:
-                tmp_out = pd.concat([tmp_out, tmp])
-
-        # Export the filtered list
-        if os.path.exists(debug_outPath):
-            with pd.ExcelWriter(debug_outPath, mode='a', if_sheet_exists='replace') as writer:
-                tmp_out.to_excel(writer, sheetName + '_ROI')
-        else:
-            with pd.ExcelWriter(debug_outPath) as writer:
-                tmp_out.to_excel(writer, sheetName + '_ROI')

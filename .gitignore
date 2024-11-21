@@ -16,3 +16,10 @@ testScripts/br_Rapid Onset vs Delayed Onset Anti-Depressant.csv
 testScripts/br_Psilocybin + 5-MeO-DMT vs 6-Fluoro-DET.csv
 testScripts/br_Psilocybin vs 6-Fluoro-DET.csv
 testScripts/br_Psilocybin vs Ketamine.csv
+/Output
+/Debug
+test.ipynb
+test.ipynb
+/Temp
+/Output_L
+main_old.ipynb
