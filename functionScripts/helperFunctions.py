@@ -650,6 +650,7 @@ def save_string_dict():
 
     saveStringDict = dict()
     saveStringDict['label=class_'] = ''
+    saveStringDict['max_iter=1000, '] = 'PsiKet'
     saveStringDict['label=drug'] = 'drug'
     saveStringDict['featurefilt=True-filtType=min'] = 'filtMin'
     saveStringDict['featureAgg=True'] = 'featAgg'
@@ -803,7 +804,7 @@ def create_ABA_dict(dirDict):
 
         return ABA_dict_filt
 
-def retrieve_dict_data(dirDict, classifyDict):
+def retrieve_dict_data(dirDict, sortedNames, classifyDict):
 
     sys.path.append('../dependencies/')
 
@@ -812,7 +813,7 @@ def retrieve_dict_data(dirDict, classifyDict):
     tagList = classifyDict['crossComp_tagList']
 
     # Report what is being looked for
-    print(f"Looking for 'scoreDict.pkl' files in directories containing {tagList}")
+    print(f"Looking for 'scoreDict_Real.pkl' files in directories containing {tagList}")
 
     # Call the function and get the list of paths based on the tagList
     score_dict_paths = []
@@ -854,6 +855,22 @@ def retrieve_dict_data(dirDict, classifyDict):
 
             meanScrambleScores.append(np.mean(featureDict['scores']))
             aucScrambleScores.append(featureDict['auc']['Mean'])
+
+    # Sort data to be inline across figures
+    sortIdx = sort_comparison_idx(sortedNames, countNames)
+
+    featureLists = [featureLists[i] for i in sortIdx]
+    countNames = [countNames[i] for i in sortIdx]
+    aucScores = [aucScores[i] for i in sortIdx]
+    meanScores = [meanScores[i] for i in sortIdx]
+    aucScrambleScores = [aucScrambleScores[i] for i in sortIdx]
+    meanScrambleScores = [meanScrambleScores[i] for i in sortIdx]
+
+    # Replace instances of '/' with ' & ' in the score names
+    countNames = [score.replace('/', ' & ') for score in countNames]
+
+    # For every scoreName containing 'PSI', slice the string by ' vs ', swap the order of the two strings, and join them back together
+    countNames = [score.split(' vs ')[1] + ' vs ' + score.split(' vs ')[0] if 'PSI' in score else score for score in countNames]
 
     return featureLists, countNames, aucScores, meanScores, aucScrambleScores, meanScrambleScores
 
@@ -1012,3 +1029,23 @@ def generate_ZscoreStructure(hierarchy_meso_ids, dirDict):
     ZscoreStructure = ZscoreStructure.drop(ZscoreStructure.filter(regex='_x$').columns.tolist(),axis=1)
 
     return ZscoreStructure
+
+def extract_stats_per_box(dataframe):
+
+    # Define a function to compute the required statistics
+    def calculate_stats(group):
+        return pd.Series({
+            'Median': group.median(),
+            'Q1': group.quantile(0.25),
+            'Q3': group.quantile(0.75),
+            'Min': group.min(),
+            'Max': group.max()
+        })
+
+    # Group by 'X' and apply the function to the 'Value' column
+    grouped_stats = dataframe.groupby('drug')['total_HTR'].apply(calculate_stats)
+
+    for drug in list(dataframe['drug'].unique()):
+        print(f"Drug: {drug}")
+        print(grouped_stats.loc[drug])
+        print("\n")

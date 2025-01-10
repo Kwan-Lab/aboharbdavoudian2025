@@ -27,20 +27,15 @@ def plot_headTwitchTotal(dirDict):
     htrDataPath = os.sep.join([dirDict['dataDir'],'behavioral','HTR_summary_data.csv'])
     df = pd.read_csv(htrDataPath)
 
-    plt.rcParams['font.family'] = 'Helvetica'
-    plt.rcParams['font.size'] = 20*1.2
-    plt.rcParams['svg.fonttype'] = 'none'
-
     # Some parameters
-    lineWidth = 1
-    figHeight = 6
-    figWidthHT_Count = 6.77
-    figWidthHT_Peak = 3.385
+    figHeight = 1.8
+    figWidthHT = 4.15
 
     colorDict = hf.create_color_dict()
+    linWidth = plt.rcParams['axes.linewidth']
 
     # Plot the box and whisker plot
-    plt.figure(figsize=(figWidthHT_Count, figHeight))
+    plt.figure(figsize=(figWidthHT, figHeight))
 
     plotOrder = ['Saline', '6-Fluoro-DET', 'Psilocybin', '5-MeO-DMT']
     tickLabels = ['SAL', '6-F-DET', 'PSI', '5MEO']
@@ -48,9 +43,11 @@ def plot_headTwitchTotal(dirDict):
     colorPal = [colorDict[tickLabel] for tickLabel in tickLabels]
 
     boxprops = dict() # alpha=0.7
-    ax = sns.boxplot(data=df, x= 'drug', y= 'total_HTR', order=plotOrder, palette=colorPal, boxprops=boxprops, linewidth=lineWidth) 
+    ax = sns.boxplot(data=df, x= 'drug', y= 'total_HTR', order=plotOrder, palette=colorPal, boxprops=boxprops, linewidth=linWidth) 
     ax.legend().remove()
-    sns.swarmplot(data=df, x= 'drug', y= 'total_HTR', color='black', order=plotOrder, size=8, palette=colorPal) # order=['Psilocybin', '5-MeO-DMT']
+    sns.swarmplot(data=df, x= 'drug', y= 'total_HTR', color='black', size = 3, order=plotOrder, palette=colorPal)
+
+    hf.extract_stats_per_box(df)
 
     # Stats - Place here to keep lines within the figure.
     pairs = [('Saline', 'Psilocybin'), ('6-Fluoro-DET', 'Psilocybin'), ('Saline', '5-MeO-DMT'), ('6-Fluoro-DET', '5-MeO-DMT')]
@@ -60,11 +57,13 @@ def plot_headTwitchTotal(dirDict):
 
     # Label the axes
     plt.ylim(0, 150)
-    plt.xticks(ticks=[0, 1, 2, 3], labels=tickLabels, rotation=45, ha='right')
-    plt.yticks(np.arange(0, 151, 50))
+    plt.xticks(ticks=[0, 1, 2, 3], labels=tickLabels)
+    plt.yticks(np.arange(0, 126, 25))
+    ax.yaxis.set_tick_params(which = 'both', length=1, width=linWidth)
+    ax.xaxis.set_tick_params(which = 'both', length=1, width=linWidth)
 
-    plt.ylabel('Head Twitch Count', fontsize=30*1.067)
-    plt.xlabel('', fontsize=8)
+    plt.ylabel('Head-twitch count', fontsize=7)
+    plt.xlabel('') 
 
     savePath = os.path.join(dirDict['outDir'], 'HTR_total.svg')
     plt.savefig(savePath, format='svg', bbox_inches='tight')
@@ -688,11 +687,10 @@ def plot_data_heatmap(lightsheet_data, heatmapDict, dirDict):
 
         titleStr = f"Data_{dataValues}_block_colorbar_{cbs}"  
         fig.suptitle(titleStr, fontsize=30, y=1.02)
-        fig.text(0.5, -.02, "Samples Per Group", ha='center', fontsize=20)
+        # fig.text(0.5, -.02, "Samples Per Group", ha='center', fontsize=20)
         plt.tight_layout(h_pad = 0, w_pad = .5)
 
         # Change the axis of the colorbar to represent multiples of 
-
         plt.savefig(dirDict['outDir'] + os.sep + f"{titleStr}", bbox_inches='tight')
         plt.show()
 
@@ -993,7 +991,6 @@ def plot_cFos_delta(cfos_diff, drugList, fileOutName):
     plt.axvline(x=0, color='grey', linestyle='--', lw=0.5)
 
     fig = plt.savefig(fileOutName, bbox_inches='tight')
-
 
 def plot_cFos_delta_new(lightsheet_data, cfos_diff, cfos_diff_labels, drugList, fileOutName):
 

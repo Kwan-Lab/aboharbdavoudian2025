@@ -38,12 +38,48 @@ def setup_mRNA_corr_settings():
         'axes.labelpad': 0,
         'legend.frameon': False,
         'legend.loc': 'upper right',
-        'figure.frameon': False,
         'legend.markerscale': 1,
         'savefig.format': 'svg',
         'axes.spines.right': False,
         'axes.spines.top': False,
         'axes.linewidth': 1,
+    })
+
+    # Set all the font sizes
+    plt.rcParams['xtick.labelsize'] = plt.rcParams['ytick.labelsize'] = plt.rcParams['axes.titlesize'] = plt.rcParams['axes.labelsize'] = plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
+
+    return
+
+def setup_figure_settings_HTC():
+    """
+    Set up matplotlib and seaborn figure settings to improve readability and consistency.
+    """
+    import matplotlib as plt
+    import seaborn as sns
+
+    # Set global font size
+    plt.rcParams['font.size'] = 6
+
+    # Set seaborn style and remove axis spines
+    sns.set_style('ticks')
+    sns.despine()
+
+    # Set matplotlib settings
+    plt.rcParams.update({
+        'font.family': 'Helvetica',
+        'svg.fonttype': 'none',
+        'savefig.dpi': 300,
+        'figure.dpi': 300,
+        'xtick.major.pad': 2,
+        'ytick.major.pad': 0.5,
+        'axes.labelpad': 0,
+        'legend.frameon': False,
+        'legend.loc': 'upper right',
+        'axes.linewidth': 0.5,
+        'axes.spines.right': False,
+        'axes.spines.top': False,
+        'legend.markerscale': 1,
+        'savefig.format': 'svg',
     })
 
     # Set all the font sizes
@@ -302,7 +338,7 @@ def return_classifyDict_default():
     # Parameters for classification
     classifyDict['model'] = 'LogRegL2' #'LogRegL2', 'LogRegL1', 'LogRegElastic', 'svm'
     classifyDict['multiclass'] = 'multinomial' # 'ovr', 'multinomial'
-    classifyDict['max_iter'] = 100
+    classifyDict['max_iter'] = 1000
     classifyDict['CVstrat'] = 'ShuffleSplit' #'StratKFold', 'ShuffleSplit'
 
     # Parameters for LO Analyses
@@ -331,7 +367,7 @@ def return_classifyDict_default():
 
     classifyDict['featurePert'] = 'correlation_dependent' # 'interventional' or 'correlation_dependent'
 
-    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", "clf_LogReg(multinom", f"_CV{classifyDict['CV_count']}"]
+    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", "clf_LogReg(", f"_CV{classifyDict['CV_count']}"]
 
     return classifyDict
 
@@ -345,7 +381,7 @@ def return_classifyDict_testing():
     classifyDict['saveLoadswitch'] = True
 
     # Regenerate this.
-    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", "clf_LogReg(multinom", f"_CV{classifyDict['CV_count']}"]
+    classifyDict['crossComp_tagList'] = [f"data={classifyDict['data']}-", "clf_LogReg(", f"_CV{classifyDict['CV_count']}"]
 
     return classifyDict
 
